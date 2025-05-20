@@ -9,16 +9,15 @@
     :root {
       --bg: #f0f2f5;
       --text: #262626;
-      --modal-bg: #fff;
-      --modal-text: #262626;
-      --input-bg: #f7f7f7;
-      --input-text: #262626;
-      --radius: 12px;
+      --modal-bg: #fafafa;
+      --modal-text: #333;
+      --input-bg: #ececec;
+      --input-text: #222;
+      --radius: 14px;
       --spacing: 1rem;
-      --shadow-light: 0 4px 16px rgba(0,0,0,0.08);
-      --transition: .3s ease;
+      --shadow-light: 0 6px 20px rgba(0,0,0,0.05);
+      --transition: .25s ease;
       --nav-height: 56px;
-      /* IG-like gradient */
       --grad-start: #405de6;
       --grad-end: #5851db;
     }
@@ -32,7 +31,6 @@
       padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom));
       position: relative;
     }
-
     /* Header */
     header {
       display: flex; justify-content: space-between; align-items: center;
@@ -96,42 +94,46 @@
     /* Modal */
     .modal {
       display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,0.8);
+      background: rgba(0,0,0,0.6);
       align-items: center; justify-content: center;
       padding: var(--spacing); z-index: 20;
     }
     .modal.show { display: flex; }
     .modal-content {
-      background: var(--modal-bg); color: var(--modal-text);
+      background: var(--modal-bg);
+      color: var(--modal-text);
       border-radius: var(--radius);
       width: 100%; max-width: 420px;
-      box-shadow: var(--shadow-light); overflow: hidden;
-      border: 1px solid #e6e6e6;
+      box-shadow: var(--shadow-light);
+      overflow: hidden;
       position: relative;
+      border: 1px solid #ddd;
     }
     .modal-content::before {
-      content: ''; position: absolute; top: 0; left: 0;
-      width: 100%; height: 6px;
+      content: '';
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 4px;
       background: linear-gradient(90deg, var(--grad-start), var(--grad-end));
     }
     .modal-header {
       display: flex; justify-content: space-between; align-items: center;
-      padding: var(--spacing); border-bottom: 1px solid #e6e6e6;
+      padding: var(--spacing); background: #fff;
+      border-bottom: 1px solid #e0e0e0;
     }
     .modal-header h2 {
-      margin: 0; font-size: 1.4rem; font-weight: 600;
+      margin: 0; font-size: 1.5rem; font-weight: 600;
     }
     .modal-close {
-      background: none; border: none; font-size: 1.4rem;
-      cursor: pointer; color: var(--modal-text);
-      transition: transform .2s;
+      background: none; border: none; font-size: 1.5rem;
+      cursor: pointer; color: #666;
+      transition: transform var(--transition);
     }
-    .modal-close:hover { transform: scale(1.2); }
+    .modal-close:hover { transform: scale(1.2); color: #000; }
 
     .modal-body {
       padding: var(--spacing);
       display: flex; flex-direction: column; gap: var(--spacing);
-      background: #fbfbfb;
+      background: var(--modal-bg);
     }
     .form-fields input,
     .form-fields textarea {
@@ -141,9 +143,14 @@
       font-size: .95rem;
       transition: border-color var(--transition), box-shadow var(--transition);
     }
+    .form-fields input::placeholder,
+    .form-fields textarea::placeholder {
+      color: #999;
+    }
     .form-fields input:focus,
     .form-fields textarea:focus {
-      outline: none; border-color: var(--grad-start);
+      outline: none;
+      border-color: var(--grad-start);
       box-shadow: 0 0 0 3px rgba(64,93,230,0.2);
     }
     .upload-btn.btn-upload {
@@ -151,9 +158,12 @@
       background: linear-gradient(135deg, var(--grad-start), var(--grad-end));
       color: #fff; font-weight: 600;
       border-radius: var(--radius); cursor: pointer;
-      transition: opacity var(--transition);
+      transition: opacity var(--transition), transform var(--transition);
+      text-align: center;
     }
-    .upload-btn.btn-upload:hover { opacity: .9; }
+    .upload-btn.btn-upload:hover {
+      opacity: .9; transform: translateY(-2px);
+    }
     .upload-btn.btn-upload input { display: none; }
 
     .preview-container {
@@ -166,20 +176,23 @@
     }
 
     .modal-footer {
-      padding: var(--spacing); background: var(--modal-bg);
-      border-top: 1px solid #e6e6e6; text-align: right;
+      padding: var(--spacing); background: #fff;
+      border-top: 1px solid #e0e0e0; text-align: right;
     }
     .modal-footer button {
       position: relative;
-      padding: .6rem 1.2rem; font-weight: 600;
-      background: #222; color: #fff;
+      padding: .6rem 1.4rem; font-weight: 600;
+      background: linear-gradient(135deg, var(--grad-start), var(--grad-end));
+      color: #fff;
       border: none; border-radius: var(--radius);
       cursor: pointer;
-      transition: opacity var(--transition), transform .2s;
+      transition: opacity var(--transition), transform var(--transition);
     }
-    .modal-footer button:disabled { opacity: .6; cursor: default; }
+    .modal-footer button:disabled {
+      opacity: .5; cursor: default;
+    }
     .modal-footer button:not(:disabled):hover {
-      opacity: .9; transform: translateY(-1px);
+      opacity: .9; transform: translateY(-2px);
     }
     .spinner-button {
       width: 16px; height: 16px; border: 2px solid #fff;
@@ -188,7 +201,6 @@
       display: inline-block; vertical-align: middle;
       margin-right: 6px;
     }
-
     @keyframes spin { to { transform: rotate(360deg); } }
     @keyframes popHeartFadeShake {
       0%   { transform: translate(-50%,-50%) scale(0); opacity: 0; }
@@ -241,13 +253,12 @@
     </div>
   </div>
 
-  <!-- แยกสคริปต์เปิด-ปิด modal ให้วน DOMContentLoaded -->
+  <!-- สคริปต์เปิด-ปิด modal -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const navAdd = document.getElementById('nav-add');
       const modal  = document.getElementById('modal');
       const modalClose = document.getElementById('modalClose');
-
       navAdd.addEventListener('click', () => modal.classList.add('show'));
       modalClose.addEventListener('click', () => modal.classList.remove('show'));
       modal.addEventListener('click', e => {
