@@ -111,31 +111,38 @@
     .modal-content {
       background: #fff; border-radius: var(--radius);
       width: 100%; max-width: 420px;
-      box-shadow: var(--shadow-light); overflow: hidden;
-      animation: popIn .3s var(--transition);
+      box-shadow: var(--shadow-light);
+      overflow: hidden;
+      position: relative;
     }
-    @keyframes popIn {
-      from { transform: scale(0.9); opacity: 0; }
-      to   { transform: scale(1);   opacity: 1; }
+    /* ขอบเส้นไล่โทนสี */
+    .modal-content::before {
+      content: '';
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 6px;
+      background: linear-gradient(90deg, var(--accent-start), var(--accent-end));
     }
 
     .modal-header {
       display: flex; justify-content: space-between; align-items: center;
       padding: var(--spacing);
-      background: linear-gradient(90deg, var(--accent-start), var(--accent-end));
-      color: #fff;
+      background: #fff;
     }
-    .modal-header h2 { font-size: 1.1rem; font-weight: 600; }
+    .modal-header h2 {
+      font-size: 1.2rem; font-weight: 600;
+      color: var(--accent-end);
+    }
     .modal-close {
       background: none; border: none; font-size: 1.4rem;
-      cursor: pointer; color: #fff;
-      transition: transform .2s;
+      cursor: pointer; color: var(--text);
+      transition: transform .2s, color var(--transition);
     }
-    .modal-close:hover { transform: scale(1.2); }
+    .modal-close:hover { transform: scale(1.2); color: #e0245e; }
 
     .modal-body {
       padding: var(--spacing);
       display: flex; flex-direction: column; gap: var(--spacing);
+      background: var(--bg);
     }
     .form-fields input,
     .form-fields textarea {
@@ -160,21 +167,22 @@
     .form-fields label.upload-btn:hover { opacity: .9; }
     .form-fields label.upload-btn input { display: none; }
 
-    /* จำกัดขนาดรูปพรีวิว */
+    /* ปรับขนาดพรีวิวและจัดกึ่งกลาง */
     .preview-container {
       margin-top: var(--spacing);
       text-align: center;
     }
     .preview-container img {
-      max-width: 100%;
-      max-height: 160px;
+      width: 80px;
+      height: 80px;
       border-radius: var(--radius);
       box-shadow: var(--shadow-light);
-      object-fit: contain;
+      object-fit: cover;
+      display: inline-block;
     }
 
     .modal-footer {
-      padding: var(--spacing); background: #fafafa; border-top: 1px solid #ddd;
+      padding: var(--spacing); background: #fff; border-top: 1px solid #ddd;
       text-align: right;
     }
     .modal-footer button {
@@ -189,7 +197,6 @@
     .modal-footer button:not(:disabled):hover {
       opacity: .9; transform: translateY(-1px);
     }
-
     .spinner {
       width: 24px; height: 24px;
       border: 3px solid #ddd; border-top-color: var(--accent-end);
@@ -197,7 +204,6 @@
       display: inline-block; vertical-align: middle; margin-right: .5rem;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-
     @keyframes popHeartFadeShake {
       0%   { transform: translate(-50%,-50%) scale(0); opacity: 0; }
       30%  { transform: translate(-50%,-50%) scale(1); opacity: 0.6; }
@@ -259,14 +265,12 @@
       doc as docRef, updateDoc, deleteDoc
     } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
 
-    // สร้างหรือดึง uid
     let currentUid = localStorage.getItem('uid');
     if (!currentUid) {
       currentUid = crypto.randomUUID();
       localStorage.setItem('uid', currentUid);
     }
 
-    // Firebase init
     const firebaseConfig = {
       apiKey: "AIzaSyBxYY_c14XFroS6dBIh4Jzl9XL4PMjipcg",
       authDomain: "wishes-web.firebaseapp.com",
@@ -279,7 +283,6 @@
     const app = initializeApp(firebaseConfig);
     const db  = getFirestore(app);
 
-    // DOM refs
     const gallery    = document.getElementById('gallery');
     const navAdd     = document.getElementById('nav-add');
     const modal      = document.getElementById('modal');
@@ -290,8 +293,6 @@
     const preview    = document.getElementById('preview');
     const postBtn    = document.getElementById('postBtn');
     const spinner    = document.getElementById('uploadSpinner');
-
-    preview.style.display = 'none';
 
     function animateHeart(card) {
       const h = document.createElement('div');
@@ -346,7 +347,7 @@
       gallery.prepend(card);
     }
 
-    // Real-time + scroll top
+    // เรียงจากใหม่ไปเก่าเสมอ
     const qFeed = query(collection(db,'wishes'), orderBy('createdAt','desc'));
     onSnapshot(qFeed, snap => {
       gallery.innerHTML = '';
@@ -354,7 +355,6 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    // UI handlers
     navAdd.onclick     = () => modal.classList.add('show');
     modalClose.onclick = () => modal.classList.remove('show');
     modal.onclick      = e => { if (e.target===modal) modal.classList.remove('show'); };
@@ -364,7 +364,7 @@
       const f = e.target.files[0];
       if (!f) { preview.style.display = 'none'; return; }
       preview.src = URL.createObjectURL(f);
-      preview.style.display = 'block';
+      preview.style.display = 'inline-block';
     };
 
     postBtn.onclick = async () => {
@@ -396,7 +396,7 @@
         imgUrl = data;
       }
 
-      // Optimistic + scroll
+      // optimistic update
       createCard({ name, text, imgUrl, likes:0, likedBy:[], uid:currentUid, createdAt: new Date() }, 'tmp-'+Date.now());
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
