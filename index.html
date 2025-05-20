@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -62,7 +63,6 @@
       transition:transform .2s;z-index:1;
     }
     .card .like-btn:hover{transform:scale(1.2);}
-    .card .like-btn.liked{color:#e0245e;}
     .bottom-nav{
       position:fixed;bottom:0;left:0;
       width:100%;height:var(--nav-height);
@@ -169,6 +169,7 @@
       <div class="modal-body">
         <input type="text" id="modalName" placeholder="ชื่อของคุณ (ไม่บังคับ)">
         <textarea id="wishText" rows="4" placeholder="เขียนคำอวยพรของคุณ..." required></textarea>
+        <input type="text" id="imgUrlInput" placeholder="วาง GitHub Raw URL ที่นี่ (ไม่บังคับ)">
         <label class="upload-btn">
           📷 อัปโหลดรูป
           <input type="file" id="imgUpload" accept="image/*">
@@ -182,17 +183,14 @@
   </div>
 
   <script type="module">
-    import { initializeApp }       from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-    import { getFirestore,
-             serverTimestamp,
-             collection,
-             addDoc,
-             query,
-             orderBy,
-             onSnapshot }
-      from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+    import {
+      getFirestore, serverTimestamp,
+      collection, addDoc,
+      query, orderBy, onSnapshot
+    } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
 
-    // Your Firebase config
+    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyBxYY_c14XFroS6dBIh4Jzl9XL4PMjipcg",
       authDomain: "wishes-web.firebaseapp.com",
@@ -212,6 +210,7 @@
     const modalClose = document.getElementById('modalClose');
     const wishText   = document.getElementById('wishText');
     const modalName  = document.getElementById('modalName');
+    const imgUrlInput= document.getElementById('imgUrlInput');
     const imgUpload  = document.getElementById('imgUpload');
     const preview    = document.getElementById('preview');
     const postBtn    = document.getElementById('postBtn');
@@ -219,33 +218,33 @@
     // UI events
     navAdd.onclick     = () => modal.classList.add('show');
     modalClose.onclick = () => modal.classList.remove('show');
-    modal.onclick      = e => { if(e.target===modal) modal.classList.remove('show'); };
+    modal.onclick      = e => { if (e.target === modal) modal.classList.remove('show'); };
     wishText.oninput   = () => postBtn.disabled = !wishText.value.trim();
     imgUpload.onchange = e => {
       const file = e.target.files[0];
-      if(!file) return preview.style.display='none';
-      const url = URL.createObjectURL(file);
-      preview.src = url; preview.style.display = 'block';
+      if (!file) return preview.style.display = 'none';
+      preview.src = URL.createObjectURL(file);
+      preview.style.display = 'block';
     };
 
-    // animate heart
-    function animateHeart(card){
-      const h=document.createElement('div');
-      h.textContent='❤';
-      h.style.cssText=`
+    // heart animation
+    function animateHeart(card) {
+      const h = document.createElement('div');
+      h.textContent = '❤';
+      h.style.cssText = `
         position:absolute;top:50%;left:50%;
         transform:translate(-50%,-50%) scale(0);
         font-size:3rem;color:rgba(255,0,0,0.8);
         animation:popHeart .6s forwards;`;
       card.appendChild(h);
-      h.addEventListener('animationend',()=>h.remove());
+      h.addEventListener('animationend', () => h.remove());
     }
 
     // create card
-    function createCard(w){
-      const card=document.createElement('div');
-      card.className='card';
-      card.innerHTML=`
+    function createCard(w) {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
         <img src="${w.imgUrl}" alt="">
         <button class="like-btn">❤</button>
         <div class="info">
@@ -253,7 +252,7 @@
           <span class="wish">${w.text}</span>
         </div>`;
       card.querySelector('.like-btn')
-          .addEventListener('click',e=>{e.stopPropagation();animateHeart(card);});
+          .addEventListener('click', e => { e.stopPropagation(); animateHeart(card); });
       gallery.prepend(card);
     }
 
@@ -264,38 +263,38 @@
       snap.forEach(doc => createCard(doc.data()));
     });
 
-    // post new wish (improved client-side resizing & quality)
+    // post new wish
     postBtn.onclick = async () => {
       const text = wishText.value.trim();
-      if(!text) return;
-      const name = modalName.value.trim()||'แขกผู้มีเกียรติ';
+      if (!text) return;
+      const name = modalName.value.trim() || 'แขกผู้มีเกียรติ';
+
+      const urlInput = imgUrlInput.value.trim();
       let imgUrl = 'https://via.placeholder.com/320x400?text=No+Image';
 
-      const file = imgUpload.files[0];
-      if(file){
-        // Load image
+      if (urlInput) {
+        imgUrl = urlInput;
+      } else if (imgUpload.files[0]) {
+        const file = imgUpload.files[0];
         const img = await new Promise(r => {
           const i = new Image();
           i.onload = () => r(i);
           i.src = URL.createObjectURL(file);
         });
-        // Resize keeping aspect ratio, max dimension = 800px
-        const max = 800;
+        // resize for high-DPI
+        const dpr = window.devicePixelRatio || 1;
+        const max = 800 * dpr;
         let w = img.width, h = img.height;
-        if (Math.max(w, h) > max) {
-          const ratio = max / Math.max(w, h);
-          w = w * ratio;
-          h = h * ratio;
+        if (Math.max(w,h) > max) {
+          const ratio = max / Math.max(w,h);
+          w *= ratio; h *= ratio;
         }
-        // Draw to canvas with high-quality smoothing
         const canvas = document.createElement('canvas');
         canvas.width = w; canvas.height = h;
         const ctx = canvas.getContext('2d');
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(img, 0, 0, w, h);
-
-        // Encode JPEG, reduce quality only if necessary to stay under ~1MB
         let quality = 0.95, dataUrl;
         do {
           dataUrl = canvas.toDataURL('image/jpeg', quality);
@@ -304,17 +303,21 @@
         imgUrl = dataUrl;
       }
 
-      // Save to Firestore
       await addDoc(collection(db,'wishes'), {
         name, text, imgUrl,
         createdAt: serverTimestamp()
       });
 
       // reset UI
-      wishText.value=''; modalName.value=''; imgUpload.value='';
-      preview.style.display='none'; postBtn.disabled=true;
+      wishText.value = '';
+      modalName.value = '';
+      imgUrlInput.value = '';
+      imgUpload.value = '';
+      preview.style.display = 'none';
+      postBtn.disabled = true;
       modal.classList.remove('show');
     };
   </script>
 </body>
 </html>
+
