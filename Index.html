@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>สมุดอวยพรออนไลน์ — IG Feel</title>
+  <!-- IG‐style cursive font -->
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600&family=Grand+Hotel&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #262626;
+      --border: #dbdbdb;
+      --accent: #3897f0;
+      --radius: 12px;
+      --spacing: 1rem;
+      --shadow: 0 4px 20px rgba(0,0,0,0.1);
+      --transition: 0.3s ease;
+      --max-width: 480px;
+      --nav-height: 56px;
+    }
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Sarabun', sans-serif;
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding-bottom: var(--nav-height);
+      position: relative;
+    }
+    header {
+      text-align: center;
+      padding: var(--spacing) 0;
+      border-bottom: 1px solid var(--border);
+      margin-top: var(--nav-height);
+    }
+    header h1 {
+      font-family: 'Grand Hotel', cursive;
+      font-size: 1.8rem;
+      position: relative;
+      display: inline-block;
+      padding-bottom: .25rem;
+      border-bottom: 2px solid var(--text);
+    }
+    header h1::after {
+      content: ' ♡';
+      font-family: 'Sarabun', sans-serif;
+      font-size: 1.2rem;
+      vertical-align: middle;
+    }
+    header p {
+      color: #8e8e8e;
+      font-size: .9rem;
+      margin-top: .25rem;
+    }
+    .gallery {
+      padding: var(--spacing) 0 var(--spacing);
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing);
+    }
+    .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: transform var(--transition);
+      position: relative;
+    }
+    .card:hover { transform: translateY(-2px); }
+    .card img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 4/5;
+      object-fit: cover;
+    }
+    .card .info {
+      padding: var(--spacing);
+      font-size: .95rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .card .info .author {
+      font-weight: 600;
+      margin-right: .25rem;
+    }
+    .card .like-btn {
+      position: absolute;
+      top: .5rem;
+      right: .5rem;
+      background: rgba(255,255,255,0.9);
+      border: none;
+      border-radius: 50%;
+      width: 28px; height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      color: #262626;
+      cursor: pointer;
+      transition: transform .2s;
+      z-index: 1;
+    }
+    .card .like-btn:hover { transform: scale(1.2); }
+    .card .like-btn.liked { color: #e0245e; }
+
+    /* bottom nav */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0; left: 0;
+      width: 100%;
+      height: var(--nav-height);
+      background: #fff;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      box-shadow: 0 -1px 5px rgba(0,0,0,0.1);
+      z-index: 10;
+    }
+    .bottom-nav button {
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      cursor: pointer;
+      color: var(--text);
+      transition: color var(--transition);
+    }
+    .bottom-nav button.primary {
+      font-size: 2rem;
+      color: var(--accent);
+    }
+    .bottom-nav button:hover {
+      color: var(--accent);
+    }
+
+    /* modal */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      align-items: center;
+      justify-content: center;
+      padding: var(--spacing);
+      z-index: 20;
+    }
+    .modal.show { display: flex; animation: fadeIn .2s ease-out; }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    .modal-content {
+      background: #fff;
+      border-radius: var(--radius);
+      width: 100%;
+      max-width: 400px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      animation: popIn .2s ease-out;
+    }
+    @keyframes popIn { from{opacity:0;transform:scale(0.9)} to{opacity:1;transform:scale(1)} }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--spacing);
+      border-bottom: 1px solid var(--border);
+    }
+    .modal-header h2 { font-size: 1rem; }
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+    .modal-body {
+      padding: var(--spacing);
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing);
+    }
+    .modal-body input[type="text"],
+    .modal-body textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: .75rem;
+      font-size: .95rem;
+      resize: vertical;
+    }
+    .modal-body .upload-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .6rem 1rem;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: background var(--transition);
+      font-size: .95rem;
+      text-align: center;
+    }
+    .modal-body .upload-btn:hover { background: #2176c7; }
+    .modal-body .upload-btn input { display: none; }
+    .modal-body #preview {
+      display: none;
+      width: 100%;
+      aspect-ratio: 4/5;
+      object-fit: cover;
+      border-radius: var(--radius);
+    }
+    .modal-footer {
+      padding: var(--spacing);
+      border-top: 1px solid var(--border);
+      text-align: right;
+    }
+    .modal-footer button {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      padding: .5rem 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+    .modal-footer button:disabled { opacity: .5; cursor: default; }
+    .modal-footer button:hover:not(:disabled) { background: #2176c7; }
+
+    @keyframes popHeart {
+      0% { transform: translate(-50%,-50%) scale(0); opacity:1; }
+      50% { transform: translate(-50%,-50%) scale(1.2); opacity:.9; }
+      100%{ transform: translate(-50%,-50%) scale(1); opacity:0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header with Tuck&Tan ♡ -->
+  <header>
+    <h1>Tuck&amp;Tan</h1>
+    <p>ฟีลโพสต์แบบ IG</p>
+  </header>
+
+  <div class="gallery" id="gallery"></div>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <button id="nav-home">🏠</button>
+    <button id="nav-search">🔍</button>
+    <button id="nav-add" class="primary">➕</button>
+    <button id="nav-heart">❤️</button>
+    <button id="nav-profile">👤</button>
+  </nav>
+
+  <!-- Modal New Post -->
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>สร้างโพสต์ใหม่</h2>
+        <button id="modalClose" class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="text" id="modalName" name="name" placeholder="ชื่อของคุณ (ไม่บังคับ)">
+        <textarea id="wishText" name="message" rows="4" placeholder="เขียนคำอวยพรของคุณ..." required></textarea>
+        <label class="upload-btn">
+          📷 เลือกรูปหรือถ่ายใหม่
+          <input type="file" id="imgUpload" accept="image/*" capture="environment">
+        </label>
+        <img id="preview" alt="พรีวิวรูป">
+      </div>
+      <div class="modal-footer">
+        <button id="postBtn" disabled>โพสต์</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const gallery    = document.getElementById('gallery');
+    const navAdd     = document.getElementById('nav-add');
+    const modal      = document.getElementById('modal');
+    const modalClose = document.getElementById('modalClose');
+    const wishText   = document.getElementById('wishText');
+    const modalName  = document.getElementById('modalName');
+    const imgUpload  = document.getElementById('imgUpload');
+    const preview    = document.getElementById('preview');
+    const postBtn    = document.getElementById('postBtn');
+    const STORAGE    = 'wishes';
+
+    // เปิด/ปิด modal
+    navAdd.addEventListener('click', () => modal.classList.add('show'));
+    modalClose.addEventListener('click', () => modal.classList.remove('show'));
+    modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('show'); });
+
+    // เปิดใช้งานปุ่มโพสต์เมื่อมีข้อความ
+    wishText.addEventListener('input', () => {
+      postBtn.disabled = !wishText.value.trim();
+    });
+
+    // พรีวิวรูป + เปิดกล้องได้เลย (capture)
+    imgUpload.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return preview.style.display = 'none';
+      const reader = new FileReader();
+      reader.onload = () => {
+        preview.src = reader.result;
+        preview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // โหลด/บันทึก wishes
+    function loadWishes() {
+      return JSON.parse(localStorage.getItem(STORAGE) || '[]');
+    }
+    function saveWishes(list) {
+      localStorage.setItem(STORAGE, JSON.stringify(list));
+    }
+
+    // ส่งไป Formspree
+    function sendToFormspree(name, message) {
+      fetch('https://formspree.io/f/movdbnzk', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+        body: new URLSearchParams({ name, message })
+      });
+    }
+
+    // แอนิเมชันหัวใจ
+    function animateHeart(card) {
+      const heart = document.createElement('div');
+      heart.textContent = '❤';
+      heart.style.cssText = `
+        position:absolute; top:50%; left:50%;
+        transform:translate(-50%,-50%) scale(0);
+        font-size:3rem; color:rgba(255,0,0,0.8);
+        animation: popHeart .6s forwards;
+      `;
+      card.style.position = 'relative';
+      card.appendChild(heart);
+      heart.addEventListener('animationend', () => heart.remove());
+    }
+
+    // สร้าง card
+    function createCard(w) {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <img src="${w.imgUrl}" alt="">
+        <button class="like-btn">❤</button>
+        <div class="info">
+          <span class="author">${w.name}:</span>
+          <span class="wish">${w.text}</span>
+        </div>
+      `;
+      const likeBtn = card.querySelector('.like-btn');
+      likeBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        animateHeart(card);
+      });
+      gallery.prepend(card);
+    }
+
+    // เมื่อกดโพสต์
+    postBtn.addEventListener('click', () => {
+      const text = wishText.value.trim();
+      const name = modalName.value.trim() || 'แขกผู้มีเกียรติ';
+      const file = imgUpload.files[0];
+      if (!text) return;
+      const addWish = imgData => {
+        const list = loadWishes();
+        list.unshift({ id: Date.now(), text, name, imgUrl: imgData });
+        saveWishes(list);
+        createCard(list[0]);
+        sendToFormspree(name, text);
+      };
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = () => addWish(reader.result);
+        reader.readAsDataURL(file);
+      } else {
+        addWish('https://via.placeholder.com/320x400?text=No+Image');
+      }
+      // รีเซ็ต modal
+      wishText.value = '';
+      modalName.value = '';
+      imgUpload.value = '';
+      preview.style.display = 'none';
+      postBtn.disabled = true;
+      modal.classList.remove('show');
+    });
+
+    // โหลดตอนแรก
+    loadWishes().forEach(createCard);
+  </script>
+</body>
+</html>
