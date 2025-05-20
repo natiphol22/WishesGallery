@@ -115,7 +115,6 @@
       overflow: hidden;
       position: relative;
     }
-    /* ขอบเส้นไล่โทนสี */
     .modal-content::before {
       content: '';
       position: absolute; top: 0; left: 0;
@@ -167,14 +166,12 @@
     .form-fields label.upload-btn:hover { opacity: .9; }
     .form-fields label.upload-btn input { display: none; }
 
-    /* ปรับขนาดพรีวิวและจัดกึ่งกลาง */
     .preview-container {
       margin-top: var(--spacing);
       text-align: center;
     }
     .preview-container img {
-      width: 80px;
-      height: 80px;
+      width: 80px; height: 80px;
       border-radius: var(--radius);
       box-shadow: var(--shadow-light);
       object-fit: cover;
@@ -259,12 +256,14 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
     import {
-      getFirestore, serverTimestamp,
+      getFirestore,
       collection, addDoc,
       query, orderBy, onSnapshot,
-      doc as docRef, updateDoc, deleteDoc
+      doc as docRef, updateDoc, deleteDoc,
+      Timestamp
     } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
 
+    // สร้างหรือดึง uid
     let currentUid = localStorage.getItem('uid');
     if (!currentUid) {
       currentUid = crypto.randomUUID();
@@ -396,23 +395,15 @@
         imgUrl = data;
       }
 
-      // optimistic update
-      createCard({ name, text, imgUrl, likes:0, likedBy:[], uid:currentUid, createdAt: new Date() }, 'tmp-'+Date.now());
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-
-      postBtn.disabled = true; spinner.style.display = 'inline-block';
-      try {
-        await addDoc(collection(db,'wishes'), {
-          name, text, imgUrl, likes:0, likedBy:[], uid:currentUid, createdAt: serverTimestamp()
-        });
-      } catch {
-        alert('โพสต์ไม่สำเร็จ ลองอีกครั้ง');
-      } finally {
-        spinner.style.display = 'none';
-        wishText.value=''; modalName.value=''; imgUpload.value='';
-        preview.style.display='none'; postBtn.disabled=true;
-        modal.classList.remove('show');
-      }
+      // ใช้เวลาปัจจุบันทันที
+      const now = Timestamp.now();
+      await addDoc(collection(db,'wishes'), {
+        name, text, imgUrl, likes:0, likedBy:[], uid:currentUid, createdAt: now
+      });
+      // เมื่อเซฟเสร็จ snapshot จะวิ่งมารีเฟรชและ prepend ให้เอง
+      wishText.value=''; modalName.value=''; imgUpload.value='';
+      preview.style.display='none'; postBtn.disabled=true;
+      modal.classList.remove('show');
     };
   </script>
 </body>
