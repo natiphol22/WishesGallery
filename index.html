@@ -18,7 +18,7 @@
       --shadow-light: 0 4px 16px rgba(0,0,0,0.08);
       --transition: .3s ease;
       --nav-height: 56px;
-      /* IG-like gradient for primary buttons */
+      /* IG-like gradient */
       --grad-start: #405de6;
       --grad-end: #5851db;
     }
@@ -45,7 +45,7 @@
     }
     .header-heart { font-size: 2rem; color: var(--text); }
 
-    /* Feed */
+    /* Gallery Cards */
     .gallery {
       padding: var(--spacing) 0;
       display: flex; flex-direction: column; gap: var(--spacing);
@@ -87,8 +87,7 @@
     }
     .bottom-nav button {
       background: none; border: none; font-size: 1.6rem;
-      cursor: pointer; color: #000;           /* บังคับสีดำ */
-      filter: none !important;              /* ปิดฟิลเตอร์อะไรก็ตาม */
+      cursor: pointer; color: #000; filter: none !important;
       transition: transform var(--transition);
     }
     .bottom-nav .primary { font-size: 2rem; }
@@ -145,10 +144,8 @@
     .form-fields input:focus,
     .form-fields textarea:focus {
       outline: none; border-color: var(--grad-start);
-      box-shadow: 0 0 0 3px rgba(64, 93, 230, 0.2);
+      box-shadow: 0 0 0 3px rgba(64,93,230,0.2);
     }
-
-    /* Upload button ปรับกราเดียนท์ */
     .upload-btn.btn-upload {
       display: inline-block; padding: .6rem 1rem;
       background: linear-gradient(135deg, var(--grad-start), var(--grad-end));
@@ -159,7 +156,6 @@
     .upload-btn.btn-upload:hover { opacity: .9; }
     .upload-btn.btn-upload input { display: none; }
 
-    /* Preview รูปใหญ่ขึ้น */
     .preview-container {
       margin-top: var(--spacing); text-align: center;
     }
@@ -245,6 +241,22 @@
     </div>
   </div>
 
+  <!-- แยกสคริปต์เปิด-ปิด modal ให้วน DOMContentLoaded -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const navAdd = document.getElementById('nav-add');
+      const modal  = document.getElementById('modal');
+      const modalClose = document.getElementById('modalClose');
+
+      navAdd.addEventListener('click', () => modal.classList.add('show'));
+      modalClose.addEventListener('click', () => modal.classList.remove('show'));
+      modal.addEventListener('click', e => {
+        if (e.target === modal) modal.classList.remove('show');
+      });
+    });
+  </script>
+
+  <!-- สคริปต์โมดูล Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
     import {
@@ -274,9 +286,6 @@
     const db  = getFirestore(app);
 
     const gallery    = document.getElementById('gallery');
-    const navAdd     = document.getElementById('nav-add');
-    const modal      = document.getElementById('modal');
-    const modalClose = document.getElementById('modalClose');
     const wishText   = document.getElementById('wishText');
     const modalName  = document.getElementById('modalName');
     const imgUpload  = document.getElementById('imgUpload');
@@ -286,11 +295,11 @@
     function animateHeart(card) {
       const h = document.createElement('div');
       h.textContent = '❤';
-      h.style.cssText = \`
+      h.style.cssText = `
         position:absolute; top:50%; left:50%;
         font-size:4rem; color:rgba(224,36,94,0.6);
         animation:popHeartFadeShake .8s forwards;
-        pointer-events:none;\`;
+        pointer-events:none;`;
       card.querySelector('.img-wrapper').appendChild(h);
       h.addEventListener('animationend', () => h.remove());
     }
@@ -314,20 +323,20 @@
       const card = document.createElement('div');
       card.className = 'card';
       const delHTML = w.uid===currentUid
-        ? \`<button class="delete-btn" title="ลบโพสต์">🗑️</button>\` : '';
-      card.innerHTML = \`
+        ? `<button class="delete-btn" title="ลบโพสต์">🗑️</button>` : '';
+      card.innerHTML = `
         <div class="img-wrapper">
-          <img src="\${w.imgUrl}" />
-          \${delHTML}
+          <img src="${w.imgUrl}" />
+          ${delHTML}
         </div>
         <div class="like-indicator">
           <span class="heart-icon">♥</span>
-          <span class="like-count">\${w.likes||0}</span>
+          <span class="like-count">${w.likes||0}</span>
         </div>
         <div class="info">
-          <span class="author">\${w.name}:</span>
-          <span class="wish">\${w.text}</span>
-        </div>\`;
+          <span class="author">${w.name}:</span>
+          <span class="wish">${w.text}</span>
+        </div>`;
       card.querySelector('img').addEventListener('dblclick', async e => {
         e.stopPropagation(); animateHeart(card); await handleLike(id, w);
       });
@@ -352,11 +361,7 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    navAdd.onclick     = () => modal.classList.add('show');
-    modalClose.onclick = () => modal.classList.remove('show');
-    modal.onclick      = e => { if (e.target===modal) modal.classList.remove('show'); };
-    wishText.oninput   = () => postBtn.disabled = !wishText.value.trim();
-
+    wishText.oninput = () => postBtn.disabled = !wishText.value.trim();
     imgUpload.onchange = e => {
       const f = e.target.files[0];
       if (!f) { preview.style.display='none'; return; }
@@ -400,7 +405,7 @@
       preview.style.display='none';
       postBtn.innerText = 'โพสต์';
       postBtn.disabled = true;
-      modal.classList.remove('show');
+      document.getElementById('modal').classList.remove('show');
     };
   </script>
 </body>
