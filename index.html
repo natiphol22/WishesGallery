@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>สมุดอวยพรออนไลน์ — IG Feel</title>
-  <!-- IG‐style fonts -->
+  <!-- IG-style fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600&family=Grand+Hotel&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -19,11 +19,7 @@
       --max-width: 480px;
       --nav-height: 56px;
     }
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
     body {
       background: var(--bg);
       color: var(--text);
@@ -72,9 +68,7 @@
       transition: transform var(--transition);
       position: relative;
     }
-    .card:hover {
-      transform: translateY(-2px);
-    }
+    .card:hover { transform: translateY(-2px); }
     .card img {
       display: block;
       width: 100%;
@@ -100,134 +94,72 @@
       border: none;
       border-radius: 50%;
       width: 28px; height: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1rem;
-      color: #262626;
-      cursor: pointer;
-      transition: transform .2s;
-      z-index: 1;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; color: #262626; cursor: pointer;
+      transition: transform .2s; z-index: 1;
     }
-    .card .like-btn:hover {
-      transform: scale(1.2);
-    }
-    .card .like-btn.liked {
-      color: #e0245e;
-    }
+    .card .like-btn:hover { transform: scale(1.2); }
+    .card .like-btn.liked { color: #e0245e; }
     .bottom-nav {
-      position: fixed;
-      bottom: 0; left: 0;
-      width: 100%;
-      height: var(--nav-height);
-      background: #fff;
-      border-top: 1px solid var(--border);
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      box-shadow: 0 -1px 5px rgba(0,0,0,0.1);
-      z-index: 10;
+      position: fixed; bottom: 0; left: 0;
+      width: 100%; height: var(--nav-height);
+      background: #fff; border-top: 1px solid var(--border);
+      display: flex; justify-content: space-around; align-items: center;
+      box-shadow: 0 -1px 5px rgba(0,0,0,0.1); z-index: 10;
     }
     .bottom-nav button {
-      background: none;
-      border: none;
-      font-size: 1.4rem;
-      cursor: pointer;
-      color: var(--text);
-      transition: color var(--transition);
+      background: none; border: none;
+      font-size: 1.4rem; cursor: pointer;
+      color: var(--text); transition: color var(--transition);
     }
-    .bottom-nav button.primary {
-      font-size: 2rem;
-      color: var(--accent);
-    }
-    .bottom-nav button:hover {
-      color: var(--accent);
-    }
+    .bottom-nav button.primary { font-size: 2rem; color: var(--accent); }
+    .bottom-nav button:hover { color: var(--accent); }
     .modal {
-      display: none;
-      position: fixed;
-      inset: 0;
+      display: none; position: fixed; inset: 0;
       background: rgba(0,0,0,0.5);
-      align-items: center;
-      justify-content: center;
-      padding: var(--spacing);
-      z-index: 20;
+      align-items: center; justify-content: center;
+      padding: var(--spacing); z-index: 20;
     }
-    .modal.show {
-      display: flex;
-      animation: fadeIn .2s ease-out;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0 } to { opacity: 1 }
-    }
+    .modal.show { display: flex; animation: fadeIn .2s ease-out; }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
     .modal-content {
-      background: #fff;
-      border-radius: var(--radius);
-      width: 100%;
-      max-width: 400px;
-      box-shadow: var(--shadow);
-      overflow: hidden;
+      background: #fff; border-radius: var(--radius);
+      width: 100%; max-width: 400px;
+      box-shadow: var(--shadow); overflow: hidden;
       animation: popIn .2s ease-out;
     }
-    @keyframes popIn {
-      from { opacity: 0; transform: scale(0.9) } to { opacity: 1; transform: scale(1) }
-    }
+    @keyframes popIn { from{opacity:0;transform:scale(.9)} to{opacity:1;transform:scale(1)} }
     .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: var(--spacing);
-      border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+      padding: var(--spacing); border-bottom: 1px solid var(--border);
     }
-    .modal-header h2 {
-      font-size: 1rem;
-    }
+    .modal-header h2 { font-size: 1rem; }
     .modal-close {
-      background: none;
-      border: none;
-      font-size: 1.2rem;
-      cursor: pointer;
+      background: none; border: none;
+      font-size: 1.2rem; cursor: pointer;
     }
     .modal-body {
       padding: var(--spacing);
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing);
+      display: flex; flex-direction: column; gap: var(--spacing);
     }
     .modal-body input[type="text"],
     .modal-body textarea {
-      width: 100%;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: .75rem;
-      font-size: .95rem;
-      resize: vertical;
+      width: 100%; border: 1px solid var(--border);
+      border-radius: var(--radius); padding: .75rem;
+      font-size: .95rem; resize: vertical;
     }
     .modal-body .upload-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: .5rem;
-      padding: .6rem 1rem;
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: var(--radius);
-      cursor: pointer;
-      transition: background var(--transition);
-      font-size: .95rem;
-      text-align: center;
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .6rem 1rem; background: var(--accent);
+      color: #fff; border: none; border-radius: var(--radius);
+      cursor: pointer; transition: background var(--transition);
+      font-size: .95rem; text-align: center;
     }
-    .modal-body .upload-btn:hover {
-      background: #2176c7;
-    }
-    .modal-body .upload-btn input {
-      display: none;
-    }
+    .modal-body .upload-btn:hover { background: #2176c7; }
+    .modal-body .upload-btn input { display: none; }
     .modal-body #preview {
-      display: none;
-      width: 100%;
-      aspect-ratio: 4/5;
-      object-fit: cover;
+      display: none; width: 100%;
+      aspect-ratio: 4/5; object-fit: cover;
       border-radius: var(--radius);
     }
     .modal-footer {
@@ -236,32 +168,156 @@
       text-align: right;
     }
     .modal-footer button {
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: var(--radius);
-      padding: .5rem 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background var(--transition);
+      background: var(--accent); color: #fff;
+      border: none; border-radius: var(--radius);
+      padding: .5rem 1rem; font-weight: 600;
+      cursor: pointer; transition: background var(--transition);
     }
-    .modal-footer button:disabled {
-      opacity: .5;
-      cursor: default;
-    }
-    .modal-footer button:hover:not(:disabled) {
-      background: #2176c7;
-    }
+    .modal-footer button:disabled { opacity: .5; cursor: default; }
+    .modal-footer button:hover:not(:disabled) { background: #2176c7; }
     @keyframes popHeart {
-      0% { transform: translate(-50%,-50%) scale(0); opacity:1; }
-      50% { transform: translate(-50%,-50%) scale(1.2); opacity:.9; }
-      100%{ transform: translate(-50%,-50%) scale(1); opacity:0; }
+      0%{transform:translate(-50%,-50%) scale(0);opacity:1;}
+      50%{transform:translate(-50%,-50%) scale(1.2);opacity:.9;}
+      100%{transform:translate(-50%,-50%) scale(1);opacity:0;}
     }
   </style>
+
+  <!-- Firebase v9 Modular SDK -->
+  <script type="module">
+    import { initializeApp }      from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+    import { getAnalytics }       from "https://www.gstatic.com/firebasejs/9.22.1/firebase-analytics.js";
+    import { getFirestore,
+             serverTimestamp,
+             collection,
+             addDoc,
+             query,
+             orderBy,
+             onSnapshot }
+      from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+    import { getStorage,
+             ref as storageRef,
+             uploadBytes,
+             getDownloadURL }
+      from "https://www.gstatic.com/firebasejs/9.22.1/firebase-storage.js";
+
+    // Your Firebase config (จาก Console)
+    const firebaseConfig = {
+      apiKey: "AIzaSyBxYY_c14XFroS6dBIh4Jzl9XL4PMjipcg",
+      authDomain: "wishes-web.firebaseapp.com",
+      projectId: "wishes-web",
+      storageBucket: "wishes-web.firebasestorage.app",
+      messagingSenderId: "93224724611",
+      appId: "1:93224724611:web:491aab34365584864fd3b6",
+      measurementId: "G-6HQJWKWB8Z"
+    };
+
+    // Initialize Firebase
+    const app       = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const db        = getFirestore(app);
+    const storage   = getStorage(app);
+
+    // DOM elements
+    const gallery    = document.getElementById('gallery');
+    const navAdd     = document.getElementById('nav-add');
+    const modal      = document.getElementById('modal');
+    const modalClose = document.getElementById('modalClose');
+    const wishText   = document.getElementById('wishText');
+    const modalName  = document.getElementById('modalName');
+    const imgUpload  = document.getElementById('imgUpload');
+    const preview    = document.getElementById('preview');
+    const postBtn    = document.getElementById('postBtn');
+
+    // UI event handlers
+    navAdd.onclick     = () => modal.classList.add('show');
+    modalClose.onclick = () => modal.classList.remove('show');
+    modal.onclick      = e => { if (e.target === modal) modal.classList.remove('show'); };
+    wishText.oninput   = () => postBtn.disabled = !wishText.value.trim();
+    imgUpload.onchange = e => {
+      const file = e.target.files[0];
+      if (!file) return preview.style.display = 'none';
+      const reader = new FileReader();
+      reader.onload = () => {
+        preview.src = reader.result;
+        preview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    };
+
+    // Create and animate heart
+    function animateHeart(card) {
+      const heart = document.createElement('div');
+      heart.textContent = '❤';
+      heart.style.cssText = `
+        position:absolute; top:50%; left:50%;
+        transform:translate(-50%,-50%) scale(0);
+        font-size:3rem; color:rgba(255,0,0,0.8);
+        animation:popHeart .6s forwards;
+      `;
+      card.appendChild(heart);
+      heart.addEventListener('animationend', () => heart.remove());
+    }
+    function createCard(w) {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <img src="${w.imgUrl}" alt="">
+        <button class="like-btn">❤</button>
+        <div class="info">
+          <span class="author">${w.name}:</span>
+          <span class="wish">${w.text}</span>
+        </div>
+      `;
+      card.querySelector('.like-btn').onclick = e => {
+        e.stopPropagation();
+        animateHeart(card);
+      };
+      gallery.prepend(card);
+    }
+
+    // Listen for real-time updates
+    const q = query(collection(db, 'wishes'), orderBy('createdAt', 'desc'));
+    onSnapshot(q, snap => {
+      gallery.innerHTML = '';
+      snap.forEach(doc => createCard(doc.data()));
+    });
+
+    // Post new wish
+    postBtn.onclick = async () => {
+      const text = wishText.value.trim();
+      if (!text) return;
+      const name = modalName.value.trim() || 'แขกผู้มีเกียรติ';
+      let imgUrl = 'https://via.placeholder.com/320x400?text=No+Image';
+
+      if (imgUpload.files[0]) {
+        const file = imgUpload.files[0];
+        const ext = file.name.split('.').pop();
+        const ref = storageRef(storage, `wish_images/${Date.now()}.${ext}`);
+        await uploadBytes(ref, file);
+        imgUrl = await getDownloadURL(ref);
+      }
+
+      await addDoc(collection(db, 'wishes'), {
+        name,
+        text,
+        imgUrl,
+        createdAt: serverTimestamp()
+      });
+
+      // reset UI
+      wishText.value = '';
+      modalName.value = '';
+      imgUpload.value = '';
+      preview.style.display = 'none';
+      postBtn.disabled = true;
+      modal.classList.remove('show');
+    };
+  </script>
 </head>
 <body>
   <header>
     <h1>Tuck&amp;Tan</h1>
+    <p>ฟีลโพสต์แบบ IG</p>
   </header>
 
   <div class="gallery" id="gallery"></div>
@@ -294,111 +350,5 @@
       </div>
     </div>
   </div>
-
-  <script>
-    const gallery    = document.getElementById('gallery');
-    const navAdd     = document.getElementById('nav-add');
-    const modal      = document.getElementById('modal');
-    const modalClose = document.getElementById('modalClose');
-    const wishText   = document.getElementById('wishText');
-    const modalName  = document.getElementById('modalName');
-    const imgUpload  = document.getElementById('imgUpload');
-    const preview    = document.getElementById('preview');
-    const postBtn    = document.getElementById('postBtn');
-    const STORAGE    = 'wishes';
-
-    navAdd.addEventListener('click', () => modal.classList.add('show'));
-    modalClose.addEventListener('click', () => modal.classList.remove('show'));
-    modal.addEventListener('click', e => {
-      if (e.target === modal) modal.classList.remove('show');
-    });
-
-    wishText.addEventListener('input', () => {
-      postBtn.disabled = !wishText.value.trim();
-    });
-
-    imgUpload.addEventListener('change', e => {
-      const file = e.target.files[0];
-      if (!file) { preview.style.display = 'none'; return; }
-      const reader = new FileReader();
-      reader.onload = () => {
-        preview.src = reader.result;
-        preview.style.display = 'block';
-      };
-      reader.readAsDataURL(file);
-    });
-
-    function loadWishes() {
-      return JSON.parse(localStorage.getItem(STORAGE) || '[]');
-    }
-    function saveWishes(list) {
-      localStorage.setItem(STORAGE, JSON.stringify(list));
-    }
-    function sendToFormspree(name, message) {
-      fetch('https://formspree.io/f/movdbnzk', {
-        method: 'POST',
-        headers: { 'Accept': 'application/json' },
-        body: new URLSearchParams({ name, message })
-      });
-    }
-    function animateHeart(card) {
-      const heart = document.createElement('div');
-      heart.textContent = '❤';
-      heart.style.cssText = `
-        position:absolute; top:50%; left:50%;
-        transform:translate(-50%,-50%) scale(0);
-        font-size:3rem; color:rgba(255,0,0,0.8);
-        animation: popHeart .6s forwards;
-      `;
-      card.style.position = 'relative';
-      card.appendChild(heart);
-      heart.addEventListener('animationend', () => heart.remove());
-    }
-    function createCard(w) {
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.innerHTML = `
-        <img src="${w.imgUrl}" alt="">
-        <button class="like-btn">❤</button>
-        <div class="info">
-          <span class="author">${w.name}:</span>
-          <span class="wish">${w.text}</span>
-        </div>
-      `;
-      const likeBtn = card.querySelector('.like-btn');
-      likeBtn.addEventListener('click', e => {
-        e.stopPropagation();
-        animateHeart(card);
-      });
-      gallery.prepend(card);
-    }
-    postBtn.addEventListener('click', () => {
-      const text = wishText.value.trim();
-      const name = modalName.value.trim() || 'แขกผู้มีเกียรติ';
-      const file = imgUpload.files[0];
-      if (!text) return;
-      const addWish = imgData => {
-        const list = loadWishes();
-        list.unshift({ id: Date.now(), text, name, imgUrl: imgData });
-        saveWishes(list);
-        createCard(list[0]);
-        sendToFormspree(name, text);
-      };
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = () => addWish(reader.result);
-        reader.readAsDataURL(file);
-      } else {
-        addWish('https://via.placeholder.com/320x400?text=No+Image');
-      }
-      wishText.value = '';
-      modalName.value = '';
-      imgUpload.value = '';
-      preview.style.display = 'none';
-      postBtn.disabled = true;
-      modal.classList.remove('show');
-    });
-    loadWishes().forEach(createCard);
-  </script>
 </body>
 </html>
