@@ -16,127 +16,124 @@
     body{
       background:var(--bg);color:var(--text);
       font-family:'Sarabun',sans-serif;
-      max-width:var(--max-width);margin:0 auto;
-      padding-bottom:var(--nav-height);position:relative;
+      margin:0 auto;
+      max-width:var(--max-width);
+      padding-bottom:calc(var(--nav-height) + env(safe-area-inset-bottom));
+      position:relative;
     }
-    header{
-      text-align:left;padding:var(--spacing) 0;
-      border-bottom:1px solid var(--border);
-    }
+    header{ text-align:left; padding:var(--spacing) 0; border-bottom:1px solid var(--border); }
     header h1{
-      font-family:'Grand Hotel',cursive;font-size:1.8rem;
-      display:inline-block;padding-bottom:.25rem;
-      border-bottom:2px solid var(--text);
+      font-family:'Grand Hotel',cursive; font-size:1.8rem;
+      display:inline-block; padding-bottom:.25rem; border-bottom:2px solid var(--text);
       position:relative;
     }
     header h1::after{
-      content:' ♡';font-family:'Sarabun',sans-serif;
-      font-size:1.2rem;vertical-align:middle;
+      content:' ♡'; font-family:'Sarabun',sans-serif; font-size:1.2rem;
     }
-    header p{color:#8e8e8e;font-size:.9rem;margin-top:.25rem;}
+    header p{ color:#8e8e8e; font-size:.9rem; margin-top:.25rem; }
+
     .gallery{
-      padding:var(--spacing) 0 var(--spacing);
-      display:flex;flex-direction:column;gap:var(--spacing);
+      padding:var(--spacing) 0; display:flex; flex-direction:column; gap:var(--spacing);
     }
     .card{
-      background:#fff;border:1px solid var(--border);
-      border-radius:var(--radius);overflow:hidden;
-      box-shadow:var(--shadow);transition:transform var(--transition);
+      background:#fff; border:1px solid var(--border);
+      border-radius:var(--radius); overflow:hidden;
+      box-shadow:var(--shadow); transition:transform var(--transition);
       position:relative;
     }
-    .card:hover{transform:translateY(-2px);}
-    .card img{
-      display:block;width:100%;aspect-ratio:4/5;object-fit:cover;
-    }
-    .card .info{
-      padding:var(--spacing);font-size:.95rem;
-      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-    }
-    .card .info .author{font-weight:600;margin-right:.25rem;}
+    .card:hover{ transform:translateY(-2px); }
+    .card img{ display:block; width:100%; aspect-ratio:4/5; object-fit:cover; }
+    .card .info{ padding:var(--spacing); font-size:.95rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .card .info .author{ font-weight:600; margin-right:.25rem; }
     .card .like-btn{
-      position:absolute;top:.5rem;right:.5rem;
-      background:rgba(255,255,255,0.9);border:none;
-      border-radius:50%;width:28px;height:28px;
-      display:flex;align-items:center;justify-content:center;
-      font-size:1rem;color:#262626;cursor:pointer;
-      transition:transform .2s;z-index:1;
+      position:absolute; top:.5rem; right:.5rem;
+      background:rgba(255,255,255,0.9); border:none;
+      border-radius:50%; width:28px; height:28px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:1rem; color:#262626; cursor:pointer;
+      transition:transform .2s; z-index:1;
     }
-    .card .like-btn:hover{transform:scale(1.2);}
-    .card .like-btn.liked{color:#e0245e;}
+    .card .like-btn:hover{ transform:scale(1.2); }
+    .card .like-btn.liked{ color:#e0245e; }
+
     .bottom-nav{
-      position:fixed;bottom:0;left:0;
-      width:100%;height:var(--nav-height);
-      background:#fff;border-top:1px solid var(--border);
-      display:flex;justify-content:space-around;align-items:center;
-      box-shadow:0 -1px 5px rgba(0,0,0,0.1);z-index:10;
+      position:fixed; bottom:env(safe-area-inset-bottom); left:0;
+      width:100%; height:var(--nav-height);
+      background:#fff; border-top:1px solid var(--border);
+      display:flex; justify-content:space-around; align-items:center;
+      box-shadow:0 -1px 5px rgba(0,0,0,0.1); z-index:10;
     }
     .bottom-nav button{
-      background:none;border:none;
-      font-size:1.4rem;cursor:pointer;
-      color:var(--text);transition:color var(--transition);
+      background:none; border:none;
+      font-size:1.4rem; cursor:pointer;
+      color:var(--text); transition:color var(--transition);
     }
-    .bottom-nav button.primary{font-size:2rem;color:var(--accent);}
-    .bottom-nav button:hover{color:var(--accent);}
+    .bottom-nav button.primary{ font-size:2rem; color:var(--accent); }
+    .bottom-nav button:hover{ color:var(--accent); }
+
     .modal{
-      display:none;position:fixed;inset:0;
+      display:none; position:fixed; inset:0;
       background:rgba(0,0,0,0.5);
-      align-items:center;justify-content:center;
-      padding:var(--spacing);z-index:20;
+      align-items:center; justify-content:center;
+      padding:var(--spacing); z-index:20;
     }
-    .modal.show{display:flex;animation:fadeIn .2s ease-out;}
-    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .modal.show{ display:flex; animation:fadeIn .2s ease-out; }
+    @keyframes fadeIn{ from{opacity:0} to{opacity:1} }
+
     .modal-content{
-      background:#fff;border-radius:var(--radius);
-      width:100%;max-width:400px;
-      box-shadow:var(--shadow);overflow:hidden;
+      background:#fff; border-radius:var(--radius);
+      width:100%; max-width:400px;
+      box-shadow:var(--shadow); overflow:hidden;
       animation:popIn .2s ease-out;
     }
-    @keyframes popIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+    @keyframes popIn{ from{opacity:0;transform:scale(.9)} to{opacity:1;transform:scale(1)} }
+
     .modal-header{
-      display:flex;justify-content:space-between;align-items:center;
-      padding:var(--spacing);border-bottom:1px solid var(--border);
+      display:flex; justify-content:space-between; align-items:center;
+      padding:var(--spacing); border-bottom:1px solid var(--border);
     }
-    .modal-header h2{font-size:1rem;}
+    .modal-header h2{ font-size:1rem; }
     .modal-close{
-      background:none;border:none;
-      font-size:1.2rem;cursor:pointer;
+      background:none; border:none; font-size:1.2rem; cursor:pointer;
     }
+
+    /* === ปรับ layout modal-body ให้ responsive === */
     .modal-body{
+      display:flex;
+      flex-direction:column; /* mobile: stack */
+      gap:var(--spacing);
       padding:var(--spacing);
-      display:flex;flex-direction:column;gap:var(--spacing);
     }
-    .modal-body input[type="text"],
-    .modal-body textarea{
-      width:100%;border:1px solid var(--border);
-      border-radius:var(--radius);padding:.75rem;
-      font-size:.95rem;resize:vertical;
+    /* ห่อฟอร์มกับ preview แยกกัน */
+    .form-fields{ display:flex; flex-direction:column; gap:var(--spacing); }
+    .preview-container img{
+      display:none; /* ซ่อนต้นทาง */
+      width:100%; height:auto;
+      border-radius:var(--radius);
+      object-fit:contain;
     }
-    .modal-body .upload-btn{
-      display:inline-flex;align-items:center;gap:.5rem;
-      padding:.6rem 1rem;background:var(--accent);
-      color:#fff;border:none;border-radius:var(--radius);
-      cursor:pointer;transition:background var(--transition);
-      font-size:.95rem;text-align:center;
+
+    /* เมื่อหน้าจอกว้าง ให้โชว์ side-by-side */
+    @media (min-width:600px){
+      .modal-body{ flex-direction:row; }
+      .form-fields, .preview-container{ flex:1; }
+      .preview-container img{ display:block; }
     }
-    .modal-body .upload-btn:hover{background:#2176c7;}
-    .modal-body .upload-btn input{display:none;}
-    .modal-body #preview{
-      display:none;width:100%;aspect-ratio:4/5;
-      object-fit:cover;border-radius:var(--radius);
-    }
+
     .modal-footer{
-      padding:var(--spacing);
+      padding: 0 var(--spacing) var(--spacing);
       border-top:1px solid var(--border);
       text-align:right;
     }
     .modal-footer button{
-      background:var(--accent);color:#fff;
-      border:none;border-radius:var(--radius);
-      padding:.5rem 1rem;font-weight:600;
-      cursor:pointer;transition:background var(--transition);
+      background:var(--accent); color:#fff;
+      border:none; border-radius:var(--radius);
+      padding:.5rem 1rem; font-weight:600;
+      cursor:pointer; transition:background var(--transition);
     }
-    .modal-footer button:disabled{opacity:.5;cursor:default;}
-    .modal-footer button:hover:not(:disabled){background:#2176c7;}
+    .modal-footer button:disabled{ opacity:.5; cursor:default; }
+    .modal-footer button:hover:not(:disabled){ background:#2176c7; }
+
     @keyframes popHeart{
       0%{transform:translate(-50%,-50%) scale(0);opacity:1;}
       50%{transform:translate(-50%,-50%) scale(1.2);opacity:.9;}
@@ -167,13 +164,19 @@
         <button id="modalClose" class="modal-close">&times;</button>
       </div>
       <div class="modal-body">
-        <input type="text" id="modalName" placeholder="ชื่อของคุณ (ไม่บังคับ)">
-        <textarea id="wishText" rows="4" placeholder="เขียนคำอวยพรของคุณ..." required></textarea>
-        <label class="upload-btn">
-          📷 อัปโหลดรูป
-          <input type="file" id="imgUpload" accept="image/*">
-        </label>
-        <img id="preview" alt="พรีวิวรูป">
+        <!-- ฝั่ง form -->
+        <div class="form-fields">
+          <input type="text" id="modalName" placeholder="ชื่อของคุณ (ไม่บังคับ)">
+          <textarea id="wishText" rows="4" placeholder="เขียนคำอวยพรของคุณ..." required></textarea>
+          <label class="upload-btn">
+            📷 อัปโหลดรูป
+            <input type="file" id="imgUpload" accept="image/*">
+          </label>
+        </div>
+        <!-- ฝั่ง preview -->
+        <div class="preview-container">
+          <img id="preview" alt="พรีวิวรูป">
+        </div>
       </div>
       <div class="modal-footer">
         <button id="postBtn" disabled>โพสต์</button>
@@ -184,31 +187,20 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
     import {
-      getFirestore,
-      serverTimestamp,
-      collection,
-      addDoc,
-      query,
-      orderBy,
-      onSnapshot
+      getFirestore, serverTimestamp,
+      collection, addDoc,
+      query, orderBy, onSnapshot
     } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
 
-    // Your Firebase config
     const firebaseConfig = {
-      apiKey: "AIzaSyBxYY_c14XFroS6dBIh4Jzl9XL4PMjipcg",
-      authDomain: "wishes-web.firebaseapp.com",
-      projectId: "wishes-web",
-      storageBucket: "unused",
-      messagingSenderId: "93224724611",
-      appId: "1:93224724611:web:491aab34365584864fd3b6",
-      measurementId: "G-6HQJWKWB8Z"
+      apiKey: "...", authDomain: "...",
+      projectId: "wishes-web", storageBucket: "unused",
+      messagingSenderId: "...", appId: "...", measurementId: "..."
     };
-
-    // Initialize Firebase & Firestore
     const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    const db  = getFirestore(app);
 
-    // DOM refs
+    // refs
     const gallery    = document.getElementById('gallery');
     const navAdd     = document.getElementById('nav-add');
     const modal      = document.getElementById('modal');
@@ -219,21 +211,19 @@
     const preview    = document.getElementById('preview');
     const postBtn    = document.getElementById('postBtn');
 
-    // Heart animation
-    function animateHeart(card) {
+    function animateHeart(card){
       const h = document.createElement('div');
       h.textContent = '❤';
       h.style.cssText = `
-        position:absolute;top:50%;left:50%;
+        position:absolute; top:50%; left:50%;
         transform:translate(-50%,-50%) scale(0);
-        font-size:3rem;color:rgba(255,0,0,0.8);
+        font-size:3rem; color:rgba(255,0,0,0.8);
         animation:popHeart .6s forwards;`;
       card.appendChild(h);
       h.addEventListener('animationend', () => h.remove());
     }
 
-    // Create a wish card element
-    function createCard(w) {
+    function createCard(w){
       const card = document.createElement('div');
       card.className = 'card';
       card.innerHTML = `
@@ -243,50 +233,42 @@
           <span class="author">${w.name}:</span>
           <span class="wish">${w.text}</span>
         </div>`;
-      const btn = card.querySelector('.like-btn');
-      btn.addEventListener('click', e => {
-        e.stopPropagation();
-        animateHeart(card);
-      });
+      card.querySelector('.like-btn')
+          .addEventListener('click', e => { e.stopPropagation(); animateHeart(card); });
       gallery.prepend(card);
     }
 
-    // 1) Real-time listener: load feed immediately on page load
-    const qFeed = query(
-      collection(db, 'wishes'),
-      orderBy('createdAt', 'desc')
-    );
+    // โหลด feed ทันทีที่หน้าเปิด
+    const qFeed = query(collection(db,'wishes'), orderBy('createdAt','desc'));
     onSnapshot(qFeed, snap => {
       gallery.innerHTML = '';
       snap.forEach(doc => createCard(doc.data()));
     });
 
-    // 2) UI event handlers
+    // UI events
     navAdd.onclick     = () => modal.classList.add('show');
     modalClose.onclick = () => modal.classList.remove('show');
-    modal.onclick      = e => { if (e.target === modal) modal.classList.remove('show'); };
-    wishText.oninput   = () => { postBtn.disabled = !wishText.value.trim(); };
+    modal.onclick      = e => { if(e.target===modal) modal.classList.remove('show'); };
+    wishText.oninput   = () => postBtn.disabled = !wishText.value.trim();
     imgUpload.onchange = e => {
       const file = e.target.files[0];
-      if (!file) {
-        preview.style.display = 'none';
+      if(!file) {
+        preview.src = '';
         return;
       }
       const url = URL.createObjectURL(file);
       preview.src = url;
+      // บังคับให้โชว์เสมอ เพราะ CSS จะซ่อนบนมือถือถ้าไม่มี file
       preview.style.display = 'block';
     };
 
-    // 3) Post new wish
     postBtn.onclick = async () => {
       const text = wishText.value.trim();
-      if (!text) return;
+      if(!text) return;
       const name = modalName.value.trim() || 'แขกผู้มีเกียรติ';
       let imgUrl = 'https://via.placeholder.com/320x400?text=No+Image';
-
       const file = imgUpload.files[0];
-      if (file) {
-        // load and resize image client-side
+      if(file){
         const img = await new Promise(r => {
           const i = new Image();
           i.onload = () => r(i);
@@ -294,42 +276,30 @@
         });
         const max = 800;
         let w = img.width, h = img.height;
-        if (Math.max(w, h) > max) {
-          const ratio = max / Math.max(w, h);
-          w = w * ratio;
-          h = h * ratio;
+        if(Math.max(w,h)>max){
+          const ratio = max/Math.max(w,h);
+          w*=ratio; h*=ratio;
         }
         const canvas = document.createElement('canvas');
-        canvas.width = w;
-        canvas.height = h;
+        canvas.width = w; canvas.height = h;
         const ctx = canvas.getContext('2d');
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
-        ctx.drawImage(img, 0, 0, w, h);
-
-        // encode JPEG under ~1MB
-        let quality = 0.95, dataUrl;
-        do {
-          dataUrl = canvas.toDataURL('image/jpeg', quality);
+        ctx.drawImage(img,0,0,w,h);
+        let quality=0.95, dataUrl;
+        do{
+          dataUrl = canvas.toDataURL('image/jpeg',quality);
           quality -= 0.05;
-        } while (dataUrl.length > 1_000_000 && quality > 0.1);
+        } while(dataUrl.length>1_000_000 && quality>0.1);
         imgUrl = dataUrl;
       }
-
-      await addDoc(collection(db, 'wishes'), {
-        name,
-        text,
-        imgUrl,
-        createdAt: serverTimestamp()
+      await addDoc(collection(db,'wishes'), {
+        name, text, imgUrl, createdAt: serverTimestamp()
       });
-
-      // reset form
-      wishText.value = '';
-      modalName.value = '';
-      imgUpload.value = '';
-      preview.style.display = 'none';
-      postBtn.disabled = true;
-      modal.classList.remove('show');
+      // reset
+      wishText.value=''; modalName.value='';
+      imgUpload.value=''; preview.src='';
+      postBtn.disabled=true; modal.classList.remove('show');
     };
   </script>
 </body>
