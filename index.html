@@ -3,23 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>WishesGallery</title>
+  <title>Tuck &amp; Tan</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600&family=Grand+Hotel&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #f0f2f5;
       --text: #262626;
-      --modal-bg: #fafafa;
-      --modal-text: #333;
-      --input-bg: #ececec;
-      --input-text: #222;
-      --radius: 14px;
+      --modal-bg: #ffffffcc;
+      --modal-blur: blur(12px);
+      --input-bg: #fafafa;
+      --input-text: #333;
+      --radius: 16px;
       --spacing: 1rem;
-      --shadow-light: 0 6px 20px rgba(0,0,0,0.05);
-      --transition: .25s ease;
-      --nav-height: 56px;
-      --grad-start: #405de6;
-      --grad-end: #5851db;
+      --shadow: 0 8px 24px rgba(0,0,0,0.1);
+      --nav-height: 60px;
+      --primary-start: #405de6;
+      --primary-end: #5851db;
     }
     * { box-sizing: border-box; margin:0; padding:0 }
     body {
@@ -28,30 +27,29 @@
       font-family: 'Sarabun', sans-serif;
       max-width: 480px;
       margin: 0 auto;
+      min-height: 100vh;
       padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom));
       position: relative;
     }
-    /* Header */
+
     header {
       display: flex; justify-content: space-between; align-items: center;
-      padding: var(--spacing); background: #fff; border-bottom: 1px solid #e6e6e6;
+      padding: var(--spacing); background: #fff; box-shadow: var(--shadow);
     }
     header h1 {
       font-family: 'Grand Hotel', cursive;
       font-size: 1.8rem;
-      color: var(--text);
     }
-    .header-heart { font-size: 2rem; color: var(--text); }
 
-    /* Gallery Cards */
     .gallery {
-      padding: var(--spacing) 0;
+      padding: var(--spacing);
       display: flex; flex-direction: column; gap: var(--spacing);
     }
     .card {
       background: #fff; border-radius: var(--radius);
-      box-shadow: var(--shadow-light); overflow: hidden;
-      transition: transform var(--transition); position: relative;
+      box-shadow: var(--shadow); overflow: hidden;
+      transition: transform .2s;
+      position: relative;
     }
     .card:hover { transform: translateY(-4px); }
     .card img { width: 100%; display: block; }
@@ -59,148 +57,134 @@
       display: flex; align-items: center; padding: .5rem 1rem;
       font-size: .9rem;
     }
-    .heart-icon { margin-right: .25rem; }
+    .heart-icon { margin-right: .25rem; color: #e0245e; }
     .info {
       padding: 0 1rem 1rem; font-size: .95rem;
-      display: flex; gap: .25rem; flex-wrap: wrap;
     }
     .author { font-weight: 600; }
     .delete-btn {
-      position: absolute; top: .5rem; left: .5rem;
+      position: absolute; top: 8px; left: 8px;
       background: rgba(255,255,255,0.9); border: none;
       border-radius: 50%; width: 28px; height: 28px;
       cursor: pointer; font-size: 1rem;
-      transition: transform .2s;
+      transition: transform .2s, color .2s;
     }
     .delete-btn:hover { transform: scale(1.2); color: #e0245e; }
 
-    /* Bottom nav */
     .bottom-nav {
       position: fixed; bottom: 0; left: 50%;
       transform: translateX(-50%);
-      width: 100vw; height: var(--nav-height);
-      background: #fff; border-top: 1px solid #ccc;
+      width: 100%; height: var(--nav-height);
+      backdrop-filter: blur(12px);
+      background: #ffffffdd;
       display: flex; justify-content: space-around; align-items: center;
-      z-index: 10;
+      z-index: 100;
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
     }
     .bottom-nav button {
-      background: none; border: none; font-size: 1.6rem;
-      cursor: pointer; color: #000; filter: none !important;
-      transition: transform var(--transition);
+      background: none; border: none;
+      font-size: 1.6rem; cursor: pointer;
+      transition: transform .2s;
+      color: var(--text);
     }
-    .bottom-nav .primary { font-size: 2rem; }
+    .bottom-nav .primary {
+      font-size: 2rem;
+      background: linear-gradient(135deg, var(--primary-start), var(--primary-end));
+      color: #fff; width: 48px; height: 48px;
+      border-radius: 50%; display: flex;
+      align-items: center; justify-content: center;
+      box-shadow: var(--shadow);
+    }
     .bottom-nav button:hover { transform: scale(1.1); }
 
-    /* Modal */
     .modal {
       display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,0.6);
+      background: rgba(0,0,0,0.4);
       align-items: center; justify-content: center;
-      padding: var(--spacing); z-index: 20;
+      padding: var(--spacing); z-index: 200;
     }
     .modal.show { display: flex; }
     .modal-content {
-      background: var(--modal-bg);
-      color: var(--modal-text);
-      border-radius: var(--radius);
-      width: 100%; max-width: 420px;
-      box-shadow: var(--shadow-light);
-      overflow: hidden;
       position: relative;
-      border: 1px solid #ddd;
+      width: 100%; max-width: 420px;
+      background: var(--modal-bg);
+      backdrop-filter: var(--modal-blur);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
     }
     .modal-content::before {
       content: '';
       position: absolute; top: 0; left: 0;
       width: 100%; height: 4px;
-      background: linear-gradient(90deg, var(--grad-start), var(--grad-end));
+      background: linear-gradient(90deg, var(--primary-start), var(--primary-end));
     }
     .modal-header {
       display: flex; justify-content: space-between; align-items: center;
-      padding: var(--spacing); background: #fff;
-      border-bottom: 1px solid #e0e0e0;
+      padding: var(--spacing); background: rgba(255,255,255,0.8);
     }
-    .modal-header h2 {
-      margin: 0; font-size: 1.5rem; font-weight: 600;
-    }
+    .modal-header h2 { font-size: 1.5rem; }
     .modal-close {
-      background: none; border: none; font-size: 1.5rem;
-      cursor: pointer; color: #666;
-      transition: transform var(--transition);
+      background: none; border: none;
+      font-size: 1.5rem; cursor: pointer;
+      transition: transform .2s;
     }
-    .modal-close:hover { transform: scale(1.2); color: #000; }
+    .modal-close:hover { transform: scale(1.2); }
 
     .modal-body {
       padding: var(--spacing);
       display: flex; flex-direction: column; gap: var(--spacing);
-      background: var(--modal-bg);
     }
-    .form-fields input,
-    .form-fields textarea {
+    .modal-body input,
+    .modal-body textarea {
       width: 100%; padding: .75rem;
       background: var(--input-bg); color: var(--input-text);
-      border: 1px solid #ccc; border-radius: var(--radius);
-      font-size: .95rem;
-      transition: border-color var(--transition), box-shadow var(--transition);
+      border: 1px solid #ddd; border-radius: var(--radius);
+      font-size: .95rem; resize: none;
     }
-    .form-fields input::placeholder,
-    .form-fields textarea::placeholder {
-      color: #999;
+    .modal-body input::placeholder,
+    .modal-body textarea::placeholder {
+      color: #aaa;
     }
-    .form-fields input:focus,
-    .form-fields textarea:focus {
-      outline: none;
-      border-color: var(--grad-start);
-      box-shadow: 0 0 0 3px rgba(64,93,230,0.2);
-    }
-    .upload-btn.btn-upload {
-      display: inline-block; padding: .6rem 1rem;
-      background: linear-gradient(135deg, var(--grad-start), var(--grad-end));
+    .btn-upload {
+      display: block; width: 100%;
+      text-align: center; padding: .75rem;
+      background: linear-gradient(135deg, var(--primary-start), var(--primary-end));
       color: #fff; font-weight: 600;
       border-radius: var(--radius); cursor: pointer;
-      transition: opacity var(--transition), transform var(--transition);
-      text-align: center;
+      position: relative; overflow: hidden;
     }
-    .upload-btn.btn-upload:hover {
-      opacity: .9; transform: translateY(-2px);
-    }
-    .upload-btn.btn-upload input { display: none; }
+    .btn-upload input { position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; }
 
     .preview-container {
-      margin-top: var(--spacing); text-align: center;
+      text-align: center;
     }
     .preview-container img {
-      width: 100%; max-height: 360px;
-      object-fit: contain; border-radius: var(--radius);
-      box-shadow: var(--shadow-light); display: inline-block;
+      max-width: 100%; border-radius: var(--radius);
+      box-shadow: var(--shadow);
     }
 
     .modal-footer {
-      padding: var(--spacing); background: #fff;
-      border-top: 1px solid #e0e0e0; text-align: right;
+      padding: var(--spacing); text-align: right;
+      background: rgba(255,255,255,0.8);
     }
     .modal-footer button {
-      position: relative;
       padding: .6rem 1.4rem; font-weight: 600;
-      background: linear-gradient(135deg, var(--grad-start), var(--grad-end));
-      color: #fff;
-      border: none; border-radius: var(--radius);
-      cursor: pointer;
-      transition: opacity var(--transition), transform var(--transition);
+      background: linear-gradient(135deg, var(--primary-start), var(--primary-end));
+      color: #fff; border: none; border-radius: var(--radius);
+      cursor: pointer; transition: opacity .2s, transform .2s;
     }
-    .modal-footer button:disabled {
-      opacity: .5; cursor: default;
-    }
-    .modal-footer button:not(:disabled):hover {
-      opacity: .9; transform: translateY(-2px);
-    }
-    .spinner-button {
-      width: 16px; height: 16px; border: 2px solid #fff;
-      border-top-color: transparent; border-radius: 50%;
-      animation: spin 1s linear infinite;
-      display: inline-block; vertical-align: middle;
+    .modal-footer button:disabled { opacity: .5; cursor: default; }
+    .modal-footer button:not(:disabled):hover { transform: translateY(-2px); }
+
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid #fff; border-top-color: transparent;
+      border-radius: 50%; display: inline-block;
+      animation: spin 1s linear infinite; vertical-align: middle;
       margin-right: 6px;
     }
+
     @keyframes spin { to { transform: rotate(360deg); } }
     @keyframes popHeartFadeShake {
       0%   { transform: translate(-50%,-50%) scale(0); opacity: 0; }
@@ -213,9 +197,10 @@
   </style>
 </head>
 <body>
+
   <header>
     <h1>Tuck &amp; Tan</h1>
-    <span class="header-heart">♡</span>
+    <span>♡</span>
   </header>
 
   <div class="gallery" id="gallery"></div>
@@ -223,7 +208,7 @@
   <nav class="bottom-nav">
     <button id="nav-home">🏠</button>
     <button id="nav-search">🔍</button>
-    <button id="nav-add" class="primary">➕</button>
+    <button id="nav-add" class="primary">＋</button>
     <button id="nav-heart">❤️</button>
     <button id="nav-profile">👤</button>
   </nav>
@@ -232,17 +217,15 @@
     <div class="modal-content">
       <div class="modal-header">
         <h2>สร้างโพสต์ใหม่</h2>
-        <button id="modalClose" class="modal-close">&times;</button>
+        <button id="modalClose" class="modal-close">✕</button>
       </div>
       <div class="modal-body">
-        <div class="form-fields">
-          <input type="text" id="modalName" placeholder="ชื่อของคุณ (ไม่บังคับ)">
-          <textarea id="wishText" rows="4" placeholder="เขียนคำอวยพรของคุณ..." required></textarea>
-          <label class="upload-btn btn-upload">
-            📷 อัปโหลดรูป
-            <input type="file" id="imgUpload" accept="image/*">
-          </label>
-        </div>
+        <input type="text" id="modalName" placeholder="ชื่อของคุณ (ไม่บังคับ)">
+        <textarea id="wishText" rows="4" placeholder="เขียนคำอวยพรของคุณ..." required></textarea>
+        <label class="btn-upload">
+          📷 อัปโหลดรูป
+          <input type="file" id="imgUpload" accept="image/*">
+        </label>
         <div class="preview-container">
           <img id="preview" alt="พรีวิวรูป" style="display:none;">
         </div>
@@ -253,37 +236,21 @@
     </div>
   </div>
 
-  <!-- สคริปต์เปิด-ปิด modal -->
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const navAdd = document.getElementById('nav-add');
-      const modal  = document.getElementById('modal');
-      const modalClose = document.getElementById('modalClose');
-      navAdd.addEventListener('click', () => modal.classList.add('show'));
-      modalClose.addEventListener('click', () => modal.classList.remove('show'));
-      modal.addEventListener('click', e => {
-        if (e.target === modal) modal.classList.remove('show');
-      });
-    });
-  </script>
-
-  <!-- สคริปต์โมดูล Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
     import {
-      getFirestore,
-      collection, addDoc,
-      query, orderBy, onSnapshot,
-      doc as docRef, updateDoc, deleteDoc,
-      Timestamp
+      getFirestore, collection, addDoc, query, orderBy, onSnapshot,
+      doc as docRef, updateDoc, deleteDoc, Timestamp
     } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
 
+    // สร้างหรือดึง uid
     let currentUid = localStorage.getItem('uid');
     if (!currentUid) {
       currentUid = crypto.randomUUID();
       localStorage.setItem('uid', currentUid);
     }
 
+    // config Firebase (เหมือนต้นฉบับ)
     const firebaseConfig = {
       apiKey: "AIzaSyBxYY_c14XFroS6dBIh4Jzl9XL4PMjipcg",
       authDomain: "wishes-web.firebaseapp.com",
@@ -296,49 +263,48 @@
     const app = initializeApp(firebaseConfig);
     const db  = getFirestore(app);
 
-    const gallery    = document.getElementById('gallery');
-    const wishText   = document.getElementById('wishText');
-    const modalName  = document.getElementById('modalName');
-    const imgUpload  = document.getElementById('imgUpload');
-    const preview    = document.getElementById('preview');
-    const postBtn    = document.getElementById('postBtn');
+    // อ้างอิง element ต่างๆ
+    const gallery   = document.getElementById('gallery');
+    const wishText  = document.getElementById('wishText');
+    const modalName = document.getElementById('modalName');
+    const imgUpload = document.getElementById('imgUpload');
+    const preview   = document.getElementById('preview');
+    const postBtn   = document.getElementById('postBtn');
+    const modal     = document.getElementById('modal');
 
+    document.getElementById('nav-add').onclick = () => modal.classList.add('show');
+    document.getElementById('modalClose').onclick = () => modal.classList.remove('show');
+    modal.addEventListener('click', e => e.target === modal && modal.classList.remove('show'));
+
+    // สร้างการ์ดโพสต์
     function animateHeart(card) {
       const h = document.createElement('div');
       h.textContent = '❤';
-      h.style.cssText = `
-        position:absolute; top:50%; left:50%;
-        font-size:4rem; color:rgba(224,36,94,0.6);
-        animation:popHeartFadeShake .8s forwards;
-        pointer-events:none;`;
+      Object.assign(h.style, {
+        position:'absolute', top:'50%', left:'50%',
+        fontSize:'4rem', color:'rgba(224,36,94,0.6)',
+        animation:'popHeartFadeShake .8s forwards', pointerEvents:'none'
+      });
       card.querySelector('.img-wrapper').appendChild(h);
       h.addEventListener('animationend', () => h.remove());
     }
-
     async function handleLike(id, w) {
-      if (w.likedBy?.includes(currentUid)) return;
+      if ((w.likedBy||[]).includes(currentUid)) return;
       await updateDoc(docRef(db,'wishes',id), {
-        likes: (w.likes||0)+1,
+        likes: (w.likes||0) + 1,
         likedBy: [...(w.likedBy||[]), currentUid]
       });
     }
-
-    function shuffle(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-    }
-
     function createCard(w, id) {
       const card = document.createElement('div');
       card.className = 'card';
-      const delHTML = w.uid===currentUid
-        ? `<button class="delete-btn" title="ลบโพสต์">🗑️</button>` : '';
+      const delBtn = w.uid === currentUid
+        ? `<button class="delete-btn" title="ลบโพสต์">🗑️</button>`
+        : '';
       card.innerHTML = `
-        <div class="img-wrapper">
+        <div class="img-wrapper" style="position:relative;">
           <img src="${w.imgUrl}" />
-          ${delHTML}
+          ${delBtn}
         </div>
         <div class="like-indicator">
           <span class="heart-icon">♥</span>
@@ -348,75 +314,89 @@
           <span class="author">${w.name}:</span>
           <span class="wish">${w.text}</span>
         </div>`;
-      card.querySelector('img').addEventListener('dblclick', async e => {
-        e.stopPropagation(); animateHeart(card); await handleLike(id, w);
+      const imgEl = card.querySelector('img');
+      imgEl.addEventListener('dblclick', async e => {
+        e.stopPropagation();
+        animateHeart(card);
+        await handleLike(id, w);
       });
-      if (w.uid===currentUid) {
-        card.querySelector('.delete-btn').addEventListener('click', async e => {
+      if (w.uid === currentUid) {
+        card.querySelector('.delete-btn').onclick = async e => {
           e.stopPropagation();
-          if (confirm('ลบโพสต์นี้?')) await deleteDoc(docRef(db,'wishes',id));
-        });
+          if (confirm('ลบโพสต์นี้?')) {
+            await deleteDoc(docRef(db,'wishes',id));
+          }
+        };
       }
       gallery.append(card);
     }
 
+    // ฟีดเรียลไทม์
     const qFeed = query(collection(db,'wishes'), orderBy('createdAt','desc'));
     onSnapshot(qFeed, snap => {
-      const posts = snap.docs
+      gallery.innerHTML = '';
+      snap.docs
         .map(d => ({ id: d.id, ...d.data() }))
         .filter(p => p.createdAt)
-        .sort((a,b) => b.createdAt.toMillis() - a.createdAt.toMillis());
-      if (Math.random() < 0.2) shuffle(posts);
-      gallery.innerHTML = '';
-      posts.forEach(p => createCard(p, p.id));
+        .sort((a,b) => b.createdAt.toMillis() - a.createdAt.toMillis())
+        .forEach(p => createCard(p, p.id));
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
+    // ปุ่มโพสต์อัพเดตสถานะ
     wishText.oninput = () => postBtn.disabled = !wishText.value.trim();
+
+    // พรีวิวรูป
     imgUpload.onchange = e => {
       const f = e.target.files[0];
       if (!f) { preview.style.display='none'; return; }
       preview.src = URL.createObjectURL(f);
-      preview.style.display = 'inline-block';
+      preview.style.display = 'block';
     };
 
+    // กดโพสต์
     postBtn.onclick = async () => {
       postBtn.disabled = true;
-      postBtn.innerHTML = '<span class="spinner-button"></span>กำลังโพสต์';
+      postBtn.innerHTML = `<span class="spinner"></span>กำลังโพสต์`;
       const text = wishText.value.trim();
       const name = modalName.value.trim() || 'แขกผู้มีเกียรติ';
       let imgUrl = 'https://via.placeholder.com/320x400?text=No+Image';
       const f = imgUpload.files[0];
       if (f) {
         const img = await new Promise(r => {
-          const i=new Image(); i.onload = ()=>r(i);
+          const i = new Image(); i.onload = () => r(i);
           i.src = URL.createObjectURL(f);
         });
-        let w=img.width, h=img.height, max=800;
-        if (Math.max(w,h)>max) {
-          const r = max/Math.max(w,h); w*=r; h*=r;
+        let [w,h] = [img.width, img.height], max = 800;
+        if (Math.max(w,h) > max) {
+          const ratio = max / Math.max(w,h);
+          w *= ratio; h *= ratio;
         }
-        const c=document.createElement('canvas');
-        c.width=w; c.height=h;
-        const ctx=c.getContext('2d');
+        const c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        const ctx = c.getContext('2d');
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
-        ctx.drawImage(img,0,0,w,h);
-        let q=0.95, data;
-        do { data = c.toDataURL('image/jpeg',q); q-=0.05; }
-        while (data.length>1_000_000 && q>0.1);
+        ctx.drawImage(img, 0, 0, w, h);
+        let q = 0.95, data;
+        do {
+          data = c.toDataURL('image/jpeg', q);
+          q -= 0.05;
+        } while (data.length > 1_000_000 && q > 0.1);
         imgUrl = data;
       }
       await addDoc(collection(db,'wishes'), {
         name, text, imgUrl,
-        likes:0, likedBy:[], uid:currentUid,
+        likes: 0, likedBy: [], uid: currentUid,
         createdAt: Timestamp.now()
       });
-      wishText.value=''; modalName.value=''; imgUpload.value='';
-      preview.style.display='none';
+      wishText.value = '';
+      modalName.value = '';
+      imgUpload.value = '';
+      preview.style.display = 'none';
       postBtn.innerText = 'โพสต์';
       postBtn.disabled = true;
-      document.getElementById('modal').classList.remove('show');
+      modal.classList.remove('show');
     };
   </script>
 </body>
