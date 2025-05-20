@@ -13,7 +13,7 @@
       --accent-end: #2575fc;
       --radius: 16px;
       --spacing: 1rem;
-      --shadow: 0 8px 24px rgba(0,0,0,0.1);
+      --shadow-light: 0 8px 24px rgba(0,0,0,0.1);
       --transition: .3s ease;
       --nav-height: 56px;
     }
@@ -24,165 +24,187 @@
       font-family: 'Sarabun', sans-serif;
       max-width: 480px;
       margin: 0 auto;
-      padding-bottom: calc(var(--nav-height)+env(safe-area-inset-bottom));
+      padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom));
       position: relative;
     }
 
+    /* Header */
     header {
       display: flex; justify-content: space-between; align-items: center;
-      padding: var(--spacing); background: #fff; border-bottom:1px solid #ddd;
+      padding: var(--spacing); background: #fff; border-bottom: 1px solid #ddd;
     }
     header h1 {
-      font-family: 'Grand Hotel', cursive; font-size:1.8rem;
+      font-family: 'Grand Hotel', cursive;
+      font-size: 1.8rem;
     }
-    .header-heart { font-size:2rem; filter:brightness(0) saturate(100%); }
+    .header-heart {
+      font-size: 2rem;
+      filter: brightness(0) saturate(100%);
+    }
 
+    /* Feed cards */
     .gallery {
       padding: var(--spacing) 0;
-      display:flex; flex-direction:column; gap:var(--spacing);
+      display: flex; flex-direction: column; gap: var(--spacing);
     }
     .card {
-      background:#fff; border-radius:var(--radius);
-      box-shadow:var(--shadow); overflow:hidden;
-      transition:transform var(--transition); position:relative;
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-light);
+      overflow: hidden;
+      transition: transform var(--transition);
+      position: relative;
     }
-    .card:hover { transform:translateY(-4px); }
-    .img-wrapper { position:relative }
-    .card img { width:100%; display:block }
+    .card:hover { transform: translateY(-4px); }
+    .img-wrapper { position: relative; }
+    .card img { width: 100%; display: block; }
 
     .like-indicator {
-      display:flex; align-items:center;
-      padding:.5rem 1rem; font-size:.9rem; background:#fff;
+      display: flex; align-items: center;
+      padding: .5rem 1rem; font-size: .9rem;
     }
-    .heart-icon { margin-right:.25rem; }
+    .heart-icon { margin-right: .25rem; }
     .info {
-      padding:0 1rem 1rem;
-      font-size:.95rem; display:flex; gap:.25rem; flex-wrap:wrap;
+      padding: 0 1rem 1rem;
+      font-size: .95rem;
+      display: flex; gap: .25rem; flex-wrap: wrap;
     }
-    .author { font-weight:600; }
+    .author { font-weight: 600; }
     .delete-btn {
-      position:absolute; top:.5rem; left:.5rem;
-      background:rgba(255,255,255,0.9); border:none; border-radius:50%;
-      width:28px; height:28px; cursor:pointer; font-size:1rem;
-      transition:transform .2s;
+      position: absolute; top: .5rem; left: .5rem;
+      background: rgba(255,255,255,0.9);
+      border: none; border-radius: 50%;
+      width: 28px; height: 28px;
+      cursor: pointer; font-size: 1rem;
+      transition: transform .2s;
     }
-    .delete-btn:hover { transform:scale(1.2); color:#e0245e; }
+    .delete-btn:hover { transform: scale(1.2); color: #e0245e; }
 
+    /* Bottom nav full width */
     .bottom-nav {
-      position:fixed; bottom:0; left:50%; transform:translateX(-50%);
-      width:100vw; height:var(--nav-height);
-      background:#fff; border-top:2px solid #ccc;
-      display:flex; justify-content:space-around; align-items:center;
-      box-shadow:none; z-index:10;
+      position: fixed; bottom: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 100vw; height: var(--nav-height);
+      background: #fff; border-top: 2px solid #ccc;
+      display: flex; justify-content: space-around; align-items: center;
+      box-shadow: none; z-index: 10;
     }
     .bottom-nav button {
-      background:none; border:none; font-size:1.4rem;
-      cursor:pointer; color:var(--text);
-      transition:color var(--transition);
-      filter:brightness(0) saturate(100%);
+      background: none; border: none;
+      font-size: 1.4rem; cursor: pointer;
+      color: var(--text);
+      transition: color var(--transition);
+      filter: brightness(0) saturate(100%);
     }
-    .bottom-nav .primary { font-size:2rem; color:var(--accent-end); }
-    .bottom-nav button:hover { color:var(--accent-end); }
+    .bottom-nav .primary { font-size: 2rem; color: var(--accent-end); }
+    .bottom-nav button:hover { color: var(--accent-end); }
 
+    /* Modal */
     .modal {
-      display:none; position:fixed; inset:0;
-      background:rgba(0,0,0,0.6);
-      align-items:center; justify-content:center;
-      padding:var(--spacing); z-index:20;
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6);
+      align-items: center; justify-content: center;
+      padding: var(--spacing); z-index: 20;
     }
-    .modal.show { display:flex; }
+    .modal.show { display: flex; }
 
     .modal-content {
-      background:#fff; border-radius:var(--radius);
-      width:100%; max-width:440px;
-      box-shadow:var(--shadow); overflow:hidden;
-      animation:popIn .3s var(--transition);
+      background: #fff; border-radius: var(--radius);
+      width: 100%; max-width: 420px;
+      box-shadow: var(--shadow-light); overflow: hidden;
+      animation: popIn .3s var(--transition);
     }
     @keyframes popIn {
-      from { transform:scale(0.9); opacity:0 }
-      to   { transform:scale(1);   opacity:1 }
+      from { transform: scale(0.9); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
     }
 
     .modal-header {
-      display:flex; justify-content:space-between; align-items:center;
-      padding:var(--spacing);
+      display: flex; justify-content: space-between; align-items: center;
+      padding: var(--spacing);
       background: linear-gradient(90deg, var(--accent-start), var(--accent-end));
-      color:#fff;
+      color: #fff;
     }
-    .modal-header h2 { font-size:1.1rem; font-weight:600 }
+    .modal-header h2 { font-size: 1.1rem; font-weight: 600; }
     .modal-close {
-      background:none; border:none; font-size:1.4rem;
-      cursor:pointer; color:#fff;
-      transition:transform .2s;
+      background: none; border: none; font-size: 1.4rem;
+      cursor: pointer; color: #fff;
+      transition: transform .2s;
     }
-    .modal-close:hover { transform:scale(1.2) }
+    .modal-close:hover { transform: scale(1.2); }
 
     .modal-body {
-      padding:var(--spacing);
-      display:flex; flex-direction:column; gap:var(--spacing);
+      padding: var(--spacing);
+      display: flex; flex-direction: column; gap: var(--spacing);
     }
     .form-fields input,
     .form-fields textarea {
-      width:100%; padding:.75rem;
-      border:1px solid #ccc; border-radius:var(--radius);
-      font-size:.95rem;
-      transition:border-color var(--transition), box-shadow var(--transition);
+      width: 100%; padding: .75rem;
+      border: 1px solid #ccc; border-radius: var(--radius);
+      font-size: .95rem;
+      transition: border-color var(--transition), box-shadow var(--transition);
     }
     .form-fields input:focus,
     .form-fields textarea:focus {
-      outline:none;
-      border-color:var(--accent-end);
-      box-shadow:0 0 0 3px rgba(37,117,252,0.2);
+      outline: none;
+      border-color: var(--accent-end);
+      box-shadow: 0 0 0 3px rgba(37,117,252,0.2);
     }
     .form-fields label.upload-btn {
-      display:inline-block; padding:.6rem 1rem;
-      background:linear-gradient(90deg,var(--accent-start),var(--accent-end));
-      color:#fff; border-radius:var(--radius);
-      font-weight:600; cursor:pointer;
-      transition:opacity var(--transition);
+      display: inline-block; padding: .6rem 1rem;
+      background: linear-gradient(90deg,var(--accent-start),var(--accent-end));
+      color: #fff; border-radius: var(--radius);
+      font-weight: 600; cursor: pointer;
+      transition: opacity var(--transition);
     }
-    .form-fields label.upload-btn:hover { opacity:.9 }
-    .form-fields label.upload-btn input { display:none }
+    .form-fields label.upload-btn:hover { opacity: .9; }
+    .form-fields label.upload-btn input { display: none; }
 
+    /* จำกัดขนาดรูปพรีวิว */
     .preview-container {
-      margin-top:var(--spacing); text-align:center;
+      margin-top: var(--spacing);
+      text-align: center;
     }
     .preview-container img {
-      max-width:100%; max-height:160px;
-      border-radius:var(--radius); box-shadow:var(--shadow);
-      object-fit:contain;
+      max-width: 100%;
+      max-height: 160px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-light);
+      object-fit: contain;
     }
 
     .modal-footer {
-      padding:var(--spacing); background:#fafafa; border-top:1px solid #ddd;
-      text-align:right;
+      padding: var(--spacing); background: #fafafa; border-top: 1px solid #ddd;
+      text-align: right;
     }
     .modal-footer button {
-      padding:.6rem 1.2rem; font-size:.95rem; font-weight:600;
-      color:#fff;
-      background:linear-gradient(90deg,var(--accent-start),var(--accent-end));
-      border:none; border-radius:var(--radius);
-      cursor:pointer;
-      transition:opacity var(--transition), transform .2s;
+      padding: .6rem 1.2rem; font-size: .95rem; font-weight: 600;
+      color: #fff;
+      background: linear-gradient(90deg,var(--accent-start),var(--accent-end));
+      border: none; border-radius: var(--radius);
+      cursor: pointer;
+      transition: opacity var(--transition), transform .2s;
     }
-    .modal-footer button:disabled { opacity:.6; cursor:default }
+    .modal-footer button:disabled { opacity: .6; cursor: default; }
     .modal-footer button:not(:disabled):hover {
-      opacity:.9; transform:translateY(-1px)
+      opacity: .9; transform: translateY(-1px);
     }
 
     .spinner {
-      width:24px; height:24px;
-      border:3px solid #ddd; border-top-color:var(--accent-end);
-      border-radius:50%; animation:spin 1s linear infinite;
-      display:inline-block; vertical-align:middle; margin-right:.5rem;
+      width: 24px; height: 24px;
+      border: 3px solid #ddd; border-top-color: var(--accent-end);
+      border-radius: 50%; animation: spin 1s linear infinite;
+      display: inline-block; vertical-align: middle; margin-right: .5rem;
     }
-    @keyframes spin { to { transform:rotate(360deg) } }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     @keyframes popHeartFadeShake {
-      0%,100% { opacity:0; transform:translate(-50%,-50%) scale(0) }
-      30% { opacity:.6; transform:translate(-50%,-50%) scale(1) }
-      60% { opacity:.8; transform:translate(calc(-50%-5px),-50%) scale(1.1) }
-      70% { transform:translate(calc(-50%+5px),-50%) scale(1.1) }
+      0%   { transform: translate(-50%,-50%) scale(0); opacity: 0; }
+      30%  { transform: translate(-50%,-50%) scale(1); opacity: 0.6; }
+      60%  { transform: translate(calc(-50%-5px),-50%) scale(1.1); opacity: 0.8; }
+      70%  { transform: translate(calc(-50%+5px),-50%) scale(1.1); }
+      80%  { transform: translate(-50%,-50%) scale(1); }
+      100% { transform: translate(-50%,-50%) scale(1); opacity: 0; }
     }
   </style>
 </head>
@@ -211,18 +233,18 @@
       <div class="modal-body">
         <div class="form-fields">
           <input type="text" id="modalName" placeholder="ชื่อของคุณ (ไม่บังคับ)">
-          <textarea id="wishText" rows="4" placeholder="เขียนคำอวยพร..." required></textarea>
+          <textarea id="wishText" rows="4" placeholder="เขียนคำอวยพรของคุณ..." required></textarea>
           <label class="upload-btn">
             📷 อัปโหลดรูป
             <input type="file" id="imgUpload" accept="image/*">
           </label>
         </div>
         <div class="preview-container">
-          <img id="preview" alt="พรีวิวรูป" style="display:none">
+          <img id="preview" alt="พรีวิวรูป" style="display:none;">
         </div>
       </div>
       <div class="modal-footer">
-        <div id="uploadSpinner" class="spinner" style="display:none"></div>
+        <div id="uploadSpinner" class="spinner" style="display:none;"></div>
         <button id="postBtn" disabled>โพสต์</button>
       </div>
     </div>
@@ -237,12 +259,14 @@
       doc as docRef, updateDoc, deleteDoc
     } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
 
+    // สร้างหรือดึง uid
     let currentUid = localStorage.getItem('uid');
     if (!currentUid) {
       currentUid = crypto.randomUUID();
       localStorage.setItem('uid', currentUid);
     }
 
+    // Firebase init
     const firebaseConfig = {
       apiKey: "AIzaSyBxYY_c14XFroS6dBIh4Jzl9XL4PMjipcg",
       authDomain: "wishes-web.firebaseapp.com",
@@ -255,6 +279,7 @@
     const app = initializeApp(firebaseConfig);
     const db  = getFirestore(app);
 
+    // DOM refs
     const gallery    = document.getElementById('gallery');
     const navAdd     = document.getElementById('nav-add');
     const modal      = document.getElementById('modal');
@@ -265,6 +290,8 @@
     const preview    = document.getElementById('preview');
     const postBtn    = document.getElementById('postBtn');
     const spinner    = document.getElementById('uploadSpinner');
+
+    preview.style.display = 'none';
 
     function animateHeart(card) {
       const h = document.createElement('div');
@@ -290,12 +317,12 @@
     function createCard(w, id) {
       const card = document.createElement('div');
       card.className = 'card';
-      const del = w.uid === currentUid
+      const delHTML = w.uid===currentUid
         ? `<button class="delete-btn" title="ลบโพสต์">🗑️</button>` : '';
       card.innerHTML = `
         <div class="img-wrapper">
-          <img src="${w.imgUrl}">
-          ${del}
+          <img src="${w.imgUrl}" />
+          ${delHTML}
         </div>
         <div class="like-indicator">
           <span class="heart-icon">♥</span>
@@ -305,78 +332,83 @@
           <span class="author">${w.name}:</span>
           <span class="wish">${w.text}</span>
         </div>`;
-      card.querySelector('img').addEventListener('dblclick', async e=>{
+      card.querySelector('img').addEventListener('dblclick', async e => {
         e.stopPropagation();
         animateHeart(card);
-        await handleLike(id,w);
+        await handleLike(id, w);
       });
       if (w.uid===currentUid) {
-        card.querySelector('.delete-btn').addEventListener('click',async e=>{
+        card.querySelector('.delete-btn').addEventListener('click', async e => {
           e.stopPropagation();
-          if(confirm('ลบโพสต์นี้?')) await deleteDoc(docRef(db,'wishes',id));
+          if (confirm('ลบโพสต์นี้?')) await deleteDoc(docRef(db,'wishes',id));
         });
       }
       gallery.prepend(card);
     }
 
-    // Real-time feed with metadata changes to ensure ordering
-    const q = query(collection(db,'wishes'), orderBy('createdAt','desc'));
-    onSnapshot(q, { includeMetadataChanges: true }, snap=>{
+    // Real-time + scroll top
+    const qFeed = query(collection(db,'wishes'), orderBy('createdAt','desc'));
+    onSnapshot(qFeed, snap => {
       gallery.innerHTML = '';
-      snap.forEach(d=>createCard(d.data(), d.id));
-      window.scrollTo({ top:0, behavior:'smooth' });
+      snap.forEach(d => createCard(d.data(), d.id));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
     // UI handlers
-    navAdd.onclick     = ()=>modal.classList.add('show');
-    modalClose.onclick = ()=>modal.classList.remove('show');
-    modal.onclick      = e=>{ if(e.target===modal) modal.classList.remove('show'); };
-    wishText.oninput   = ()=>postBtn.disabled = !wishText.value.trim();
+    navAdd.onclick     = () => modal.classList.add('show');
+    modalClose.onclick = () => modal.classList.remove('show');
+    modal.onclick      = e => { if (e.target===modal) modal.classList.remove('show'); };
+    wishText.oninput   = () => postBtn.disabled = !wishText.value.trim();
 
-    imgUpload.onchange = e=>{
+    imgUpload.onchange = e => {
       const f = e.target.files[0];
-      if (!f) return preview.style.display='none';
+      if (!f) { preview.style.display = 'none'; return; }
       preview.src = URL.createObjectURL(f);
       preview.style.display = 'block';
     };
 
-    postBtn.onclick = async ()=>{
+    postBtn.onclick = async () => {
       const text = wishText.value.trim();
       if (!text) return;
-      const name = modalName.value.trim()||'แขกผู้มีเกียรติ';
+      const name = modalName.value.trim() || 'แขกผู้มีเกียรติ';
       let imgUrl = 'https://via.placeholder.com/320x400?text=No+Image';
       const f = imgUpload.files[0];
       if (f) {
-        const img = await new Promise(r=>{
-          const i=new Image(); i.onload=()=>r(i);
+        const img = await new Promise(r => {
+          const i=new Image(); i.onload = ()=>r(i);
           i.src = URL.createObjectURL(f);
         });
-        let w=img.width, h=img.height, max=800;
-        if(Math.max(w,h)>max){const r=max/Math.max(w,h);w*=r;h*=r;}
-        const c=document.createElement('canvas');
+        let w=img.width, h=img.height;
+        const max=800;
+        if (Math.max(w,h)>max) {
+          const r = max/Math.max(w,h);
+          w*=r; h*=r;
+        }
+        const c = document.createElement('canvas');
         c.width=w; c.height=h;
-        const ctx=c.getContext('2d');
-        ctx.imageSmoothingEnabled=true;
-        ctx.imageSmoothingQuality='high';
+        const ctx = c.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(img,0,0,w,h);
         let q=0.95, data;
-        do { data=c.toDataURL('image/jpeg',q); q-=0.05; }
-        while(data.length>1e6&&q>0.1);
+        do { data = c.toDataURL('image/jpeg',q); q-=0.05; }
+        while(data.length>1_000_000 && q>0.1);
         imgUrl = data;
       }
-      // optimistic + scroll
-      createCard({name,text,imgUrl,likes:0,likedBy:[],uid:currentUid,createdAt:new Date()},'tmp-'+Date.now());
-      window.scrollTo({top:0,behavior:'smooth'});
-      postBtn.disabled=true; spinner.style.display='inline-block';
+
+      // Optimistic + scroll
+      createCard({ name, text, imgUrl, likes:0, likedBy:[], uid:currentUid, createdAt: new Date() }, 'tmp-'+Date.now());
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      postBtn.disabled = true; spinner.style.display = 'inline-block';
       try {
         await addDoc(collection(db,'wishes'), {
-          name, text, imgUrl, likes:0, likedBy:[], uid:currentUid,
-          createdAt: serverTimestamp()
+          name, text, imgUrl, likes:0, likedBy:[], uid:currentUid, createdAt: serverTimestamp()
         });
       } catch {
-        alert('โพสต์ไม่สำเร็จ');
+        alert('โพสต์ไม่สำเร็จ ลองอีกครั้ง');
       } finally {
-        spinner.style.display='none';
+        spinner.style.display = 'none';
         wishText.value=''; modalName.value=''; imgUpload.value='';
         preview.style.display='none'; postBtn.disabled=true;
         modal.classList.remove('show');
