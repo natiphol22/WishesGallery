@@ -15,7 +15,6 @@
       --shadow-light: 0 6px 18px rgba(0,0,0,0.08);
       --shadow-hover: 0 8px 24px rgba(0,0,0,0.12);
       --transition: .2s ease;
-      --max-width: 480px;
       --nav-height: 56px;
     }
     *, *::before, *::after { box-sizing: border-box; margin:0; padding:0 }
@@ -23,30 +22,28 @@
       background: var(--bg);
       color: var(--text);
       font-family: 'Sarabun', sans-serif;
-      margin:0 auto;
-      max-width: var(--max-width);
-      padding-bottom: calc(var(--nav-height)+env(safe-area-inset-bottom));
+      margin: 0 auto;
+      padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom));
+      position: relative;
+      max-width: 480px;
     }
 
     header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: var(--spacing) 0;
+      padding: var(--spacing);
       background: #fff;
       border-bottom: 1px solid #dbdbdb;
     }
     header h1 {
       font-family: 'Grand Hotel', cursive;
       font-size: 1.8rem;
-      margin-left: var(--spacing);
       border-bottom: none;
     }
     .header-heart {
       font-size: 2rem;
-      margin-right: var(--spacing);
       filter: brightness(0) saturate(100%);
-      cursor: default;
     }
 
     .gallery {
@@ -57,7 +54,6 @@
     }
     .card {
       background: #fafafa;
-      border: none;
       border-radius: var(--radius);
       box-shadow: var(--shadow-light);
       overflow: hidden;
@@ -91,21 +87,20 @@
       position: absolute;
       top: .5rem; left: .5rem;
       background: rgba(255,255,255,0.9);
-      border: none;
-      border-radius: 50%;
+      border: none; border-radius: 50%;
       width: 28px; height: 28px;
-      cursor: pointer;
-      font-size: 1rem;
+      cursor: pointer; font-size: 1rem;
       transition: transform .2s;
     }
     .delete-btn:hover { transform: scale(1.2); color: #e0245e; }
 
-    /* ปรับแถบล่างให้ดูแข็ง: ลบเงา + เพิ่มขอบบนชัดเจน */
+    /* bottom-nav เต็มขอบ viewport */
     .bottom-nav {
       position: fixed;
-      bottom: env(safe-area-inset-bottom);
-      left: 0;
-      width: 100%;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100vw;
       height: var(--nav-height);
       background: #fff;
       border-top: 2px solid #ccc;
@@ -146,8 +141,7 @@
     }
     .modal-header {
       display: flex; justify-content: space-between; align-items: center;
-      padding: var(--spacing);
-      border-bottom: 1px solid #dbdbdb;
+      padding: var(--spacing); border-bottom: 1px solid #dbdbdb;
     }
     .modal-header h2 { font-size: 1rem; }
     .modal-close {
@@ -246,7 +240,7 @@
         <button id="modalClose" class="modal-close">&times;</button>
       </div>
       <div class="modal-body">
-        <div class="form-fields">
+        <div class="formFIELDS">
           <input type="text" id="modalName" placeholder="ชื่อของคุณ (ไม่บังคับ)">
           <textarea id="wishText" rows="4" placeholder="เขียนคำอวยพรของคุณ..." required></textarea>
           <label class="upload-btn">
@@ -280,12 +274,14 @@
       deleteDoc
     } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
 
+    // สร้างหรือดึง uid ของผู้ใช้
     let currentUid = localStorage.getItem('uid');
     if (!currentUid) {
       currentUid = crypto.randomUUID();
       localStorage.setItem('uid', currentUid);
     }
 
+    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyBxYY_c14XFroS6dBIh4Jzl9XL4PMjipcg",
       authDomain: "wishes-web.firebaseapp.com",
@@ -298,6 +294,7 @@
     const app = initializeApp(firebaseConfig);
     const db  = getFirestore(app);
 
+    // DOM
     const gallery    = document.getElementById('gallery');
     const navAdd     = document.getElementById('nav-add');
     const modal      = document.getElementById('modal');
@@ -353,26 +350,25 @@
           <span class="wish">${w.text}</span>
         </div>`;
 
-      const img = card.querySelector('img');
-      img.addEventListener('dblclick', async e => {
+      card.querySelector('img').addEventListener('dblclick', async e => {
         e.stopPropagation();
         animateHeart(card);
         await handleLike(docId, w);
       });
 
       if (w.uid === currentUid) {
-        card.querySelector('.delete-btn')
-          .addEventListener('click', async e => {
-            e.stopPropagation();
-            if (confirm('คุณแน่ใจว่าจะลบโพสต์นี้ใช่ไหม?')) {
-              await deleteDoc(docRef(db, 'wishes', docId));
-            }
-          });
+        card.querySelector('.delete-btn').addEventListener('click', async e => {
+          e.stopPropagation();
+          if (confirm('คุณแน่ใจว่าจะลบโพสต์นี้ใช่ไหม?')) {
+            await deleteDoc(docRef(db, 'wishes', docId));
+          }
+        });
       }
 
       gallery.prepend(card);
     }
 
+    // Real-time feed
     const qFeed = query(
       collection(db, 'wishes'),
       orderBy('createdAt','desc')
@@ -382,17 +378,15 @@
       snap.forEach(docSnap => createCard(docSnap.data(), docSnap.id));
     });
 
+    // UI events
     navAdd.onclick     = () => modal.classList.add('show');
     modalClose.onclick = () => modal.classList.remove('show');
-    modal.onclick      = e => { if (e.target === modal) modal.classList.remove('show'); };
-    wishText.oninput   = () => { postBtn.disabled = !wishText.value.trim(); };
+    modal.onclick      = e => { if (e.target===modal) modal.classList.remove('show'); };
+    wishText.oninput   = () => postBtn.disabled = !wishText.value.trim();
 
     imgUpload.onchange = e => {
       const file = e.target.files[0];
-      if (!file) {
-        preview.style.display = 'none';
-        return;
-      }
+      if (!file) { preview.style.display = 'none'; return; }
       preview.src = URL.createObjectURL(file);
       preview.style.display = 'block';
     };
@@ -405,36 +399,35 @@
       const file = imgUpload.files[0];
       if (file) {
         const img = await new Promise(r => {
-          const i=new Image();
-          i.onload = ()=>r(i);
+          const i=new Image(); i.onload = ()=>r(i);
           i.src = URL.createObjectURL(file);
         });
         const max=800; let w=img.width, h=img.height;
         if (Math.max(w,h)>max) {
-          const ratio=max/Math.max(w,h);
+          const ratio = max/Math.max(w,h);
           w*=ratio; h*=ratio;
         }
-        const canvas=document.createElement('canvas');
-        canvas.width=w; canvas.height=h;
-        const ctx=canvas.getContext('2d');
-        ctx.imageSmoothingEnabled=true;
-        ctx.imageSmoothingQuality='high';
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(img,0,0,w,h);
         let quality=0.95, dataUrl;
-        do{
-          dataUrl=canvas.toDataURL('image/jpeg',quality);
-          quality-=0.05;
-        }while(dataUrl.length>1_000_000 && quality>0.1);
-        imgUrl=dataUrl;
+        do {
+          dataUrl = canvas.toDataURL('image/jpeg',quality);
+          quality -= 0.05;
+        } while(dataUrl.length>1_000_000 && quality>0.1);
+        imgUrl = dataUrl;
       }
 
-      // Optimistic UI: แทรกการ์ดบนสุดทันที
-      const tempId = 'tmp-' + Date.now();
+      // Optimistic UI & scroll to top
       createCard({
         name, text, imgUrl,
         likes:0, likedBy:[], uid:currentUid,
         createdAt: new Date()
-      }, tempId);
+      }, 'tmp-' + Date.now());
+      window.scrollTo({ top: 0, behavior: 'smooth' });
 
       postBtn.disabled = true;
       spinner.classList.remove('hidden');
@@ -445,7 +438,7 @@
           likes:0, likedBy:[], uid:currentUid,
           createdAt: serverTimestamp()
         });
-      } catch(e) {
+      } catch (e) {
         console.error(e);
         alert('โพสต์ไม่สำเร็จ ลองอีกครั้ง');
       } finally {
