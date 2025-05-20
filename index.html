@@ -30,18 +30,43 @@
       margin: 0 auto;
       padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom));
       position: relative;
+      scroll-behavior: smooth; /* 🎞 */
     }
     /* Header */
     header {
       display: flex; justify-content: space-between; align-items: center;
       padding: var(--spacing); background: #fff; border-bottom: 1px solid #e6e6e6;
+      position: sticky; top:0; z-index: 15;
     }
     header h1 {
       font-family: 'Grand Hotel', cursive;
       font-size: 1.8rem;
       color: var(--text);
     }
-    .header-heart { font-size: 2rem; color: var(--text); }
+    .header-heart, .header-search { font-size: 1.8rem; color: var(--text); cursor: pointer; }
+    /* Search Modal */
+    .search-modal {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6);
+      align-items: center; justify-content: center;
+      padding: var(--spacing); z-index: 25;
+    }
+    .search-modal.show { display: flex; }
+    .search-box {
+      background: #fff; border-radius: var(--radius);
+      padding: var(--spacing);
+      width: 100%; max-width: 360px;
+      box-shadow: var(--shadow-light);
+      display: flex; gap: .5rem;
+      align-items: center;
+    }
+    .search-box input {
+      flex:1; padding:.5rem; border:1px solid #ccc; border-radius:var(--radius);
+      font-size:.95rem;
+    }
+    .search-box button {
+      background:none; border:none; font-size:1.4rem; cursor:pointer;
+    }
 
     /* Gallery Cards */
     .gallery {
@@ -65,14 +90,15 @@
       display: flex; gap: .25rem; flex-wrap: wrap;
     }
     .author { font-weight: 600; }
-    .delete-btn {
-      position: absolute; top: .5rem; left: .5rem;
+    .card .actions {
+      position: absolute; top: .5rem; left: .5rem; display: flex; gap:.25rem;
+    }
+    .card .actions button {
       background: rgba(255,255,255,0.9); border: none;
       border-radius: 50%; width: 28px; height: 28px;
-      cursor: pointer; font-size: 1rem;
-      transition: transform .2s;
+      cursor: pointer; font-size: 1rem; transition: transform .2s;
     }
-    .delete-btn:hover { transform: scale(1.2); color: #e0245e; }
+    .card .actions button:hover { transform: scale(1.2); }
 
     /* Bottom nav */
     .bottom-nav {
@@ -91,7 +117,7 @@
     .bottom-nav .primary { font-size: 2rem; }
     .bottom-nav button:hover { transform: scale(1.1); }
 
-    /* Modal */
+    /* Create/Edit Modal */
     .modal {
       display: none; position: fixed; inset: 0;
       background: rgba(0,0,0,0.6);
@@ -215,8 +241,19 @@
 <body>
   <header>
     <h1>Tuck &amp; Tan</h1>
-    <span class="header-heart">♡</span>
+    <div>
+      <span class="header-search" id="btnSearch">🔍</span>
+      <span class="header-heart">♡</span>
+    </div>
   </header>
+
+  <!-- Search Modal -->
+  <div id="searchModal" class="search-modal">
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="ค้นหาโพสต์...">
+      <button id="searchClose">&times;</button>
+    </div>
+  </div>
 
   <div class="gallery" id="gallery"></div>
 
@@ -228,10 +265,11 @@
     <button id="nav-profile">👤</button>
   </nav>
 
+  <!-- Create/Edit Modal -->
   <div id="modal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
-        <h2>สร้างโพสต์ใหม่</h2>
+        <h2 id="modalTitle">สร้างโพสต์ใหม่</h2>
         <button id="modalClose" class="modal-close">&times;</button>
       </div>
       <div class="modal-body">
@@ -253,21 +291,56 @@
     </div>
   </div>
 
-  <!-- สคริปต์เปิด-ปิด modal -->
+  <!-- เปิด-ปิด Modal & Search -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const navAdd = document.getElementById('nav-add');
+      const btnAdd = document.getElementById('nav-add');
       const modal  = document.getElementById('modal');
       const modalClose = document.getElementById('modalClose');
-      navAdd.addEventListener('click', () => modal.classList.add('show'));
+      const modalTitle = document.getElementById('modalTitle');
+      const postBtn = document.getElementById('postBtn');
+      const searchBtn = document.getElementById('btnSearch');
+      const searchModal = document.getElementById('searchModal');
+      const searchClose = document.getElementById('searchClose');
+      const searchInput = document.getElementById('searchInput');
+
+      btnAdd.addEventListener('click', () => {
+        editMode = false;
+        modalTitle.textContent = 'สร้างโพสต์ใหม่';
+        document.getElementById('wishText').value = '';
+        document.getElementById('modalName').value = '';
+        document.getElementById('imgUpload').value = '';
+        document.getElementById('preview').style.display='none';
+        postBtn.textContent = 'โพสต์';
+        postBtn.disabled = true;
+        modal.classList.add('show');
+      });
       modalClose.addEventListener('click', () => modal.classList.remove('show'));
       modal.addEventListener('click', e => {
         if (e.target === modal) modal.classList.remove('show');
       });
+
+      // Search
+      searchBtn.addEventListener('click', () => {
+        searchModal.classList.add('show');
+        searchInput.focus();
+      });
+      searchClose.addEventListener('click', () => {
+        searchModal.classList.remove('show');
+        renderGallery(allPosts);
+      });
+      searchInput.addEventListener('input', () => {
+        const q = searchInput.value.trim().toLowerCase();
+        const filtered = allPosts.filter(p =>
+          p.text.toLowerCase().includes(q) ||
+          p.name.toLowerCase().includes(q)
+        );
+        renderGallery(filtered);
+      });
     });
   </script>
 
-  <!-- สคริปต์โมดูล Firebase -->
+  <!-- Firebase + Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
     import {
@@ -278,12 +351,7 @@
       Timestamp
     } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
 
-    let currentUid = localStorage.getItem('uid');
-    if (!currentUid) {
-      currentUid = crypto.randomUUID();
-      localStorage.setItem('uid', currentUid);
-    }
-
+    // init
     const firebaseConfig = {
       apiKey: "AIzaSyBxYY_c14XFroS6dBIh4Jzl9XL4PMjipcg",
       authDomain: "wishes-web.firebaseapp.com",
@@ -296,6 +364,14 @@
     const app = initializeApp(firebaseConfig);
     const db  = getFirestore(app);
 
+    // user id
+    let currentUid = localStorage.getItem('uid');
+    if (!currentUid) {
+      currentUid = crypto.randomUUID();
+      localStorage.setItem('uid', currentUid);
+    }
+
+    // DOM
     const gallery    = document.getElementById('gallery');
     const wishText   = document.getElementById('wishText');
     const modalName  = document.getElementById('modalName');
@@ -303,6 +379,12 @@
     const preview    = document.getElementById('preview');
     const postBtn    = document.getElementById('postBtn');
 
+    // state
+    let allPosts = [];
+    let editMode = false;
+    let editId = null;
+
+    // animate heart
     function animateHeart(card) {
       const h = document.createElement('div');
       h.textContent = '❤';
@@ -315,14 +397,17 @@
       h.addEventListener('animationend', () => h.remove());
     }
 
-    async function handleLike(id, w) {
-      if (w.likedBy?.includes(currentUid)) return;
+    // optimistic like
+    async function handleLike(id, w, countElem, card) {
+      animateHeart(card);
+      countElem.textContent = (w.likes||0) + 1; // ❤️ อัปเดตทันที
       await updateDoc(docRef(db,'wishes',id), {
         likes: (w.likes||0)+1,
         likedBy: [...(w.likedBy||[]), currentUid]
       });
     }
 
+    // shuffle (randomize feed 20%)
     function shuffle(array) {
       for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -330,15 +415,27 @@
       }
     }
 
+    // render gallery
+    function renderGallery(posts) {
+      gallery.innerHTML = '';
+      posts.forEach(p => createCard(p, p.id));
+    }
+
+    // create card
     function createCard(w, id) {
       const card = document.createElement('div');
       card.className = 'card';
-      const delHTML = w.uid===currentUid
-        ? `<button class="delete-btn" title="ลบโพสต์">🗑️</button>` : '';
+      const canEdit = w.uid === currentUid;
+      const actions = canEdit
+        ? `<div class="actions">
+             <button class="edit-btn" title="แก้ไขโพสต์">✏️</button>
+             <button class="delete-btn" title="ลบโพสต์">🗑️</button>
+           </div>`
+        : '';
       card.innerHTML = `
         <div class="img-wrapper">
           <img src="${w.imgUrl}" />
-          ${delHTML}
+          ${actions}
         </div>
         <div class="like-indicator">
           <span class="heart-icon">♥</span>
@@ -348,30 +445,49 @@
           <span class="author">${w.name}:</span>
           <span class="wish">${w.text}</span>
         </div>`;
-      card.querySelector('img').addEventListener('dblclick', async e => {
-        e.stopPropagation(); animateHeart(card); await handleLike(id, w);
+      // like
+      const imgEl = card.querySelector('img');
+      const countEl = card.querySelector('.like-count');
+      imgEl.addEventListener('dblclick', async e => {
+        e.stopPropagation();
+        if (w.likedBy?.includes(currentUid)) return;
+        await handleLike(id, w, countEl, card);
       });
-      if (w.uid===currentUid) {
+      // delete
+      if (canEdit) {
         card.querySelector('.delete-btn').addEventListener('click', async e => {
           e.stopPropagation();
           if (confirm('ลบโพสต์นี้?')) await deleteDoc(docRef(db,'wishes',id));
+        });
+        // edit
+        card.querySelector('.edit-btn').addEventListener('click', e => {
+          e.stopPropagation();
+          editMode = true; editId = id;
+          document.getElementById('modalTitle').textContent = 'แก้ไขโพสต์';
+          wishText.value = w.text;
+          modalName.value = w.name==='แขกผู้มีเกียรติ'?'':w.name;
+          preview.src = w.imgUrl; preview.style.display = 'inline-block';
+          postBtn.textContent = 'บันทึก';
+          postBtn.disabled = false;
+          document.getElementById('modal').classList.add('show');
         });
       }
       gallery.append(card);
     }
 
+    // listen to feed
     const qFeed = query(collection(db,'wishes'), orderBy('createdAt','desc'));
     onSnapshot(qFeed, snap => {
-      const posts = snap.docs
+      allPosts = snap.docs
         .map(d => ({ id: d.id, ...d.data() }))
         .filter(p => p.createdAt)
         .sort((a,b) => b.createdAt.toMillis() - a.createdAt.toMillis());
-      if (Math.random() < 0.2) shuffle(posts);
-      gallery.innerHTML = '';
-      posts.forEach(p => createCard(p, p.id));
+      if (Math.random() < 0.2) shuffle(allPosts);
+      renderGallery(allPosts);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
+    // preview & enable post
     wishText.oninput = () => postBtn.disabled = !wishText.value.trim();
     imgUpload.onchange = e => {
       const f = e.target.files[0];
@@ -380,42 +496,48 @@
       preview.style.display = 'inline-block';
     };
 
+    // post or save edit
     postBtn.onclick = async () => {
       postBtn.disabled = true;
-      postBtn.innerHTML = '<span class="spinner-button"></span>กำลังโพสต์';
+      postBtn.innerHTML = '<span class="spinner-button"></span>กำลังบันทึก';
       const text = wishText.value.trim();
       const name = modalName.value.trim() || 'แขกผู้มีเกียรติ';
-      let imgUrl = 'https://via.placeholder.com/320x400?text=No+Image';
-      const f = imgUpload.files[0];
-      if (f) {
+      let imgUrl = preview.src || 'https://via.placeholder.com/320x400?text=No+Image';
+
+      // on new post, compress if file; on edit skip compression
+      if (!editMode && imgUpload.files[0]) {
+        const f = imgUpload.files[0];
         const img = await new Promise(r => {
           const i=new Image(); i.onload = ()=>r(i);
           i.src = URL.createObjectURL(f);
         });
         let w=img.width, h=img.height, max=800;
-        if (Math.max(w,h)>max) {
-          const r = max/Math.max(w,h); w*=r; h*=r;
-        }
+        if (Math.max(w,h)>max) { const r = max/Math.max(w,h); w*=r; h*=r; }
         const c=document.createElement('canvas');
         c.width=w; c.height=h;
         const ctx=c.getContext('2d');
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
+        ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(img,0,0,w,h);
         let q=0.95, data;
         do { data = c.toDataURL('image/jpeg',q); q-=0.05; }
         while (data.length>1_000_000 && q>0.1);
         imgUrl = data;
       }
-      await addDoc(collection(db,'wishes'), {
-        name, text, imgUrl,
-        likes:0, likedBy:[], uid:currentUid,
-        createdAt: Timestamp.now()
-      });
-      wishText.value=''; modalName.value=''; imgUpload.value='';
-      preview.style.display='none';
-      postBtn.innerText = 'โพสต์';
-      postBtn.disabled = true;
+
+      if (editMode) {
+        await updateDoc(docRef(db,'wishes',editId), { text, name });
+      } else {
+        await addDoc(collection(db,'wishes'), {
+          name, text, imgUrl,
+          likes:0, likedBy:[], uid:currentUid,
+          createdAt: Timestamp.now()
+        });
+      }
+
+      // reset
+      editMode = false; editId = null;
+      wishText.value=''; modalName.value=''; imgUpload.value=''; preview.style.display='none';
+      postBtn.textContent = 'โพสต์'; postBtn.disabled = true;
       document.getElementById('modal').classList.remove('show');
     };
   </script>
