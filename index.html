@@ -264,7 +264,7 @@
       snap.forEach(doc => createCard(doc.data()));
     });
 
-    // post new wish (store Base64)
+    // post new wish (improved client-side resizing & quality)
     postBtn.onclick = async () => {
       const text = wishText.value.trim();
       if(!text) return;
@@ -273,33 +273,46 @@
 
       const file = imgUpload.files[0];
       if(file){
-        const img = await new Promise(r=>{
-          const i=new Image();
-          i.onload=()=>r(i);
-          i.src=URL.createObjectURL(file);
+        // Load image
+        const img = await new Promise(r => {
+          const i = new Image();
+          i.onload = () => r(i);
+          i.src = URL.createObjectURL(file);
         });
-        const max=400;
-        let [w,h]=[img.width,img.height];
-        if(w>h){
-          if(w>max){h*=max/w;w=max;}
-        } else {
-          if(h>max){w*=max/h;h=max;}
+        // Resize keeping aspect ratio, max dimension = 800px
+        const max = 800;
+        let w = img.width, h = img.height;
+        if (Math.max(w, h) > max) {
+          const ratio = max / Math.max(w, h);
+          w = w * ratio;
+          h = h * ratio;
         }
-        const canvas=document.createElement('canvas');
-        canvas.width=w;canvas.height=h;
-        const ctx=canvas.getContext('2d');
-        ctx.drawImage(img,0,0,w,h);
-        imgUrl=canvas.toDataURL('image/jpeg',0.75);
+        // Draw to canvas with high-quality smoothing
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(img, 0, 0, w, h);
+
+        // Encode JPEG, reduce quality only if necessary to stay under ~1MB
+        let quality = 0.95, dataUrl;
+        do {
+          dataUrl = canvas.toDataURL('image/jpeg', quality);
+          quality -= 0.05;
+        } while (dataUrl.length > 1_000_000 && quality > 0.1);
+        imgUrl = dataUrl;
       }
 
+      // Save to Firestore
       await addDoc(collection(db,'wishes'), {
         name, text, imgUrl,
         createdAt: serverTimestamp()
       });
 
       // reset UI
-      wishText.value='';modalName.value='';imgUpload.value='';
-      preview.style.display='none';postBtn.disabled=true;
+      wishText.value=''; modalName.value=''; imgUpload.value='';
+      preview.style.display='none'; postBtn.disabled=true;
       modal.classList.remove('show');
     };
   </script>
