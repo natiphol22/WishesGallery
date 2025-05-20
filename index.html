@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>สมุดอวยพรออนไลน์ — IG Feel</title>
-  <!-- IG-style fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600&family=Grand+Hotel&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -19,109 +18,106 @@
       max-width:var(--max-width);margin:0 auto;
       padding-bottom:var(--nav-height);position:relative;
     }
-    header{
-      text-align:left;padding:var(--spacing) 0;
-      border-bottom:1px solid var(--border);
-    }
+    header{ text-align:left;padding:var(--spacing) 0; border-bottom:1px solid var(--border); }
     header h1{
       font-family:'Grand Hotel',cursive;font-size:1.8rem;
       display:inline-block;padding-bottom:.25rem;
-      border-bottom:2px solid var(--text);
-      position:relative;
+      border-bottom:2px solid var(--text); position:relative;
     }
     header h1::after{
       content:' ♡';font-family:'Sarabun',sans-serif;
       font-size:1.2rem;vertical-align:middle;
     }
-    header p{color:#8e8e8e;font-size:.9rem;margin-top:.25rem;}
-    .gallery{
-      padding:var(--spacing) 0 var(--spacing);
-      display:flex;flex-direction:column;gap:var(--spacing);
-    }
+    header p{ color:#8e8e8e; font-size:.9rem; margin-top:.25rem; }
+    .gallery{ padding:var(--spacing) 0; display:flex; flex-direction:column; gap:var(--spacing); }
     .card{
-      background:#fff;border:1px solid var(--border);
-      border-radius:var(--radius);overflow:hidden;
-      box-shadow:var(--shadow);transition:transform var(--transition);
+      background:#fff; border:1px solid var(--border);
+      border-radius:var(--radius); overflow:hidden;
+      box-shadow:var(--shadow); transition:transform var(--transition);
       position:relative;
     }
-    .card:hover{transform:translateY(-2px);}
-    .card img{
-      display:block;width:100%;aspect-ratio:4/5;object-fit:cover;
-    }
+    .card:hover{ transform:translateY(-2px); }
+    .card img{ display:block; width:100%; aspect-ratio:4/5; object-fit:cover; }
     .card .info{
-      padding:var(--spacing);font-size:.95rem;
-      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+      padding:var(--spacing); font-size:.95rem;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
     }
-    .card .info .author{font-weight:600;margin-right:.25rem;}
+    .card .info .author{ font-weight:600; margin-right:.25rem; }
     .card .like-btn{
-      position:absolute;top:.5rem;right:.5rem;
-      background:rgba(255,255,255,0.9);border:none;
-      border-radius:50%;width:28px;height:28px;
-      display:flex;align-items:center;justify-content:center;
-      font-size:1rem;color:#262626;cursor:pointer;
-      transition:transform .2s;z-index:1;
+      position:absolute; top:.5rem; right:.5rem;
+      background:rgba(255,255,255,0.9); border:none;
+      border-radius:50%; width:28px; height:28px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:1rem; color:#262626; cursor:pointer;
+      transition:transform .2s; z-index:1;
     }
-    .card .like-btn:hover{transform:scale(1.2);}
+    .card .like-btn:hover{ transform:scale(1.2); }
+    .card .delete-btn{
+      position:absolute; top:.5rem; left:.5rem;
+      background:rgba(255,255,255,0.9); border:none;
+      border-radius:50%; width:28px; height:28px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:1rem; cursor:pointer; z-index:1;
+    }
     .bottom-nav{
-      position:fixed;bottom:0;left:0;
-      width:100%;height:var(--nav-height);
-      background:#fff;border-top:1px solid var(--border);
-      display:flex;justify-content:space-around;align-items:center;
-      box-shadow:0 -1px 5px rgba(0,0,0,0.1);z-index:10;
+      position:fixed; bottom:0; left:0;
+      width:100%; height:var(--nav-height);
+      background:#fff; border-top:1px solid var(--border);
+      display:flex; justify-content:space-around; align-items:center;
+      box-shadow:0 -1px 5px rgba(0,0,0,0.1); z-index:10;
     }
     .bottom-nav button{
-      background:none;border:none;
-      font-size:1.4rem;cursor:pointer;
-      color:var(--text);transition:color var(--transition);
+      background:none; border:none;
+      font-size:1.4rem; cursor:pointer;
+      color:var(--text); transition:color var(--transition);
     }
-    .bottom-nav button.primary{font-size:2rem;color:var(--accent);}
-    .bottom-nav button:hover{color:var(--accent);}
+    .bottom-nav button.primary{ font-size:2rem; color:var(--accent); }
+    .bottom-nav button:hover{ color:var(--accent); }
     .modal{
-      display:none;position:fixed;inset:0;
+      display:none; position:fixed; inset:0;
       background:rgba(0,0,0,0.5);
-      align-items:center;justify-content:center;
-      padding:var(--spacing);z-index:20;
+      align-items:center; justify-content:center;
+      padding:var(--spacing); z-index:20;
     }
-    .modal.show{display:flex;animation:fadeIn .2s ease-out;}
-    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .modal.show{ display:flex; animation:fadeIn .2s ease-out; }
+    @keyframes fadeIn{ from{opacity:0} to{opacity:1} }
     .modal-content{
-      background:#fff;border-radius:var(--radius);
-      width:100%;max-width:400px;
-      box-shadow:var(--shadow);overflow:hidden;
+      background:#fff; border-radius:var(--radius);
+      width:100%; max-width:400px;
+      box-shadow:var(--shadow); overflow:hidden;
       animation:popIn .2s ease-out;
     }
-    @keyframes popIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+    @keyframes popIn{ from{opacity:0;transform:scale(.9)} to{opacity:1;transform:scale(1)} }
     .modal-header{
-      display:flex;justify-content:space-between;align-items:center;
-      padding:var(--spacing);border-bottom:1px solid var(--border);
+      display:flex; justify-content:space-between; align-items:center;
+      padding:var(--spacing); border-bottom:1px solid var(--border);
     }
-    .modal-header h2{font-size:1rem;}
+    .modal-header h2{ font-size:1rem; }
     .modal-close{
-      background:none;border:none;
-      font-size:1.2rem;cursor:pointer;
+      background:none; border:none;
+      font-size:1.2rem; cursor:pointer;
     }
     .modal-body{
       padding:var(--spacing);
-      display:flex;flex-direction:column;gap:var(--spacing);
+      display:flex; flex-direction:column; gap:var(--spacing);
     }
-    .modal-body input[type="text"],
-    .modal-body textarea{
-      width:100%;border:1px solid var(--border);
-      border-radius:var(--radius);padding:.75rem;
-      font-size:.95rem;resize:vertical;
+    .modal-body input[type="text"], .modal-body textarea{
+      width:100%; border:1px solid var(--border);
+      border-radius:var(--radius); padding:.75rem;
+      font-size:.95rem; resize:vertical;
     }
     .modal-body .upload-btn{
-      display:inline-flex;align-items:center;gap:.5rem;
-      padding:.6rem 1rem;background:var(--accent);
-      color:#fff;border:none;border-radius:var(--radius);
-      cursor:pointer;transition:background var(--transition);
-      font-size:.95rem;text-align:center;
+      display:inline-flex; align-items:center; gap:.5rem;
+      padding:.6rem 1rem; background:var(--accent);
+      color:#fff; border:none; border-radius:var(--radius);
+      cursor:pointer; transition:background var(--transition);
+      font-size:.95rem; text-align:center;
     }
-    .modal-body .upload-btn:hover{background:#2176c7;}
-    .modal-body .upload-btn input{display:none;}
+    .modal-body .upload-btn:hover{ background:#2176c7; }
+    .modal-body .upload-btn input{ display:none; }
     .modal-body #preview{
-      display:none;width:100%;aspect-ratio:4/5;
-      object-fit:cover;border-radius:var(--radius);
+      display:none; width:100%; aspect-ratio:4/5;
+      object-fit:cover; border-radius:var(--radius);
     }
     .modal-footer{
       padding:var(--spacing);
@@ -129,13 +125,13 @@
       text-align:right;
     }
     .modal-footer button{
-      background:var(--accent);color:#fff;
-      border:none;border-radius:var(--radius);
-      padding:.5rem 1rem;font-weight:600;
-      cursor:pointer;transition:background var(--transition);
+      background:var(--accent); color:#fff;
+      border:none; border-radius:var(--radius);
+      padding:.5rem 1rem; font-weight:600;
+      cursor:pointer; transition:background var(--transition);
     }
-    .modal-footer button:disabled{opacity:.5;cursor:default;}
-    .modal-footer button:hover:not(:disabled){background:#2176c7;}
+    .modal-footer button:disabled{ opacity:.5; cursor:default; }
+    .modal-footer button:hover:not(:disabled){ background:#2176c7; }
     @keyframes popHeart{
       0%{transform:translate(-50%,-50%) scale(0);opacity:1;}
       50%{transform:translate(-50%,-50%) scale(1.2);opacity:.9;}
@@ -155,7 +151,6 @@
     <button id="nav-home">🏠</button>
     <button id="nav-search">🔍</button>
     <button id="nav-add" class="primary">➕</button>
-    <button id="nav-heart">❤️</button>
     <button id="nav-profile">👤</button>
   </nav>
 
@@ -184,24 +179,33 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
     import {
       getFirestore, serverTimestamp,
-      collection, addDoc,
-      query, orderBy, onSnapshot
+      collection, addDoc, query,
+      orderBy, onSnapshot, deleteDoc, doc
     } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+    import {
+      getAuth, signInAnonymously,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
 
-    // Firebase config
-    const firebaseConfig = {
-      apiKey: "AIzaSyBxYY_c14XFroS6dBIh4Jzl9XL4PMjipcg",
-      authDomain: "wishes-web.firebaseapp.com",
-      projectId: "wishes-web",
-      storageBucket: "unused",
-      messagingSenderId: "93224724611",
-      appId: "1:93224724611:web:491aab34365584864fd3b6",
-      measurementId: "G-6HQJWKWB8Z"
-    };
-    const app = initializeApp(firebaseConfig);
-    const db  = getFirestore(app);
+    // Initialize Firebase
+    const firebaseConfig = { /* your config */ };
+    const app  = initializeApp(firebaseConfig);
+    const db   = getFirestore(app);
+    const auth = getAuth(app);
 
-    document.addEventListener('DOMContentLoaded', () => {
+    // Sign in anonymously
+    signInAnonymously(auth).catch(console.error);
+
+    let currentUser = null;
+
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        currentUser = user;
+        initApp();
+      }
+    });
+
+    function initApp() {
       // DOM refs
       const gallery    = document.getElementById('gallery');
       const navAdd     = document.getElementById('nav-add');
@@ -225,11 +229,14 @@
         preview.style.display = 'block';
       };
 
-      // Real-time listener (load feed on page load)
+      // Real-time listener
       const q = query(collection(db,'wishes'), orderBy('createdAt','desc'));
       onSnapshot(q, snap => {
         gallery.innerHTML = '';
-        snap.forEach(doc => createCard(doc.data()));
+        snap.forEach(docSnap => {
+          const data = docSnap.data();
+          createCard(docSnap.id, data);
+        });
       });
 
       // Post new wish
@@ -270,7 +277,10 @@
         }
 
         await addDoc(collection(db,'wishes'), {
-          name, text, imgUrl,
+          name,
+          text,
+          imgUrl,
+          userId: currentUser.uid,
           createdAt: serverTimestamp()
         });
 
@@ -282,10 +292,10 @@
         postBtn.disabled = true;
         modal.classList.remove('show');
       };
-    });
+    }
 
     // Create card helper
-    function createCard(w) {
+    function createCard(id, w) {
       const card = document.createElement('div');
       card.className = 'card';
       card.innerHTML = `
@@ -295,11 +305,25 @@
           <span class="author">${w.name}:</span>
           <span class="wish">${w.text}</span>
         </div>`;
+      // like animation
       card.querySelector('.like-btn')
           .addEventListener('click', e => {
             e.stopPropagation();
             animateHeart(card);
           });
+      // delete button for owner
+      if (w.userId === currentUser.uid) {
+        const del = document.createElement('button');
+        del.className = 'delete-btn';
+        del.textContent = '🗑️';
+        del.onclick = async e => {
+          e.stopPropagation();
+          if (confirm('ลบโพสต์นี้ใช่หรือไม่?')) {
+            await deleteDoc(doc(db,'wishes', id));
+          }
+        };
+        card.appendChild(del);
+      }
       document.getElementById('gallery').prepend(card);
     }
 
