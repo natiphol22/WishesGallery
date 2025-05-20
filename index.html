@@ -93,10 +93,7 @@
       padding:var(--spacing); border-bottom:1px solid var(--border);
     }
     .modal-header h2{ font-size:1rem; }
-    .modal-close{
-      background:none; border:none;
-      font-size:1.2rem; cursor:pointer;
-    }
+    .modal-close{ background:none; border:none; font-size:1.2rem; cursor:pointer; }
     .modal-body{
       padding:var(--spacing);
       display:flex; flex-direction:column; gap:var(--spacing);
@@ -178,35 +175,24 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
     import {
-      getFirestore, serverTimestamp,
-      collection, addDoc, query,
-      orderBy, onSnapshot, deleteDoc, doc
+      getFirestore, collection, query, orderBy, onSnapshot,
+      addDoc, deleteDoc, doc, serverTimestamp
     } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
     import {
-      getAuth, signInAnonymously,
-      onAuthStateChanged
+      getAuth, signInAnonymously, onAuthStateChanged
     } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
 
-    // Initialize Firebase
+    // 1. Initialize Firebase
     const firebaseConfig = { /* your config */ };
     const app  = initializeApp(firebaseConfig);
     const db   = getFirestore(app);
     const auth = getAuth(app);
 
-    // Sign in anonymously
-    signInAnonymously(auth).catch(console.error);
-
     let currentUser = null;
+    let unsubscribeFeed = null;
 
-    onAuthStateChanged(auth, user => {
-      if (user) {
-        currentUser = user;
-        initApp();
-      }
-    });
-
-    function initApp() {
-      // DOM refs
+    // 2. Once DOM loaded, bind UI handlers
+    document.addEventListener('DOMContentLoaded', () => {
       const gallery    = document.getElementById('gallery');
       const navAdd     = document.getElementById('nav-add');
       const modal      = document.getElementById('modal');
@@ -217,29 +203,31 @@
       const preview    = document.getElementById('preview');
       const postBtn    = document.getElementById('postBtn');
 
-      // UI events
+      // Open/close modal
       navAdd.onclick     = () => modal.classList.add('show');
       modalClose.onclick = () => modal.classList.remove('show');
       modal.onclick      = e => { if (e.target === modal) modal.classList.remove('show'); };
-      wishText.oninput   = () => postBtn.disabled = !wishText.value.trim();
+
+      // Enable post button only when text exists
+      wishText.oninput = () => postBtn.disabled = !wishText.value.trim();
+
+      // Preview upload
       imgUpload.onchange = e => {
-        const file = e.target.files[0];
-        if (!file) return preview.style.display = 'none';
-        preview.src = URL.createObjectURL(file);
+        const f = e.target.files[0];
+        if (!f) return preview.style.display = 'none';
+        preview.src = URL.createObjectURL(f);
         preview.style.display = 'block';
       };
 
-      // Real-time listener
-      const q = query(collection(db,'wishes'), orderBy('createdAt','desc'));
-      onSnapshot(q, snap => {
-        gallery.innerHTML = '';
-        snap.forEach(docSnap => {
-          const data = docSnap.data();
-          createCard(docSnap.id, data);
-        });
+      // 3. Anonymous sign-in & start feed when ready
+      signInAnonymously(auth).catch(console.error);
+      onAuthStateChanged(auth, user => {
+        if (!user) return;
+        currentUser = user;
+        startFeed();      // attach Firestore listener
       });
 
-      // Post new wish
+      // 4. Post new wish
       postBtn.onclick = async () => {
         const text = wishText.value.trim();
         if (!text) return;
@@ -249,8 +237,7 @@
         if (imgUpload.files[0]) {
           const file = imgUpload.files[0];
           const img = await new Promise(r => {
-            const i = new Image();
-            i.onload = () => r(i);
+            const i = new Image(); i.onload = () => r(i);
             i.src = URL.createObjectURL(file);
           });
           const dpr = window.devicePixelRatio || 1;
@@ -272,14 +259,11 @@
             dataUrl = canvas.toDataURL('image/jpeg', quality);
             quality -= 0.05;
           } while (dataUrl.length > 1_000_000 && quality > 0.1);
-
           imgUrl = dataUrl;
         }
 
         await addDoc(collection(db,'wishes'), {
-          name,
-          text,
-          imgUrl,
+          name, text, imgUrl,
           userId: currentUser.uid,
           createdAt: serverTimestamp()
         });
@@ -292,9 +276,20 @@
         postBtn.disabled = true;
         modal.classList.remove('show');
       };
+    });
+
+    // 5. Start or restart Firestore feed listener
+    function startFeed() {
+      if (unsubscribeFeed) unsubscribeFeed();
+      const q = query(collection(db,'wishes'), orderBy('createdAt','desc'));
+      unsubscribeFeed = onSnapshot(q, snap => {
+        const gallery = document.getElementById('gallery');
+        gallery.innerHTML = '';
+        snap.forEach(docSnap => createCard(docSnap.id, docSnap.data()));
+      });
     }
 
-    // Create card helper
+    // 6. Create and render a card
     function createCard(id, w) {
       const card = document.createElement('div');
       card.className = 'card';
@@ -327,7 +322,7 @@
       document.getElementById('gallery').prepend(card);
     }
 
-    // Heart animation helper
+    // 7. Heart pop animation
     function animateHeart(card) {
       const h = document.createElement('div');
       h.textContent = '❤';
