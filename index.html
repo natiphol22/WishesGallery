@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -169,7 +168,6 @@
       <div class="modal-body">
         <input type="text" id="modalName" placeholder="ชื่อของคุณ (ไม่บังคับ)">
         <textarea id="wishText" rows="4" placeholder="เขียนคำอวยพรของคุณ..." required></textarea>
-        <input type="text" id="imgUrlInput" placeholder="วาง GitHub Raw URL ที่นี่ (ไม่บังคับ)">
         <label class="upload-btn">
           📷 อัปโหลดรูป
           <input type="file" id="imgUpload" accept="image/*">
@@ -203,44 +201,90 @@
     const app = initializeApp(firebaseConfig);
     const db  = getFirestore(app);
 
-    // DOM refs
-    const gallery    = document.getElementById('gallery');
-    const navAdd     = document.getElementById('nav-add');
-    const modal      = document.getElementById('modal');
-    const modalClose = document.getElementById('modalClose');
-    const wishText   = document.getElementById('wishText');
-    const modalName  = document.getElementById('modalName');
-    const imgUrlInput= document.getElementById('imgUrlInput');
-    const imgUpload  = document.getElementById('imgUpload');
-    const preview    = document.getElementById('preview');
-    const postBtn    = document.getElementById('postBtn');
+    document.addEventListener('DOMContentLoaded', () => {
+      // DOM refs
+      const gallery    = document.getElementById('gallery');
+      const navAdd     = document.getElementById('nav-add');
+      const modal      = document.getElementById('modal');
+      const modalClose = document.getElementById('modalClose');
+      const wishText   = document.getElementById('wishText');
+      const modalName  = document.getElementById('modalName');
+      const imgUpload  = document.getElementById('imgUpload');
+      const preview    = document.getElementById('preview');
+      const postBtn    = document.getElementById('postBtn');
 
-    // UI events
-    navAdd.onclick     = () => modal.classList.add('show');
-    modalClose.onclick = () => modal.classList.remove('show');
-    modal.onclick      = e => { if (e.target === modal) modal.classList.remove('show'); };
-    wishText.oninput   = () => postBtn.disabled = !wishText.value.trim();
-    imgUpload.onchange = e => {
-      const file = e.target.files[0];
-      if (!file) return preview.style.display = 'none';
-      preview.src = URL.createObjectURL(file);
-      preview.style.display = 'block';
-    };
+      // UI events
+      navAdd.onclick     = () => modal.classList.add('show');
+      modalClose.onclick = () => modal.classList.remove('show');
+      modal.onclick      = e => { if (e.target === modal) modal.classList.remove('show'); };
+      wishText.oninput   = () => postBtn.disabled = !wishText.value.trim();
+      imgUpload.onchange = e => {
+        const file = e.target.files[0];
+        if (!file) return preview.style.display = 'none';
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = 'block';
+      };
 
-    // heart animation
-    function animateHeart(card) {
-      const h = document.createElement('div');
-      h.textContent = '❤';
-      h.style.cssText = `
-        position:absolute;top:50%;left:50%;
-        transform:translate(-50%,-50%) scale(0);
-        font-size:3rem;color:rgba(255,0,0,0.8);
-        animation:popHeart .6s forwards;`;
-      card.appendChild(h);
-      h.addEventListener('animationend', () => h.remove());
-    }
+      // Real-time listener (load feed on page load)
+      const q = query(collection(db,'wishes'), orderBy('createdAt','desc'));
+      onSnapshot(q, snap => {
+        gallery.innerHTML = '';
+        snap.forEach(doc => createCard(doc.data()));
+      });
 
-    // create card
+      // Post new wish
+      postBtn.onclick = async () => {
+        const text = wishText.value.trim();
+        if (!text) return;
+        const name = modalName.value.trim() || 'แขกผู้มีเกียรติ';
+        let imgUrl = 'https://via.placeholder.com/320x400?text=No+Image';
+
+        if (imgUpload.files[0]) {
+          const file = imgUpload.files[0];
+          const img = await new Promise(r => {
+            const i = new Image();
+            i.onload = () => r(i);
+            i.src = URL.createObjectURL(file);
+          });
+          const dpr = window.devicePixelRatio || 1;
+          const max = 800 * dpr;
+          let w = img.width, h = img.height;
+          if (Math.max(w,h) > max) {
+            const ratio = max / Math.max(w,h);
+            w *= ratio; h *= ratio;
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+          ctx.drawImage(img, 0, 0, w, h);
+
+          let quality = 0.95, dataUrl;
+          do {
+            dataUrl = canvas.toDataURL('image/jpeg', quality);
+            quality -= 0.05;
+          } while (dataUrl.length > 1_000_000 && quality > 0.1);
+
+          imgUrl = dataUrl;
+        }
+
+        await addDoc(collection(db,'wishes'), {
+          name, text, imgUrl,
+          createdAt: serverTimestamp()
+        });
+
+        // reset UI
+        wishText.value = '';
+        modalName.value = '';
+        imgUpload.value = '';
+        preview.style.display = 'none';
+        postBtn.disabled = true;
+        modal.classList.remove('show');
+      };
+    });
+
+    // Create card helper
     function createCard(w) {
       const card = document.createElement('div');
       card.className = 'card';
@@ -252,72 +296,25 @@
           <span class="wish">${w.text}</span>
         </div>`;
       card.querySelector('.like-btn')
-          .addEventListener('click', e => { e.stopPropagation(); animateHeart(card); });
-      gallery.prepend(card);
+          .addEventListener('click', e => {
+            e.stopPropagation();
+            animateHeart(card);
+          });
+      document.getElementById('gallery').prepend(card);
     }
 
-    // real-time listener
-    const q = query(collection(db,'wishes'), orderBy('createdAt','desc'));
-    onSnapshot(q, snap => {
-      gallery.innerHTML = '';
-      snap.forEach(doc => createCard(doc.data()));
-    });
-
-    // post new wish
-    postBtn.onclick = async () => {
-      const text = wishText.value.trim();
-      if (!text) return;
-      const name = modalName.value.trim() || 'แขกผู้มีเกียรติ';
-
-      const urlInput = imgUrlInput.value.trim();
-      let imgUrl = 'https://via.placeholder.com/320x400?text=No+Image';
-
-      if (urlInput) {
-        imgUrl = urlInput;
-      } else if (imgUpload.files[0]) {
-        const file = imgUpload.files[0];
-        const img = await new Promise(r => {
-          const i = new Image();
-          i.onload = () => r(i);
-          i.src = URL.createObjectURL(file);
-        });
-        // resize for high-DPI
-        const dpr = window.devicePixelRatio || 1;
-        const max = 800 * dpr;
-        let w = img.width, h = img.height;
-        if (Math.max(w,h) > max) {
-          const ratio = max / Math.max(w,h);
-          w *= ratio; h *= ratio;
-        }
-        const canvas = document.createElement('canvas');
-        canvas.width = w; canvas.height = h;
-        const ctx = canvas.getContext('2d');
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
-        ctx.drawImage(img, 0, 0, w, h);
-        let quality = 0.95, dataUrl;
-        do {
-          dataUrl = canvas.toDataURL('image/jpeg', quality);
-          quality -= 0.05;
-        } while (dataUrl.length > 1_000_000 && quality > 0.1);
-        imgUrl = dataUrl;
-      }
-
-      await addDoc(collection(db,'wishes'), {
-        name, text, imgUrl,
-        createdAt: serverTimestamp()
-      });
-
-      // reset UI
-      wishText.value = '';
-      modalName.value = '';
-      imgUrlInput.value = '';
-      imgUpload.value = '';
-      preview.style.display = 'none';
-      postBtn.disabled = true;
-      modal.classList.remove('show');
-    };
+    // Heart animation helper
+    function animateHeart(card) {
+      const h = document.createElement('div');
+      h.textContent = '❤';
+      h.style.cssText = `
+        position:absolute;top:50%;left:50%;
+        transform:translate(-50%,-50%) scale(0);
+        font-size:3rem;color:rgba(255,0,0,0.8);
+        animation:popHeart .6s forwards;`;
+      card.appendChild(h);
+      h.addEventListener('animationend', () => h.remove());
+    }
   </script>
 </body>
 </html>
-
