@@ -9,16 +9,14 @@
     :root {
       --bg: #f0f2f5;
       --text: #262626;
-      --accent-start: #000;
-      --accent-end: #000;
-      --modal-bg: #000;
-      --modal-text: #fff;
-      --input-bg: #222;
-      --input-text: #fff;
-      --radius: 16px;
+      --accent: #000;
+      --modal-bg: #fff;
+      --modal-text: #000;
+      --input-bg: #fafafa;
+      --input-text: #262626;
+      --radius: 12px;
       --spacing: 1rem;
-      --shadow-light: 0 8px 24px rgba(0,0,0,0.1);
-      --transition: .3s ease;
+      --shadow: 0 4px 12px rgba(0,0,0,0.1);
       --nav-height: 56px;
     }
     * { box-sizing: border-box; margin:0; padding:0 }
@@ -35,13 +33,12 @@
     /* Header */
     header {
       display: flex; justify-content: space-between; align-items: center;
-      padding: var(--spacing); background: #fff; border-bottom: 1px solid #ddd;
+      padding: var(--spacing); background: #fff; box-shadow: var(--shadow);
     }
     header h1 {
       font-family: 'Grand Hotel', cursive;
       font-size: 1.8rem;
     }
-    .header-heart { font-size: 2rem; color: var(--text); }
 
     /* Feed */
     .gallery {
@@ -50,10 +47,10 @@
     }
     .card {
       background: #fff; border-radius: var(--radius);
-      box-shadow: var(--shadow-light); overflow: hidden;
-      transition: transform var(--transition); position: relative;
+      box-shadow: var(--shadow); overflow: hidden;
+      transition: transform .2s; position: relative;
     }
-    .card:hover { transform: translateY(-4px); }
+    .card:hover { transform: translateY(-2px); }
     .card img { width: 100%; display: block; }
     .like-indicator {
       display: flex; align-items: center; padding: .5rem 1rem;
@@ -65,36 +62,28 @@
       display: flex; gap: .25rem; flex-wrap: wrap;
     }
     .author { font-weight: 600; }
-    .delete-btn {
-      position: absolute; top: .5rem; left: .5rem;
-      background: rgba(255,255,255,0.9); border: none;
-      border-radius: 50%; width: 28px; height: 28px;
-      cursor: pointer; font-size: 1rem;
-      transition: transform .2s;
-    }
-    .delete-btn:hover { transform: scale(1.2); color: #e0245e; }
 
     /* Bottom nav */
     .bottom-nav {
       position: fixed; bottom: 0; left: 50%;
       transform: translateX(-50%);
       width: 100vw; height: var(--nav-height);
-      background: #fff; border-top: 1px solid #ccc;
+      background: #fff; border-top: 1px solid #ddd;
       display: flex; justify-content: space-around; align-items: center;
-      z-index: 10;
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.05); z-index: 10;
     }
     .bottom-nav button {
       background: none; border: none; font-size: 1.6rem;
-      cursor: pointer; color: #000;
-      transition: transform var(--transition);
+      color: var(--accent); cursor: pointer;
+      transition: transform .2s;
     }
     .bottom-nav .primary { font-size: 2rem; }
     .bottom-nav button:hover { transform: scale(1.1); }
 
-    /* Modal */
+    /* Modal (IG-style) */
     .modal {
       display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,0.8);
+      background: rgba(0,0,0,0.4);
       align-items: center; justify-content: center;
       padding: var(--spacing); z-index: 20;
     }
@@ -102,82 +91,74 @@
     .modal-content {
       background: var(--modal-bg); color: var(--modal-text);
       border-radius: var(--radius);
-      width: 100%; max-width: 420px;
-      box-shadow: var(--shadow-light); overflow: hidden;
-      position: relative;
-    }
-    .modal-content::before {
-      content: ''; position: absolute; top: 0; left: 0;
-      width: 100%; height: 6px;
-      background: linear-gradient(90deg, var(--modal-text), var(--modal-text));
+      width: 100%; max-width: 360px;
+      box-shadow: var(--shadow); overflow: hidden;
     }
     .modal-header {
       display: flex; justify-content: space-between; align-items: center;
       padding: var(--spacing);
+      border-bottom: 1px solid #eee;
     }
     .modal-header h2 {
-      margin: 0; font-size: 1.2rem; font-weight: 600;
+      margin: 0; font-size: 1.1rem; font-weight: 600;
     }
     .modal-close {
       background: none; border: none; font-size: 1.4rem;
       cursor: pointer; color: var(--modal-text);
-      transition: transform .2s;
     }
-    .modal-close:hover { transform: scale(1.2); }
 
     .modal-body {
-      padding: var(--spacing); display: flex;
-      flex-direction: column; gap: var(--spacing);
-      background: var(--modal-bg);
+      padding: var(--spacing);
+      display: flex; flex-direction: column; gap: var(--spacing);
     }
     .form-fields input,
     .form-fields textarea {
       width: 100%; padding: .75rem;
       background: var(--input-bg); color: var(--input-text);
-      border: 1px solid #444; border-radius: var(--radius);
+      border: 1px solid #ddd; border-radius: var(--radius);
       font-size: .95rem;
-      transition: border-color var(--transition), box-shadow var(--transition);
+      transition: border-color .2s;
     }
     .form-fields input:focus,
     .form-fields textarea:focus {
-      outline: none; border-color: #fff;
-      box-shadow: 0 0 0 3px rgba(255,255,255,0.2);
+      outline: none; border-color: var(--accent);
     }
+
     .upload-btn {
-      display: inline-block; padding: .6rem 1rem;
-      background: #444; color: #fff;
-      border-radius: var(--radius); font-weight: 600;
-      cursor: pointer; transition: opacity var(--transition);
+      display: flex; align-items: center;
+      gap: .5rem; padding: .6rem;
+      background: var(--input-bg); color: var(--input-text);
+      border: 1px dashed #ccc; border-radius: var(--radius);
+      cursor: pointer; font-size: .95rem;
     }
-    .upload-btn:hover { opacity: .8; }
+    .upload-btn:hover { background: #fafafa; }
     .upload-btn input { display: none; }
 
     .preview-container {
       margin-top: var(--spacing); text-align: center;
     }
     .preview-container img {
-      width: 80px; height: 80px;
+      width: 120px; height: 120px;
       border-radius: var(--radius);
-      object-fit: cover; box-shadow: var(--shadow-light);
+      object-fit: cover; box-shadow: var(--shadow);
     }
 
     .modal-footer {
-      padding: var(--spacing); background: var(--modal-bg);
-      border-top: 1px solid #444; text-align: right;
+      padding: var(--spacing); background: #fff;
+      border-top: 1px solid #eee; text-align: right;
     }
     .modal-footer button {
-      position: relative;
       padding: .6rem 1.2rem; font-weight: 600;
-      background: #222; color: #fff;
+      background: var(--accent); color: #fff;
       border: none; border-radius: var(--radius);
-      cursor: pointer;
-      transition: opacity var(--transition), transform .2s;
+      cursor: pointer; font-size: .95rem;
+      transition: background .2s;
     }
-    .modal-footer button:disabled { opacity: .6; cursor: default; }
+    .modal-footer button:disabled { opacity: .5; cursor: default; }
     .modal-footer button:not(:disabled):hover {
-      opacity: .9; transform: translateY(-1px);
+      background: #333;
     }
-    /* spinner inside button */
+
     .spinner-button {
       width: 16px; height: 16px; border: 2px solid #fff;
       border-top-color: transparent; border-radius: 50%;
@@ -185,22 +166,12 @@
       display: inline-block; vertical-align: middle;
       margin-right: 6px;
     }
-
     @keyframes spin { to { transform: rotate(360deg); } }
-    @keyframes popHeartFadeShake {
-      0%   { transform: translate(-50%,-50%) scale(0); opacity: 0; }
-      30%  { transform: translate(-50%,-50%) scale(1); opacity: 0.6; }
-      60%  { transform: translate(calc(-50%-5px),-50%) scale(1.1); opacity: 0.8; }
-      70%  { transform: translate(calc(-50%+5px),-50%) scale(1.1); }
-      80%  { transform: translate(-50%,-50%) scale(1); }
-      100% { transform: translate(-50%,-50%) scale(1); opacity: 0; }
-    }
   </style>
 </head>
 <body>
   <header>
     <h1>Tuck &amp; Tan</h1>
-    <span class="header-heart">♡</span>
   </header>
 
   <div class="gallery" id="gallery"></div>
@@ -222,9 +193,9 @@
       <div class="modal-body">
         <div class="form-fields">
           <input type="text" id="modalName" placeholder="ชื่อของคุณ (ไม่บังคับ)">
-          <textarea id="wishText" rows="4" placeholder="เขียนคำอวยพรของคุณ..." required></textarea>
+          <textarea id="wishText" rows="4" placeholder="ข้อความของคุณ..." required></textarea>
           <label class="upload-btn">
-            📷 อัปโหลดรูป
+            📷 เลือกรูปภาพ
             <input type="file" id="imgUpload" accept="image/*">
           </label>
         </div>
@@ -266,15 +237,15 @@
     const app = initializeApp(firebaseConfig);
     const db  = getFirestore(app);
 
-    const gallery    = document.getElementById('gallery');
-    const navAdd     = document.getElementById('nav-add');
-    const modal      = document.getElementById('modal');
+    const gallery = document.getElementById('gallery');
+    const navAdd = document.getElementById('nav-add');
+    const modal = document.getElementById('modal');
     const modalClose = document.getElementById('modalClose');
-    const wishText   = document.getElementById('wishText');
-    const modalName  = document.getElementById('modalName');
-    const imgUpload  = document.getElementById('imgUpload');
-    const preview    = document.getElementById('preview');
-    const postBtn    = document.getElementById('postBtn');
+    const wishText = document.getElementById('wishText');
+    const modalName = document.getElementById('modalName');
+    const imgUpload = document.getElementById('imgUpload');
+    const preview = document.getElementById('preview');
+    const postBtn = document.getElementById('postBtn');
 
     function animateHeart(card) {
       const h = document.createElement('div');
@@ -295,13 +266,6 @@
         likes: (w.likes||0)+1,
         likedBy: [...(w.likedBy||[]), currentUid]
       });
-    }
-
-    function shuffle(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
     }
 
     function createCard(w, id) {
@@ -331,40 +295,31 @@
           if (confirm('ลบโพสต์นี้?')) await deleteDoc(docRef(db,'wishes',id));
         });
       }
-      gallery.append(card);
+      gallery.prepend(card);
     }
 
+    // Real-time + sort
     const qFeed = query(collection(db,'wishes'), orderBy('createdAt','desc'));
     onSnapshot(qFeed, snap => {
-      // แปลงเป็น array และ sort ฝั่งไคลเอ็นต์
-      const posts = snap.docs
-        .map(d => ({ id: d.id, ...d.data() }))
-        .filter(p => p.createdAt)
-        .sort((a,b) => b.createdAt.toMillis() - a.createdAt.toMillis());
-
-      // บางครั้งสุ่มผสมเก่า–ใหม่
-      if (Math.random() < 0.2) shuffle(posts);
-
       gallery.innerHTML = '';
-      posts.forEach(p => createCard(p, p.id));
+      snap.forEach(d => createCard(d.data(), d.id));
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    navAdd.onclick     = () => modal.classList.add('show');
+    navAdd.onclick = () => modal.classList.add('show');
     modalClose.onclick = () => modal.classList.remove('show');
-    modal.onclick      = e => { if (e.target===modal) modal.classList.remove('show'); };
-    wishText.oninput   = () => postBtn.disabled = !wishText.value.trim();
+    modal.onclick = e => { if (e.target===modal) modal.classList.remove('show'); };
+    wishText.oninput = () => postBtn.disabled = !wishText.value.trim();
 
     imgUpload.onchange = e => {
       const f = e.target.files[0];
       if (!f) { preview.style.display='none'; return; }
       preview.src = URL.createObjectURL(f);
-      preview.style.display = 'inline-block';
+      preview.style.display = 'block';
     };
 
     postBtn.onclick = async () => {
       postBtn.disabled = true;
-      // ใส่ spinner ลงในปุ่ม
       postBtn.innerHTML = '<span class="spinner-button"></span>กำลังโพสต์';
 
       const text = wishText.value.trim();
@@ -384,12 +339,10 @@
         const c=document.createElement('canvas');
         c.width=w; c.height=h;
         const ctx=c.getContext('2d');
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(img,0,0,w,h);
         let q=0.95, data;
         do { data = c.toDataURL('image/jpeg',q); q-=0.05; }
-        while (data.length>1_000_000 && q>0.1);
+        while(data.length>1_000_000 && q>0.1);
         imgUrl = data;
       }
 
@@ -399,7 +352,7 @@
         createdAt: Timestamp.now()
       });
 
-      // รีเซ็ตฟอร์ม
+      // reset
       wishText.value=''; modalName.value=''; imgUpload.value='';
       preview.style.display='none';
       postBtn.innerText = 'โพสต์';
