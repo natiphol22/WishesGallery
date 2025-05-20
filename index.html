@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>สมุดอวยพรออนไลน์ — IG Feel</title>
-  <!-- IG-style fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600&family=Grand+Hotel&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -19,271 +18,218 @@
       --max-width: 480px;
       --nav-height: 56px;
     }
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    *, *::before, *::after { box-sizing: border-box; margin:0; padding:0 }
     body {
       background: var(--bg);
       color: var(--text);
       font-family: 'Sarabun', sans-serif;
-      margin: 0 auto;
+      margin:0 auto;
       max-width: var(--max-width);
-      padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom));
+      padding-bottom: calc(var(--nav-height)+env(safe-area-inset-bottom));
     }
     header {
-      text-align: left;
-      padding: var(--spacing) 0;
-      border-bottom: 1px solid #dbdbdb;
-      background: #fff;
+      text-align:left;
+      padding:var(--spacing) 0;
+      border-bottom:1px solid #dbdbdb;
+      background:#fff;
     }
     header h1 {
-      font-family: 'Grand Hotel', cursive;
-      font-size: 1.8rem;
-      display: inline-block;
-      padding-bottom: .25rem;
-      border-bottom: 2px solid var(--text);
-      position: relative;
+      font-family:'Grand Hotel',cursive;
+      font-size:1.8rem;
+      display:inline-block;
+      padding-bottom:.25rem;
+      border-bottom:2px solid var(--text);
+      position:relative;
     }
     header h1::after {
-      content: ' ♡';
-      font-family: 'Sarabun', sans-serif;
-      font-size: 1.2rem;
-      vertical-align: middle;
+      content:' ♡';
+      font-family:'Sarabun',sans-serif;
+      font-size:1.2rem;
+      vertical-align:middle;
     }
     header p {
-      color: #8e8e8e;
-      font-size: .9rem;
-      margin-top: .25rem;
+      color:#8e8e8e;
+      font-size:.9rem;
+      margin-top:.25rem;
     }
-
     .gallery {
-      padding: var(--spacing) 0;
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing);
+      padding:var(--spacing) 0;
+      display:flex;
+      flex-direction:column;
+      gap:var(--spacing);
     }
     .card {
-      background: #fafafa;
-      border: none;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow-light);
-      overflow: hidden;
-      transition: transform var(--transition), box-shadow var(--transition);
+      background:#fafafa;
+      border:none;
+      border-radius:var(--radius);
+      box-shadow:var(--shadow-light);
+      overflow:hidden;
+      transition:transform var(--transition),box-shadow var(--transition);
+      position:relative;
     }
     .card:hover {
-      transform: translateY(-3px);
-      box-shadow: var(--shadow-hover);
+      transform:translateY(-3px);
+      box-shadow:var(--shadow-hover);
     }
-    .card .img-wrapper {
-      position: relative;
-    }
+    .img-wrapper { position:relative }
     .card img {
-      display: block;
-      width: 100%;
-      height: auto;
+      width:100%;
+      height:auto;
+      display:block;
     }
     .like-indicator {
-      display: flex;
-      align-items: center;
-      padding: .5rem 1rem;
-      font-size: .9rem;
-      color: var(--text);
-      background: #fff;
+      display:flex;
+      align-items:center;
+      padding:.5rem 1rem;
+      font-size:.9rem;
+      background:#fff;
     }
-    .like-indicator .heart-icon {
-      margin-right: .25rem;
+    .heart-icon { margin-right:.25rem }
+    .info {
+      padding:0 .75rem 1rem;
+      font-size:.95rem;
+      display:flex; gap:.25rem; flex-wrap:wrap;
     }
-    .card .info {
-      padding: 0 .75rem 1rem;
-      font-size: .95rem;
-      display: flex;
-      gap: .25rem;
-      flex-wrap: wrap;
+    .author { font-weight:600 }
+    .delete-btn {
+      position:absolute;
+      top:.5rem; left:.5rem;
+      background:rgba(255,255,255,0.9);
+      border:none;
+      border-radius:50%;
+      width:28px; height:28px;
+      cursor:pointer;
+      font-size:1rem;
+      transition:transform .2s;
     }
-    .card .info .author {
-      font-weight: 600;
-    }
+    .delete-btn:hover { transform:scale(1.2); color:#e0245e }
 
     .bottom-nav {
-      position: fixed;
-      bottom: env(safe-area-inset-bottom);
-      left: 0;
-      width: 100%;
-      height: var(--nav-height);
-      background: #fff;
-      border-top: 1px solid #dbdbdb;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      box-shadow: 0 -1px 5px rgba(0,0,0,0.1);
-      z-index: 10;
+      position:fixed;
+      bottom:env(safe-area-inset-bottom);
+      left:0;
+      width:100%;
+      height:var(--nav-height);
+      background:#fff;
+      border-top:1px solid #dbdbdb;
+      display:flex;
+      justify-content:space-around;
+      align-items:center;
+      box-shadow:0 -1px 5px rgba(0,0,0,0.1);
+      z-index:10;
     }
     .bottom-nav button {
-      background: none;
-      border: none;
-      font-size: 1.4rem;
-      cursor: pointer;
-      color: var(--text);
-      transition: color var(--transition);
+      background:none; border:none;
+      font-size:1.4rem; cursor:pointer;
+      color:var(--text);
+      transition:color var(--transition);
     }
-    .bottom-nav button.primary {
-      font-size: 2rem;
-      color: var(--accent);
-    }
-    .bottom-nav button:hover {
-      color: var(--accent);
-    }
+    .bottom-nav .primary { font-size:2rem; color:var(--accent) }
+    .bottom-nav button:hover { color:var(--accent) }
 
     .modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      align-items: center;
-      justify-content: center;
-      padding: var(--spacing);
-      z-index: 20;
+      display:none;
+      position:fixed; inset:0;
+      background:rgba(0,0,0,0.5);
+      align-items:center;
+      justify-content:center;
+      padding:var(--spacing);
+      z-index:20;
     }
-    .modal.show {
-      display: flex;
-      animation: fadeIn .2s ease-out;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to   { opacity: 1; }
-    }
+    .modal.show { display:flex; animation:fadeIn .2s ease-out }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
     .modal-content {
-      background: #fff;
-      border-radius: var(--radius);
-      width: 100%;
-      max-width: 400px;
-      display: flex;
-      flex-direction: column;
-      max-height: 90vh;
-      overflow: hidden;
-      box-shadow: var(--shadow-light);
+      background:#fff;
+      border-radius:var(--radius);
+      width:100%; max-width:400px;
+      display:flex; flex-direction:column;
+      max-height:90vh; overflow:hidden;
+      box-shadow:var(--shadow-light);
     }
     .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: var(--spacing);
-      border-bottom: 1px solid #dbdbdb;
+      display:flex; justify-content:space-between; align-items:center;
+      padding:var(--spacing);
+      border-bottom:1px solid #dbdbdb;
     }
-    .modal-header h2 {
-      font-size: 1rem;
-    }
+    .modal-header h2 { font-size:1rem }
     .modal-close {
-      background: none;
-      border: none;
-      font-size: 1.2rem;
-      cursor: pointer;
+      background:none; border:none; font-size:1.2rem; cursor:pointer;
     }
     .modal-body {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing);
-      overflow-y: auto;
-      padding: var(--spacing);
+      flex:1;
+      display:flex; flex-direction:column; gap:var(--spacing);
+      overflow-y:auto; padding:var(--spacing);
     }
     .form-fields {
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing);
+      display:flex; flex-direction:column; gap:var(--spacing);
     }
     .form-fields input,
     .form-fields textarea {
-      width: 100%;
-      padding: .5rem;
-      border: 1px solid #dbdbdb;
-      border-radius: var(--radius);
-      font-size: .95rem;
+      width:100%; padding:.5rem;
+      border:1px solid #dbdbdb; border-radius:var(--radius);
+      font-size:.95rem;
     }
     .upload-btn {
-      display: inline-block;
-      padding: .5rem;
-      background: var(--accent);
-      color: #fff;
-      border-radius: var(--radius);
-      cursor: pointer;
-      text-align: center;
+      display:inline-block; padding:.5rem;
+      background:var(--accent); color:#fff;
+      border-radius:var(--radius); cursor:pointer;
     }
-    .upload-btn input {
-      display: none;
-    }
+    .upload-btn input { display:none }
     .preview-container img {
-      display: block;
-      width: 100%;
-      max-height: 200px;
-      object-fit: contain;
-      border-radius: var(--radius);
+      display:block; width:100%; max-height:200px;
+      object-fit:contain; border-radius:var(--radius);
     }
-    @media (min-width: 600px) {
-      .modal-body {
-        flex-direction: row;
-      }
-      .form-fields, .preview-container {
-        flex: 1;
-      }
-      .preview-container img {
-        max-height: 60vh;
-      }
+    @media (min-width:600px) {
+      .modal-body { flex-direction:row }
+      .form-fields, .preview-container { flex:1 }
+      .preview-container img { max-height:60vh }
     }
     .modal-footer {
-      flex-shrink: 0;
-      position: sticky;
-      bottom: 0;
-      background: #fff;
-      padding: var(--spacing);
-      border-top: 1px solid #dbdbdb;
-      text-align: right;
+      position:sticky; bottom:0;
+      background:#fff;
+      padding:var(--spacing);
+      border-top:1px solid #dbdbdb;
+      text-align:right;
     }
     .modal-footer button {
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: var(--radius);
-      padding: .5rem 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background var(--transition);
+      background:var(--accent); color:#fff;
+      border:none; border-radius:var(--radius);
+      padding:.5rem 1rem; font-weight:600;
+      cursor:pointer; transition:background var(--transition);
     }
     .modal-footer button:disabled {
-      opacity: .5;
-      cursor: default;
+      opacity:.5; cursor:default;
     }
     .modal-footer button:hover:not(:disabled) {
-      background: #2176c7;
+      background:#2176c7;
     }
     .spinner {
-      width: 24px;
-      height: 24px;
-      border: 3px solid #ddd;
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      display: inline-block;
-      vertical-align: middle;
-      margin-right: .5rem;
+      width:24px; height:24px;
+      border:3px solid #ddd;
+      border-top-color:var(--accent);
+      border-radius:50%;
+      animation:spin 1s linear infinite;
+      display:inline-block;
+      vertical-align:middle;
+      margin-right:.5rem;
     }
-    .hidden { display: none; }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
+    .hidden { display:none }
+    @keyframes spin { to{transform:rotate(360deg)} }
 
-    @keyframes popHeart {
-      0%   { transform: translate(-50%,-50%) scale(0); opacity: 1; }
-      50%  { transform: translate(-50%,-50%) scale(1.2); opacity: .9; }
-      100% { transform: translate(-50%,-50%) scale(1); opacity: 0; }
+    @keyframes popHeartFadeShake {
+      0% {transform:translate(-50%,-50%) scale(0); opacity:0}
+      30% {transform:translate(-50%,-50%) scale(1); opacity:0.6}
+      60% {transform:translate(calc(-50%-5px),-50%) scale(1.1); opacity:0.8}
+      70% {transform:translate(calc(-50%+5px),-50%) scale(1.1)}
+      80% {transform:translate(-50%,-50%) scale(1)}
+      100% {transform:translate(-50%,-50%) scale(1); opacity:0}
     }
   </style>
 </head>
 <body>
   <header>
     <h1>Tuck&amp;Tan</h1>
+    <p>ฟีลโพสต์แบบ IG</p>
   </header>
 
   <div class="gallery" id="gallery"></div>
@@ -332,9 +278,17 @@
       query,
       orderBy,
       onSnapshot,
-      doc,
-      updateDoc
+      doc as docRef,
+      updateDoc,
+      deleteDoc
     } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+
+    // สร้างหรือดึง uid ของผู้ใช้จาก localStorage
+    let currentUid = localStorage.getItem('uid');
+    if (!currentUid) {
+      currentUid = crypto.randomUUID();
+      localStorage.setItem('uid', currentUid);
+    }
 
     const firebaseConfig = {
       apiKey: "AIzaSyBxYY_c14XFroS6dBIh4Jzl9XL4PMjipcg",
@@ -348,7 +302,6 @@
     const app = initializeApp(firebaseConfig);
     const db  = getFirestore(app);
 
-    // DOM refs
     const gallery    = document.getElementById('gallery');
     const navAdd     = document.getElementById('nav-add');
     const modal      = document.getElementById('modal');
@@ -360,7 +313,6 @@
     const postBtn    = document.getElementById('postBtn');
     const spinner    = document.getElementById('uploadSpinner');
 
-    // hide preview initially
     preview.style.display = 'none';
 
     function animateHeart(card) {
@@ -369,31 +321,38 @@
       h.style.cssText = `
         position:absolute;
         top:50%; left:50%;
-        transform:translate(-50%,-50%) scale(0);
-        font-size:3rem; color:rgba(255,0,0,0.8);
-        animation:popHeart .6s forwards;
+        font-size:4rem; color:rgba(224,36,94,0.6);
+        animation:popHeartFadeShake .8s forwards;
+        pointer-events:none;
       `;
       card.querySelector('.img-wrapper').appendChild(h);
       h.addEventListener('animationend', () => h.remove());
     }
 
-    async function toggleLike(docId, currentLikes) {
-      const ref = doc(db, 'wishes', docId);
-      await updateDoc(ref, {
-        likes: currentLikes + 1
+    // ไลค์ได้ครั้งเดียวต่อโพสต์
+    async function handleLike(docId, w, card) {
+      if (w.likedBy?.includes(currentUid)) return;
+      await updateDoc(docRef(db, 'wishes', docId), {
+        likes: (w.likes||0) + 1,
+        likedBy: [...(w.likedBy||[]), currentUid]
       });
     }
 
     function createCard(w, docId) {
       const card = document.createElement('div');
       card.className = 'card';
+      // ปุ่มลบถ้าเป็นเจ้าของ
+      const delBtnHTML = w.uid === currentUid
+        ? `<button class="delete-btn" title="ลบโพสต์">🗑️</button>`
+        : '';
       card.innerHTML = `
         <div class="img-wrapper">
           <img src="${w.imgUrl}" alt="">
+          ${delBtnHTML}
         </div>
         <div class="like-indicator">
           <span class="heart-icon">♥</span>
-          <span class="like-count">${w.likes || 0}</span>
+          <span class="like-count">${w.likes||0}</span>
         </div>
         <div class="info">
           <span class="author">${w.name}:</span>
@@ -404,23 +363,33 @@
       img.addEventListener('dblclick', async e => {
         e.stopPropagation();
         animateHeart(card);
-        await toggleLike(docId, w.likes || 0);
+        await handleLike(docId, w, card);
       });
+
+      if (w.uid === currentUid) {
+        card.querySelector('.delete-btn')
+          .addEventListener('click', async e => {
+            e.stopPropagation();
+            if (confirm('คุณแน่ใจว่าจะลบโพสต์นี้ใช่ไหม?')) {
+              await deleteDoc(docRef(db, 'wishes', docId));
+            }
+          });
+      }
 
       gallery.prepend(card);
     }
 
-    // Real-time feed sorted by createdAt desc
+    // Real-time feed
     const qFeed = query(
       collection(db, 'wishes'),
-      orderBy('createdAt', 'desc')
+      orderBy('createdAt','desc')
     );
     onSnapshot(qFeed, snap => {
       gallery.innerHTML = '';
       snap.forEach(docSnap => createCard(docSnap.data(), docSnap.id));
     });
 
-    // UI events
+    // UI handlers
     navAdd.onclick     = () => modal.classList.add('show');
     modalClose.onclick = () => modal.classList.remove('show');
     modal.onclick      = e => { if (e.target === modal) modal.classList.remove('show'); };
@@ -430,14 +399,12 @@
       const file = e.target.files[0];
       if (!file) {
         preview.style.display = 'none';
-        preview.src = '';
         return;
       }
       preview.src = URL.createObjectURL(file);
       preview.style.display = 'block';
     };
 
-    // Post new wish
     postBtn.onclick = async () => {
       const text = wishText.value.trim();
       if (!text) return;
@@ -445,51 +412,49 @@
       let imgUrl = 'https://via.placeholder.com/320x400?text=No+Image';
       const file = imgUpload.files[0];
       if (file) {
-        // resize & compress
         const img = await new Promise(r => {
-          const i = new Image();
-          i.onload = () => r(i);
+          const i=new Image();
+          i.onload = ()=>r(i);
           i.src = URL.createObjectURL(file);
         });
-        const max = 800;
-        let w = img.width, h = img.height;
-        if (Math.max(w,h) > max) {
-          const ratio = max / Math.max(w,h);
-          w *= ratio; h *= ratio;
+        const max=800; let w=img.width, h=img.height;
+        if (Math.max(w,h)>max) {
+          const ratio=max/Math.max(w,h);
+          w*=ratio; h*=ratio;
         }
-        const canvas = document.createElement('canvas');
-        canvas.width = w; canvas.height = h;
-        const ctx = canvas.getContext('2d');
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
-        ctx.drawImage(img, 0, 0, w, h);
-        let quality = 0.95, dataUrl;
-        do {
-          dataUrl = canvas.toDataURL('image/jpeg', quality);
-          quality -= 0.05;
-        } while (dataUrl.length > 1_000_000 && quality > 0.1);
-        imgUrl = dataUrl;
+        const canvas=document.createElement('canvas');
+        canvas.width=w; canvas.height=h;
+        const ctx=canvas.getContext('2d');
+        ctx.imageSmoothingEnabled=true;
+        ctx.imageSmoothingQuality='high';
+        ctx.drawImage(img,0,0,w,h);
+        let quality=0.95, dataUrl;
+        do{
+          dataUrl=canvas.toDataURL('image/jpeg',quality);
+          quality-=0.05;
+        }while(dataUrl.length>1_000_000 && quality>0.1);
+        imgUrl=dataUrl;
       }
 
-      // show spinner
+      // Spinner on
       postBtn.disabled = true;
       spinner.classList.remove('hidden');
 
       try {
-        await addDoc(collection(db, 'wishes'), {
-          name, text, imgUrl, likes: 0, createdAt: serverTimestamp()
+        await addDoc(collection(db,'wishes'), {
+          name, text, imgUrl,
+          likes:0, likedBy:[],
+          uid:currentUid,
+          createdAt:serverTimestamp()
         });
-      } catch (e) {
+      } catch(e) {
         console.error(e);
-        alert('โพสต์ไม่สำเร็จ ลองใหม่อีกครั้ง');
+        alert('โพสต์ไม่สำเร็จ ลองอีกครั้ง');
       } finally {
         spinner.classList.add('hidden');
-        wishText.value = '';
-        modalName.value = '';
-        imgUpload.value = '';
-        preview.style.display = 'none';
-        preview.src = '';
-        postBtn.disabled = true;
+        wishText.value=''; modalName.value=''; imgUpload.value='';
+        preview.style.display='none';
+        postBtn.disabled=true;
         modal.classList.remove('show');
       }
     };
