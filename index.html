@@ -243,7 +243,7 @@
     const app = initializeApp(firebaseConfig);
     const db  = getFirestore(app);
 
-    let selectedFiles = [], currentStep = 1;
+    let selectedFiles = [], currentStep = 1, initialized = false;
     const body = document.body;
     const gallery = document.getElementById('gallery');
     const navAdd  = document.getElementById('nav-add');
@@ -260,37 +260,107 @@
     const wizName       = document.getElementById('wizName');
     const wizText       = document.getElementById('wizText');
 
-    // Feed listener
+    // Feed listener (incremental)
     const qFeed = query(collection(db,'wishes'), orderBy('createdAt','desc'));
     onSnapshot(qFeed, snap => {
-      gallery.innerHTML = '';
-      snap.docs.map(d=>({id:d.id,...d.data()}))
-        .filter(p=>p.createdAt)
-        .sort((a,b)=>b.createdAt.toMillis()-a.createdAt.toMillis())
-        .forEach(p=>createCard(p,p.id));
-      window.scrollTo({ top:0, behavior:'smooth' });
+      snap.docChanges().forEach(change => {
+        const w = change.doc.data();
+        const id = change.doc.id;
+        if (change.type === 'added') {
+          addCard(w, id, initialized);
+        } else if (change.type === 'modified') {
+          // update like count only
+          const card = gallery.querySelector(`.card[data-id="${id}"]`);
+          if (card) {
+            card.querySelector('.like-count').innerText = w.likes || 0;
+          }
+        } else if (change.type === 'removed') {
+          const card = gallery.querySelector(`.card[data-id="${id}"]`);
+          if (card) card.remove();
+        }
+      });
+      initialized = true;
     });
+
+    function addCard(w, id, prepend) {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.dataset.id = id;
+      // innerHTML เดิม
+      const delBtn = w.uid===localStorage.getItem('uid')
+        ? `<button class="delete-btn" title="ลบโพสต์">🗑️</button>` : '';
+      card.innerHTML = `
+        <div class="img-wrapper" style="position:relative;">
+          <img src="${w.imgUrl}"/>${delBtn}
+        </div>
+        <div class="like-indicator">
+          <span class="heart-icon">♥</span>
+          <span class="like-count">${w.likes||0}</span>
+        </div>
+        <div class="info">
+          <span class="author">${w.name}:</span>
+          <span class="wish">${w.text}</span>
+        </div>`;
+      // double-click like (optimistic, non-blocking)
+      const imgEl = card.querySelector('img');
+      imgEl.addEventListener('dblclick', e => {
+        e.stopPropagation();
+        // prevent multi-like
+        if (card.dataset.liked) return;
+        card.dataset.liked = 'true';
+        animateHeart(card);
+        const countEl = card.querySelector('.like-count');
+        countEl.innerText = parseInt(countEl.innerText)+1;
+        // write to Firestore
+        updateDoc(docRef(db,'wishes',id), {
+          likes: (w.likes||0)+1,
+          likedBy: [...(w.likedBy||[]), localStorage.getItem('uid')]
+        }).catch(console.error);
+      });
+      // delete
+      if (w.uid===localStorage.getItem('uid')) {
+        card.querySelector('.delete-btn').onclick = async e => {
+          e.stopPropagation();
+          if (confirm('ลบโพสต์นี้?')) {
+            await deleteDoc(docRef(db,'wishes',id));
+          }
+        };
+      }
+      // add to DOM
+      if (prepend) gallery.prepend(card);
+      else         gallery.append(card);
+    }
+
+    // double-tap heart animation
+    function animateHeart(card){
+      const h = document.createElement('div');
+      h.textContent = '❤';
+      Object.assign(h.style, {
+        position:'absolute', top:'50%', left:'50%',
+        fontSize:'4rem', color:'rgba(224,36,94,0.6)',
+        animation:'popHeartFadeShake .8s forwards', pointerEvents:'none'
+      });
+      card.querySelector('.img-wrapper').appendChild(h);
+      h.addEventListener('animationend',()=>h.remove());
+    }
 
     // Wizard navigation
     function goToStep(n){
       currentStep = n;
       stepEls.forEach(el=>el.classList.toggle('active', +el.dataset.step===n));
       wizBack.innerText = '<ย้อนกลับ';
-      if(n === 1){
-        wizNext.style.visibility = 'hidden';
-      } else {
-        wizNext.style.visibility = 'visible';
-        wizNext.innerText = n === 2 ? 'ถัดไป>' : 'โพสต์';
-      }
+      if (n===1) wizNext.style.visibility = 'hidden';
+      else        wizNext.style.visibility = 'visible';
+      wizNext.innerText = n<3 ? 'ถัดไป>' : 'โพสต์';
       body.classList.add('modal-open');
-      if(n === 3 && selectedFiles.length){
+      if (n===3 && selectedFiles.length) {
         summaryImg.src = URL.createObjectURL(selectedFiles[0]);
       }
     }
     function closeWizard(){
       postWizard.classList.remove('active');
       body.classList.remove('modal-open');
-      selectedFiles = []; fileInput.value=''; wizName.value=''; wizText.value='';
+      selectedFiles=[]; fileInput.value=''; wizName.value=''; wizText.value='';
     }
 
     navAdd.onclick = ()=>{
@@ -299,35 +369,41 @@
     };
     wizBack.onclick = ()=> currentStep>1 ? goToStep(currentStep-1) : closeWizard();
     wizNext.onclick = async ()=>{
-      if(currentStep<2 && selectedFiles.length){ goToStep(2); return; }
-      if(currentStep===2){ goToStep(3); return; }
-      // Step 3: post
+      if (currentStep<2 && selectedFiles.length) { goToStep(2); return; }
+      if (currentStep===2) { goToStep(3); return; }
+      // step 3: post
       wizNext.disabled = true;
       wizNext.innerHTML = `<span class="spinner"></span>กำลังโพสต์`;
       const text = wizText.value.trim();
       const name = wizName.value.trim() || 'แขกผู้มีเกียรติ';
-      for(const f of (selectedFiles.length? selectedFiles:[null])){
+      for (const f of (selectedFiles.length ? selectedFiles : [null])) {
         let imgUrl = 'https://via.placeholder.com/320x400?text=No+Image';
-        if(f){
+        if (f) {
           const img = await new Promise(r=>{
             const i=new Image(); i.onload=()=>r(i);
             i.src=URL.createObjectURL(f);
           });
           let [w,h]=[img.width,img.height], max=800;
-          if(Math.max(w,h)>max){ const ratio=max/Math.max(w,h); w*=ratio; h*=ratio; }
-          const c = document.createElement('canvas'); c.width=w; c.height=h;
+          if (Math.max(w,h)>max){
+            const ratio = max/Math.max(w,h); w*=ratio; h*=ratio;
+          }
+          const c = document.createElement('canvas');
+          c.width=w; c.height=h;
           const ctx = c.getContext('2d');
-          ctx.imageSmoothingEnabled=true; ctx.imageSmoothingQuality='high';
+          ctx.imageSmoothingEnabled=true;
+          ctx.imageSmoothingQuality='high';
           ctx.drawImage(img,0,0,w,h);
-          let q=0.95,data;
-          do{ data=c.toDataURL('image/jpeg',q); q-=0.05; }
-          while(data.length>1_000_000&&q>0.1);
+          let q=0.95, data;
+          do {
+            data = c.toDataURL('image/jpeg',q);
+            q -= 0.05;
+          } while (data.length>1_000_000 && q>0.1);
           imgUrl = data;
         }
-        await addDoc(collection(db,'wishes'),{
-          name,text,imgUrl,
-          likes:0,likedBy:[],uid:localStorage.getItem('uid'),
-          createdAt:Timestamp.now()
+        await addDoc(collection(db,'wishes'), {
+          name, text, imgUrl,
+          likes: 0, likedBy: [], uid: localStorage.getItem('uid'),
+          createdAt: Timestamp.now()
         });
       }
       closeWizard();
@@ -364,67 +440,6 @@
       currentIndex.innerText = idx+1;
     });
 
-    // Like & Delete
-    let currentUid = localStorage.getItem('uid');
-    if(!currentUid){ currentUid = crypto.randomUUID(); localStorage.setItem('uid',currentUid); }
-
-    function animateHeart(card){
-      const h = document.createElement('div');
-      h.textContent = '❤';
-      Object.assign(h.style,{
-        position:'absolute',top:'50%',left:'50%',
-        fontSize:'4rem',color:'rgba(224,36,94,0.6)',
-        animation:'popHeartFadeShake .8s forwards',pointerEvents:'none'
-      });
-      card.querySelector('.img-wrapper').appendChild(h);
-      h.addEventListener('animationend',()=>h.remove());
-    }
-
-    async function handleLike(id,w){
-      await updateDoc(docRef(db,'wishes',id),{
-        likes:(w.likes||0)+1,
-        likedBy:[...(w.likedBy||[]),currentUid]
-      });
-    }
-
-    function createCard(w,id){
-      const card = document.createElement('div');
-      card.className = 'card';
-      const delBtn = w.uid===currentUid
-        ? `<button class="delete-btn" title="ลบโพสต์">🗑️</button>` : '';
-      card.innerHTML = `
-        <div class="img-wrapper" style="position:relative;">
-          <img src="${w.imgUrl}"/>${delBtn}
-        </div>
-        <div class="like-indicator">
-          <span class="heart-icon">♥</span>
-          <span class="like-count">${w.likes||0}</span>
-        </div>
-        <div class="info">
-          <span class="author">${w.name}:</span>
-          <span class="wish">${w.text}</span>
-        </div>`;
-
-      const imgEl = card.querySelector('img');
-      imgEl.addEventListener('dblclick', e=>{
-        e.stopPropagation();
-        if(card.dataset.liked) return;
-        card.dataset.liked = 'true';
-        animateHeart(card);
-        const countEl = card.querySelector('.like-count');
-        countEl.innerText = parseInt(countEl.innerText) + 1;
-        handleLike(id,w).catch(console.error);
-      });
-
-      if(w.uid===currentUid){
-        card.querySelector('.delete-btn').onclick = async e=>{
-          e.stopPropagation();
-          if(confirm('ลบโพสต์นี้?')) await deleteDoc(docRef(db,'wishes',id));
-        };
-      }
-
-      gallery.append(card);
-    }
   </script>
 </body>
 </html>
