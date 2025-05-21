@@ -4,55 +4,52 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Tuck & Tan</title>
-  <!-- ฟอนต์ Sarabun + Grand Hotel -->
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600&family=Grand+Hotel&display=swap" rel="stylesheet">
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:'Sarabun',sans-serif;background:#f0f2f5;color:#262626;
-      max-width:480px;margin:0 auto;min-height:100vh;padding-bottom:60px;}
+      max-width:480px;margin:0 auto;min-height:100vh;padding-bottom:60px}
     header{display:flex;justify-content:space-between;align-items:center;
-      padding:1rem;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.1);}
-    header h1{font-family:'Grand Hotel',cursive;font-size:1.8rem;}
-    header .heart{font-size:1.4rem;cursor:pointer;}
-    .gallery{padding:1rem;display:grid;grid-template-columns:1fr;gap:1rem;}
+      padding:1rem;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.1)}
+    header h1{font-family:'Grand Hotel',cursive;font-size:1.8rem}
+    header .heart{font-size:1.4rem;cursor:pointer}
+    .gallery{padding:1rem;display:grid;grid-template-columns:1fr;gap:1rem}
     .card{background:#fff;border-radius:16px;box-shadow:0 4px 12px rgba(0,0,0,0.05);
-      position:relative;overflow:hidden;}
-    .card img{width:100%;object-fit:contain;}
-    .like-indicator{display:flex;align-items:center;padding:.5rem 1rem;}
-    .heart-icon{margin-right:.25rem;color:#e0245e;}
-    .info{padding:0 1rem 1rem;}
-    .author{font-weight:600;}
+      position:relative;overflow:hidden}
+    .card img{width:100%;object-fit:contain}
+    .like-indicator{display:flex;align-items:center;padding:.5rem 1rem}
+    .heart-icon{margin-right:.25rem;color:#e0245e}
+    .info{padding:0 1rem 1rem}
+    .author{font-weight:600}
     .delete-btn{position:absolute;top:8px;left:8px;background:rgba(255,255,255,0.9);
-      border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;}
+      border:none;border-radius:50%;width:28px;height:28px;cursor:pointer}
     .bottom-nav{position:fixed;bottom:0;left:0;right:0;height:60px;
       background:#fff;display:flex;justify-content:space-around;align-items:center;
-      box-shadow:0 -1px 3px rgba(0,0,0,0.1);}
-    .icon{font-size:1.6rem;cursor:pointer;}
+      box-shadow:0 -1px 3px rgba(0,0,0,0.1)}
+    .icon{font-size:1.6rem;cursor:pointer}
     .primary{font-size:2rem;width:48px;height:48px;background:linear-gradient(135deg,#405de6,#5851db);
-      color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+      color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer}
 
-    /* Multi-step */
-    .hidden{display:none!important;}
-    .step{position:fixed;inset:0;background:#fff;display:flex;flex-direction:column;z-index:200;}
+    .hidden{display:none!important}
+    .step{position:fixed;inset:0;background:#fff;display:flex;flex-direction:column;z-index:200}
     .step .header{height:60px;display:flex;align-items:center;justify-content:space-between;
-      padding:0 1rem;border-bottom:1px solid #ddd;font-family:'Grand Hotel',cursive;}
-    .step .btn{font-family:'Sarabun',sans-serif;color:#0095f6;cursor:pointer;}
-    .slider{flex:1;overflow:hidden;background:#000;}
-    .slides{display:flex;height:100%;transition:transform .3s ease;}
-    .slide{min-width:100%;display:flex;justify-content:center;align-items:center;position:relative;}
-    .slide img{max-width:100%;max-height:100%;object-fit:contain;}
+      padding:0 1rem;border-bottom:1px solid #ddd;font-family:'Grand Hotel',cursive}
+    .step .btn{font-family:'Sarabun',sans-serif;color:#0095f6;cursor:pointer}
+    .slider{flex:1;overflow:hidden;background:#000}
+    .slides{display:flex;height:100%;transition:transform .3s ease}
+    .slide{min-width:100%;display:flex;justify-content:center;align-items:center;position:relative}
+    .slide img{max-width:100%;max-height:100%;object-fit:contain}
     .trash{position:absolute;top:10px;right:10px;font-size:1.2rem;
-      background:rgba(255,255,255,0.8);border-radius:50%;padding:4px;cursor:pointer;}
-    #step3 .slider{height:40vh;}
-    .form{padding:1rem;display:flex;flex-direction:column;gap:.5rem;}
-    .form input,.form textarea{width:100%;padding:.8rem;border:1px solid #ddd;border-radius:8px;}
+      background:rgba(255,255,255,0.8);border-radius:50%;padding:4px;cursor:pointer}
+    #step3 .slider{height:40vh}
+    .form{padding:1rem;display:flex;flex-direction:column;gap:.5rem}
+    .form input,.form textarea{width:100%;padding:.8rem;border:1px solid #ddd;border-radius:8px}
 
-    /* Spinner */
     #spinnerOverlay{position:fixed;inset:0;background:rgba(0,0,0,0.3);
-      display:flex;justify-content:center;align-items:center;z-index:300;visibility:hidden;}
-    #spinnerOverlay.visible{visibility:visible;}
+      display:flex;justify-content:center;align-items:center;z-index:300;visibility:hidden}
+    #spinnerOverlay.visible{visibility:visible}
     .spinner{width:50px;height:50px;border:5px solid #fff;border-top-color:transparent;
-      border-radius:50%;animation:spin 1s linear infinite;}
+      border-radius:50%;animation:spin 1s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
   </style>
 </head>
@@ -72,19 +69,19 @@
     <div class="icon">👤</div>
   </nav>
 
-  <!-- STEP1 -->
+  <!-- STEP 1 -->
   <div id="step1" class="step hidden">
     <div class="header">
       <button class="btn" id="back1">&lt; ย้อนกลับ</button>
       <div>STEP 1: เลือกรูป</div><div></div>
     </div>
     <div style="flex:1;display:flex;justify-content:center;align-items:center">
-      <p>เลือกรูปสำหรับโพสต์</p>
+      <p>กรุณาเลือกรูป</p>
     </div>
     <input type="file" id="fileInput" accept="image/*" multiple class="hidden">
   </div>
 
-  <!-- STEP2 -->
+  <!-- STEP 2 -->
   <div id="step2" class="step hidden">
     <div class="header">
       <button class="btn" id="back2">&lt; ย้อนกลับ</button>
@@ -94,7 +91,7 @@
     <div class="slider"><div class="slides" id="slides2"></div></div>
   </div>
 
-  <!-- STEP3 -->
+  <!-- STEP 3 -->
   <div id="step3" class="step hidden">
     <div class="header">
       <button class="btn" id="back3">&lt; ย้อนกลับ</button>
@@ -107,15 +104,13 @@
     </div>
   </div>
 
-  <!-- Spinner Overlay -->
+  <!-- Spinner -->
   <div id="spinnerOverlay"><div class="spinner"></div></div>
 
-  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
   <script>
   (function(){
-    // init firebase
     firebase.initializeApp({
       apiKey:"AIzaSyBxYY_c14XFroS6dBIh4Jzl9XL4PMjipcg",
       authDomain:"wishes-web.firebaseapp.com",
@@ -123,136 +118,126 @@
     });
     const db = firebase.firestore();
 
-    // refs
-    const gallery  = document.getElementById('gallery'),
-          openBtn  = document.getElementById('openBtn'),
-          back1    = document.getElementById('back1'),
-          back2    = document.getElementById('back2'),
-          to3      = document.getElementById('to3'),
-          back3    = document.getElementById('back3'),
-          postBtn  = document.getElementById('postBtn'),
-          fileInput= document.getElementById('fileInput'),
-          nameInput= document.getElementById('nameInput'),
-          textInput= document.getElementById('textInput'),
-          spinner  = document.getElementById('spinnerOverlay'),
-          step1    = document.getElementById('step1'),
-          step2    = document.getElementById('step2'),
-          step3    = document.getElementById('step3'),
-          slides2  = document.getElementById('slides2'),
-          slides3  = document.getElementById('slides3');
+    const gallery   = document.getElementById('gallery'),
+          openBtn   = document.getElementById('openBtn'),
+          back1     = document.getElementById('back1'),
+          back2     = document.getElementById('back2'),
+          to3       = document.getElementById('to3'),
+          back3     = document.getElementById('back3'),
+          postBtn   = document.getElementById('postBtn'),
+          fileInput = document.getElementById('fileInput'),
+          nameInput = document.getElementById('nameInput'),
+          textInput = document.getElementById('textInput'),
+          spinner   = document.getElementById('spinnerOverlay'),
+          step1     = document.getElementById('step1'),
+          step2     = document.getElementById('step2'),
+          step3     = document.getElementById('step3'),
+          slides2   = document.getElementById('slides2'),
+          slides3   = document.getElementById('slides3');
 
-    let files = [], idx = 0;
-    const uid = localStorage.getItem('uid') || crypto.randomUUID();
-    localStorage.setItem('uid', uid);
+    let files=[], idx=0;
+    const uid=localStorage.getItem('uid')||crypto.randomUUID();
+    localStorage.setItem('uid',uid);
 
     // load gallery
     db.collection('wishes').orderBy('createdAt','desc')
       .onSnapshot(snap=>{
-        gallery.innerHTML = '';
-        snap.docs.forEach(doc=>{
-          const w = doc.data(), id = doc.id;
+        gallery.innerHTML='';
+        snap.docs.forEach(d=>{
+          const w=d.data(),id=d.id;
           if(!w.createdAt) return;
-          const card = document.createElement('div');
-          card.className = 'card';
-          card.innerHTML = `
+          const card=document.createElement('div');card.className='card';
+          card.innerHTML=`
             <img src="${w.imgUrl}">
             ${w.uid===uid?'<button class="delete-btn">🗑️</button>':''}
-            <div class="like-indicator">
-              <span class="heart-icon">♥</span><span class="like-count">${w.likes||0}</span>
-            </div>
+            <div class="like-indicator"><span class="heart-icon">♥</span><span class="like-count">${w.likes||0}</span></div>
             <div class="info"><span class="author">${w.name}:</span>${w.text}</div>`;
-          if(w.uid===uid){
-            const dbtn = card.querySelector('.delete-btn');
-            dbtn.onclick = () => db.collection('wishes').doc(id).delete();
-          }
+          if(w.uid===uid)card.querySelector('.delete-btn')
+            .onclick=()=>db.collection('wishes').doc(id).delete();
           gallery.prepend(card);
         });
       });
 
     // helpers
-    const show = el => el.classList.remove('hidden');
-    const hide = el => el.classList.add('hidden');
+    const show=el=>el.classList.remove('hidden'),
+          hide=el=>el.classList.add('hidden');
 
-    function readFileAsDataURL(file){
-      return new Promise(res=>{
-        const r=new FileReader();
-        r.onload=()=>res(r.result);
-        r.readAsDataURL(file);
+    function readFileAsDataURL(f){
+      return new Promise(r=>{
+        const fr=new FileReader();
+        fr.onload=()=>r(fr.result);
+        fr.readAsDataURL(f);
       });
     }
-
-    function render(container, list, withTrash){
-      container.innerHTML = '';
+    function render(c,list,trash){
+      c.innerHTML='';
       list.forEach((f,i)=>{
-        const d = document.createElement('div'); d.className='slide';
-        d.style.transform = `translateX(${(i-idx)*100}%)`;
-        const img = document.createElement('img'); img.src = URL.createObjectURL(f);
+        const d=document.createElement('div');d.className='slide';
+        d.style.transform=`translateX(${(i-idx)*100}%)`;
+        const img=document.createElement('img');img.src=URL.createObjectURL(f);
         d.append(img);
-        if(withTrash){
-          const b=document.createElement('button'); b.className='trash'; b.textContent='🗑️';
+        if(trash){
+          const b=document.createElement('button');b.className='trash';b.textContent='🗑️';
           b.onclick=()=>{
             files.splice(i,1);
-            if(!files.length){ hide(step1); return; }
-            idx%=files.length;
-            render(slides2,files,true);
-            render(slides3,files,false);
+            if(!files.length){ hide(step1);return; }
+            idx%=files.length; render(slides2,files,true); render(slides3,files,false);
           };
           d.append(b);
         }
-        container.append(d);
+        c.append(d);
       });
     }
 
     // steps
-    openBtn.onclick = ()=>{ show(step1); fileInput.click(); };
-    back1.onclick   = ()=> hide(step1);
-    fileInput.onchange = e=>{
-      files = Array.from(e.target.files);
+    openBtn.onclick=()=>{ show(step1); fileInput.click(); };
+    back1.onclick=()=>hide(step1);
+    fileInput.onchange=e=>{
+      files=Array.from(e.target.files);
       if(files.length){
-        idx=0;
-        render(slides2,files,true);
-        render(slides3,files,false);
+        idx=0; render(slides2,files,true); render(slides3,files,false);
         hide(step1); show(step2);
       } else hide(step1);
     };
-    back2.onclick = ()=>{ hide(step2); show(step1); fileInput.value=''; };
-    to3.onclick   = ()=>{ hide(step2); show(step3); };
-    back3.onclick = ()=>{ hide(step3); show(step2); };
+    back2.onclick=()=>{ hide(step2); show(step1); fileInput.value=''; };
+    to3.onclick=()=>{ hide(step2); show(step3); };
+    back3.onclick=()=>{ hide(step3); show(step2); };
 
-    // post
-    postBtn.onclick = async ()=>{
-      spinner.classList.add('visible');
-      try{
-        const f = files[idx];
-        // preview immediately
-        const previewUrl = f?URL.createObjectURL(f)
-          :'https://via.placeholder.com/320x400?text=No+Image';
-        // prepend new card with delete
-        const card=document.createElement('div');card.className='card';
-        card.innerHTML=`
-          <img src="${previewUrl}">
-          <button class="delete-btn">🗑️</button>
-          <div class="like-indicator"><span class="heart-icon">♥</span><span class="like-count">0</span></div>
-          <div class="info"><span class="author">${nameInput.value.trim()||'แขกผู้มีเกียรติ'}:</span>${textInput.value.trim()}</div>`;
-        const dbtn=card.querySelector('.delete-btn');
-        dbtn.onclick=async()=>{
-          // delete the newly created doc if you want, skipped here
-          card.remove();
-        };
-        gallery.prepend(card);
-
-        // upload to Firestore
-        const dataUrl = f?await readFileAsDataURL(f):previewUrl;
-        await db.collection('wishes').add({
-          name: nameInput.value.trim()||'แขกผู้มีเกียรติ',
-          text: textInput.value.trim(),
-          imgUrl: dataUrl,
-          likes:0, likedBy:[], uid,
-          createdAt: firebase.firestore.Timestamp.now()
-        });
-      }catch(e){console.error(e)}
-      spinner.classList.remove('visible');
+    postBtn.onclick=()=>{
+      // แสดง spinner + ปิด overlay STEP3 ทันที
+      show(spinner);
       hide(step3);
+      // เตรียม preview
+      const f=files[idx];
+      const previewUrl=f?URL.createObjectURL(f):'https://via.placeholder.com/320x400?text=No+Image';
+      // แสดงการ์ดใหม่ขึ้น gallery ทันที
+      const card=document.createElement('div');card.className='card';
+      card.innerHTML=`
+        <img src="${previewUrl}">
+        <button class="delete-btn">🗑️</button>
+        <div class="like-indicator"><span class="heart-icon">♥</span><span class="like-count">0</span></div>
+        <div class="info"><span class="author">${nameInput.value.trim()||'แขกผู้มีเกียรติ'}:</span>${textInput.value.trim()}</div>`;
+      const dbtn=card.querySelector('.delete-btn');
+      dbtn.onclick=()=>card.remove();
+      gallery.prepend(card);
+
+      // อัปโหลดเบื้องหลัง
+      (async()=>{
+        try{
+          const dataUrl=f?await readFileAsDataURL(f):previewUrl;
+          await db.collection('wishes').add({
+            name:nameInput.value.trim()||'แขกผู้มีเกียรติ',
+            text:textInput.value.trim(),
+            imgUrl:dataUrl,
+            likes:0,likedBy:[],uid,
+            createdAt:firebase.firestore.Timestamp.now()
+          });
+        }catch(e){console.error(e)}
+        // ซ่อน spinner หลังอัปโหลดเสร็จ
+        hide(spinner);
+      })();
+
+      // เคลียร์อินพุต
       fileInput.value=''; nameInput.value=''; textInput.value='';
     };
 
