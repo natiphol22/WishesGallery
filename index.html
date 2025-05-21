@@ -42,22 +42,14 @@
     .trash { position:absolute; top:10px; right:10px; background:rgba(255,255,255,0.8); border:none; border-radius:50%; padding:.4rem; cursor:pointer }
 
     /* STEP3 */
-    #step3 .slider { height:40vh; } /* พรีวิวรูปเล็กลง */
-    #step3 .form { padding:1rem }
-    #step3 .form input, #step3 .form textarea { width:100%; padding:.8rem; margin-bottom:1rem; border:1px solid #ddd; border-radius:8px; font-size:1rem }
+    #step3 .slider { height:40vh } /* พรีวิวรูปเล็กลง */
+    .form { padding:1rem }
+    .form input, .form textarea { width:100%; padding:.8rem; margin-bottom:1rem; border:1px solid #ddd; border-radius:8px; font-size:1rem }
 
     /* Spinner overlay */
-    #spinnerOverlay {
-      position:fixed; inset:0; background:rgba(0,0,0,0.3);
-      display:flex; justify-content:center; align-items:center;
-      z-index:200; visibility:hidden; /* ซ่อนด้วย visibility */
-    }
+    #spinnerOverlay { position:fixed; inset:0; background:rgba(0,0,0,0.3); display:flex; justify-content:center; align-items:center; z-index:200; visibility:hidden }
     #spinnerOverlay.visible { visibility:visible }
-    .spinner {
-      width:48px; height:48px;
-      border:5px solid #fff; border-top-color:transparent;
-      border-radius:50%; animation:spin 1s linear infinite;
-    }
+    .spinner { width:48px; height:48px; border:5px solid #fff; border-top-color:transparent; border-radius:50%; animation:spin 1s linear infinite }
     @keyframes spin { to { transform:rotate(360deg) } }
   </style>
 </head>
@@ -71,7 +63,7 @@
       <button class="btn-add" id="openBtn">＋</button>
     </nav>
 
-    <!-- STEP1 (รอเลือกไฟล์) -->
+    <!-- STEP1 -->
     <div id="step1" class="step hidden">
       <div class="header"><span class="title">STEP 1</span></div>
       <div style="flex:1;display:flex;justify-content:center;align-items:center">
@@ -107,9 +99,7 @@
     </div>
 
     <!-- Spinner Overlay -->
-    <div id="spinnerOverlay">
-      <div class="spinner"></div>
-    </div>
+    <div id="spinnerOverlay"><div class="spinner"></div></div>
   </div>
 
   <!-- Firebase -->
@@ -118,7 +108,6 @@
 
   <script>
   (function(){
-    // Firebase init
     firebase.initializeApp({
       apiKey:"AIzaSyBxYY_c14XFroS6dBIh4Jzl9XL4PMjipcg",
       authDomain:"wishes-web.firebaseapp.com",
@@ -126,14 +115,12 @@
     });
     const db = firebase.firestore();
 
-    // Elements
     const feed      = document.getElementById('feed');
     const openBtn   = document.getElementById('openBtn');
     const fileInput = document.getElementById('fileInput');
     const toStep3   = document.getElementById('toStep3');
     const backTo2   = document.getElementById('backTo2');
     const postBtn   = document.getElementById('postBtn');
-    const resetBtn  = document.getElementById('resetBtn'); // unused now
     const nameInput = document.getElementById('nameInput');
     const textInput = document.getElementById('textInput');
     const spinner   = document.getElementById('spinnerOverlay');
@@ -175,24 +162,33 @@
         });
       });
 
-    // Helpers
     function show(el){ el.classList.remove('hidden'); }
     function hide(el){ el.classList.add('hidden'); }
+
+    function readFileAsDataURL(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
     function render(container, list, withTrash){
       container.innerHTML = '';
       list.forEach((f,i)=>{
-        const url = URL.createObjectURL(f);
         const div = document.createElement('div'); div.className='slide';
         div.style.transform = `translateX(${(i-idx)*100}%)`;
-        const img = document.createElement('img'); img.src=url;
+        const img = document.createElement('img'); img.src = URL.createObjectURL(f);
         div.appendChild(img);
         if(withTrash){
           const b = document.createElement('button'); b.className='trash'; b.textContent='🗑️';
           b.onclick=()=>{
             files.splice(i,1);
-            if(!files.length){ hide(step1); step1.style.display='none'; return; }
+            if(!files.length){ hide(step1); return; }
             idx = idx % files.length;
-            render(slides2, files, true); render(slides3, files, false);
+            render(slides2, files, true);
+            render(slides3, files, false);
           };
           div.appendChild(b);
         }
@@ -200,7 +196,6 @@
       });
     }
 
-    // Open picker
     openBtn.onclick = ()=>{ show(step1); fileInput.click(); };
 
     fileInput.onchange = e=>{
@@ -210,46 +205,35 @@
         render(slides2, files, true);
         render(slides3, files, false);
         hide(step1); show(step2);
-      } else {
-        hide(step1);
-      }
+      } else hide(step1);
     };
 
-    // To STEP3
     toStep3.onclick = ()=>{
       hide(step2); show(step3);
       postBtn.disabled = !textInput.value.trim();
     };
-
-    // Back to STEP2
-    backTo2.onclick = ()=>{
-      hide(step3); show(step2);
-    };
-
-    // Enable post button
+    backTo2.onclick = ()=>{ hide(step3); show(step2); };
     textInput.oninput = ()=> postBtn.disabled = !textInput.value.trim();
 
-    // Post with spinner
     postBtn.onclick = async ()=>{
-      // show spinner
       spinner.classList.add('visible');
       try {
+        const file = files[idx];
+        let imgData = 'https://via.placeholder.com/320x400?text=No+Image';
+        if(file) imgData = await readFileAsDataURL(file);
         await db.collection('wishes').add({
           name: nameInput.value.trim() || 'แขกผู้มีเกียรติ',
           text: textInput.value.trim(),
-          imgUrl: URL.createObjectURL(files[idx]),
+          imgUrl: imgData,
           likes:0, likedBy:[], uid,
           createdAt: firebase.firestore.Timestamp.now()
         });
-      } catch(err) {
-        console.error(err);
+      } catch(e){
+        console.error(e);
       } finally {
-        // hide spinner and step3
         spinner.classList.remove('visible');
         hide(step3);
-        // clear inputs
-        nameInput.value=''; textInput.value='';
-        fileInput.value='';
+        nameInput.value=''; textInput.value=''; fileInput.value='';
       }
     };
 
