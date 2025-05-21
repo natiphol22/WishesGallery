@@ -40,7 +40,7 @@
       font-family: 'Grand Hotel', cursive;
       font-size: 1.8rem;
     }
-    /* หัวใจมุมขวาเป็นสีดำ */
+    /* หัวใจมุมขวาเป็นสัญลักษณ์ ♥ สีดำ */
     header .top-heart {
       font-size: 1.6rem;
       font-weight: 700;
@@ -48,7 +48,7 @@
       line-height: 1;
     }
 
-    /* แก้ให้ gallery เป็นคอลัมน์เดียว */
+    /* gallery คอลัมน์เดียว */
     .gallery {
       padding: var(--spacing);
       display: grid;
@@ -165,14 +165,13 @@
 
     .preview-container {
       text-align: center;
-      /* ลดขนาด preview ให้เล็กลง เพื่อให้กดปุ่มโพสได้ */
-      max-height: 200px;
+      max-height: 200px; /* ความสูงสูงสุด */
       overflow: hidden;
     }
     .preview-container img {
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: cover;
+      width: 100%;       /* เต็มความกว้าง */
+      height: auto;      /* รักษาอัตราส่วน */
+      object-fit: contain; /* แสดงภาพครบทั้งภาพ */
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       display: block;
@@ -214,7 +213,7 @@
 <body>
   <header>
     <h1>Tuck &amp; Tan</h1>
-    <span class="top-heart">❤</span>
+    <span class="top-heart">♥</span>
   </header>
 
   <div class="gallery" id="gallery"></div>
@@ -257,7 +256,6 @@
       doc as docRef, updateDoc, deleteDoc, Timestamp
     } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
 
-    // ปิด scroll เมื่อ modal เปิด
     const body = document.body;
     const modal = document.getElementById('modal');
     document.getElementById('nav-add').onclick = () => {
