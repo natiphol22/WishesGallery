@@ -1,417 +1,172 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Tuck &amp; Tan</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600&family=Grand+Hotel&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Multi-Step Post (Vanilla JS)</title>
   <style>
-    :root {
-      --bg: #f0f2f5;
-      --text: #262626;
-      --input-bg: #fafafa;
-      --input-text: #333;
-      --radius: 16px;
-      --spacing: 1rem;
-      --shadow: 0 8px 24px rgba(0,0,0,0.1);
-      --nav-height: 60px;
-    }
     * { box-sizing: border-box; margin:0; padding:0 }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Sarabun', sans-serif;
-      max-width: 480px;
-      margin: 0 auto;
-      min-height: 100vh;
-      padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom));
-    }
-    body.modal-open { overflow: hidden; }
-
-    header {
-      display:flex; justify-content:space-between; align-items:center;
-      padding:var(--spacing); background:#fff; box-shadow:var(--shadow);
-    }
-    header h1 {
-      font-family:'Grand Hotel',cursive; font-size:1.8rem;
-    }
-    header .top-heart svg {
-      width:24px; height:24px; fill:#000;
-    }
-
-    .gallery {
-      padding:var(--spacing);
-      display:grid; grid-template-columns:1fr; gap:var(--spacing);
-    }
-    .card {
-      background:#fff; border-radius:var(--radius);
-      box-shadow:var(--shadow); overflow:hidden;
-      transition:transform .2s; position:relative;
-    }
-    .card:hover { transform:translateY(-4px) }
-    .card img { width:100%; display:block }
-
-    .like-indicator {
-      display:flex; align-items:center; padding:.5rem 1rem;
-      font-size:.9rem;
-    }
-    .heart-icon { margin-right:.25rem; color:#e0245e }
-    .info { padding:0 1rem 1rem; font-size:.95rem }
-    .author { font-weight:600 }
-    .delete-btn {
-      position:absolute; top:8px; left:8px;
-      background:rgba(255,255,255,0.9); border:none;
-      border-radius:50%; width:28px; height:28px;
-      cursor:pointer; font-size:1rem;
-      transition:transform .2s,color .2s;
-    }
-    .delete-btn:hover { transform:scale(1.2); color:#e0245e }
-
-    .bottom-nav {
-      position:fixed; bottom:0; left:50%;
-      transform:translateX(-50%);
-      width:100%; height:var(--nav-height);
-      backdrop-filter:blur(12px); background:#ffffffdd;
-      display:flex; justify-content:space-around; align-items:center;
-      z-index:100; box-shadow:0 -2px 8px rgba(0,0,0,0.05);
-    }
-    .bottom-nav button {
-      background:none; border:none; font-size:1.6rem;
-      cursor:pointer; transition:transform .2s; color:var(--text);
-    }
-    .bottom-nav .primary {
-      font-size:2rem;
-      background:linear-gradient(135deg,#405de6,#5851db);
-      color:#fff; width:48px; height:48px;
-      border-radius:50%; display:flex;
-      align-items:center; justify-content:center;
-      box-shadow:var(--shadow);
-    }
-    .bottom-nav button:hover { transform:scale(1.1) }
-
-    .modal {
-      display:none; position:fixed; inset:0;
-      background:rgba(0,0,0,0.4);
-      align-items:center; justify-content:center;
-      padding:var(--spacing); z-index:200;
-    }
-    .modal.show { display:flex }
-    .modal-content {
-      position:relative; width:100%; max-width:420px;
-      background:#ffffffcc; backdrop-filter:blur(12px);
-      border-radius:var(--radius); box-shadow:var(--shadow);
-      overflow:hidden;
-    }
-    .modal-header {
-      display:flex; justify-content:space-between; align-items:center;
-      padding:var(--spacing); background:rgba(255,255,255,0.8);
-    }
-    .modal-header h2 { font-size:1.5rem }
-    .modal-close {
-      background:none; border:none; font-size:1.5rem;
-      cursor:pointer; transition:transform .2s;
-    }
-    .modal-close:hover { transform:scale(1.2) }
-
-    .modal-body {
-      padding:var(--spacing);
-      display:flex; flex-direction:column; gap:var(--spacing);
-    }
-    .modal-body input,
-    .modal-body textarea {
-      width:100%; padding:.75rem;
-      background:var(--input-bg); color:var(--input-text);
-      border:1px solid #ddd; border-radius:var(--radius);
-      font-size:.95rem; resize:none;
-    }
-    .modal-body input::placeholder,
-    .modal-body textarea::placeholder { color:#aaa }
-    .btn-upload {
-      display:block; width:100%; text-align:center;
-      padding:.75rem; background:linear-gradient(135deg,#405de6,#5851db);
-      color:#fff; font-weight:600; border-radius:var(--radius);
-      cursor:pointer; position:relative; overflow:hidden;
-    }
-    .btn-upload input {
-      position:absolute; inset:0; width:100%; height:100%; opacity:0;
-      cursor:pointer;
-    }
-
-    .preview-container {
-      text-align:center; width:80%; max-width:250px;
-      max-height:150px; margin:0 auto; overflow:hidden;
-    }
-    .preview-container img {
-      width:100%; height:auto; object-fit:contain;
-      border-radius:var(--radius); box-shadow:var(--shadow);
-      display:block;
-    }
-
-    .modal-footer {
-      padding:var(--spacing); text-align:right;
-      background:rgba(255,255,255,0.8);
-    }
-    .modal-footer button {
-      padding:.6rem 1.4rem; font-weight:600;
-      background:linear-gradient(135deg,#405de6,#5851db);
-      color:#fff; border:none; border-radius:var(--radius);
-      cursor:pointer; transition:opacity .2s,transform .2s;
-    }
-    .modal-footer button:disabled { opacity:.5; cursor:default }
-    .modal-footer button:not(:disabled):hover { transform:translateY(-2px) }
-
-    .spinner {
-      width:16px; height:16px;
-      border:2px solid #fff; border-top-color:transparent;
-      border-radius:50%; display:inline-block;
-      animation:spin 1s linear infinite; vertical-align:middle;
-      margin-right:6px;
-    }
-    @keyframes spin { to { transform:rotate(360deg) } }
-    @keyframes popHeartFadeShake {
-      0%   { transform:translate(-50%,-50%) scale(0); opacity:0 }
-      30%  { transform:translate(-50%,-50%) scale(1); opacity:.6 }
-      60%  { transform:translate(calc(-50%-5px),-50%) scale(1.1); opacity:.8 }
-      70%  { transform:translate(calc(-50%+5px),-50%) scale(1.1) }
-      80%  { transform:translate(-50%,-50%) scale(1) }
-      100% { transform:translate(-50%,-50%) scale(1); opacity:0 }
-    }
-
-    .feedback {
-      margin-top:.5rem; font-size:.9rem; text-align:center;
-      color:var(--text);
-    }
-    .feedback.error { color:#e0245e }
-    .feedback.success { color:#28a745 }
+    body { font-family: Kanit, sans-serif; background:#f0f2f5; color:#262626; }
+    .hidden { display: none!important }
+    .step { position: fixed; top:0; left:0; right:0; bottom:0; background:#fff; display:flex; flex-direction:column; }
+    .header { padding:1rem; background:#fafafa; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center; }
+    .header .title { color:#666; }
+    .content { flex:1; display:flex; justify-content:center; align-items:center; position:relative; }
+    .btn { padding:.6rem 1rem; border:none; border-radius:8px; cursor:pointer; font-size:1rem; }
+    .btn-primary { background:#405de6; color:#fff; }
+    .btn-secondary { background:#ccc; color:#333; }
+    /* STEP1 */
+    #step1 .btn-open { font-size:2rem; width:56px; height:56px; line-height:56px; text-align:center; border-radius:50%; background:linear-gradient(135deg,#405de6,#5851db); color:#fff; border:none; }
+    /* STEP2 */
+    #step2 .slides { display:flex; width:100%; height:100%; overflow:hidden; touch-action: pan-y; }
+    #step2 .slide { min-width:100%; position:relative; }
+    #step2 img { width:100%; height:100%; object-fit:contain; filter:brightness(1.1) saturate(1.1) contrast(1.05); }
+    #step2 .trash { position:absolute; top:10px; right:10px; background:rgba(255,255,255,0.8); border:none; border-radius:50%; padding:.4rem; cursor:pointer; }
+    /* STEP3 */
+    #step3 .form { padding:1rem; }
+    #step3 .form input, #step3 .form textarea { width:100%; padding:.8rem; margin-bottom:1rem; border:1px solid #ddd; border-radius:8px; font-size:1rem; }
+    /* STEP4 */
+    #step4 { justify-content:center; align-items:center; text-align:center; padding:2rem; }
+    #step4 h2 { margin-bottom:.5rem; }
+    /* bottom nav placeholder to offset */
+    #root { padding-bottom:60px; }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Tuck &amp; Tan</h1>
-    <span class="top-heart">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 21s-1-.45-1-1.12c0-.67.33-1.3.88-1.64C13.2 17.37 14 16.23 14 15c0-1.66-1.34-3-3-3S8 13.34 8 15c0 1.23.8 2.37 2.12 3.24.55.34.88.97.88 1.64C11 20.55 12 21 12 21z"/>
-      </svg>
-    </span>
-  </header>
-
-  <div class="gallery" id="gallery"></div>
-
-  <nav class="bottom-nav">
-    <button id="nav-home">🏠</button>
-    <button id="nav-search">🔍</button>
-    <button id="nav-add" class="primary">＋</button>
-    <button id="nav-heart">❤️</button>
-    <button id="nav-profile">👤</button>
-  </nav>
-
-  <div id="modal" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>สร้างโพสต์ใหม่</h2>
-        <button id="modalClose" class="modal-close">✕</button>
+  <div id="root">
+    <!-- STEP 1 -->
+    <div id="step1" class="step">
+      <div class="header"><span class="title">STEP 1</span><span></span></div>
+      <div class="content">
+        <button class="btn-open" id="openBtn">＋</button>
+        <input type="file" id="fileInput" accept="image/*" multiple class="hidden">
       </div>
-      <div class="modal-body">
-        <input type="text" id="modalName" placeholder="ชื่อของคุณ (ไม่บังคับ)">
-        <textarea id="wishText" rows="4" placeholder="เขียนคำอวยพรของคุณ..." required></textarea>
-        <label class="btn-upload">
-          📷 อัปโหลดรูป
-          <input type="file" id="imgUpload" accept="image/*">
-        </label>
-        <div class="preview-container">
-          <img id="preview" alt="พรีวิวรูป" style="display:none;">
-        </div>
-        <div id="feedback" class="feedback"></div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div id="step2" class="step hidden">
+      <div class="header">
+        <span class="title">โพสต์ใหม่</span>
+        <button class="btn btn-primary" id="toStep3">ถัดไป &gt;</button>
       </div>
-      <div class="modal-footer">
-        <button id="postBtn" disabled>โพสต์</button>
+      <div class="content">
+        <div class="slides" id="slidesContainer"></div>
       </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div id="step3" class="step hidden">
+      <div class="header">
+        <button class="btn btn-secondary" id="backTo2">&lt; เลือกรูปใหม่</button>
+        <button class="btn btn-primary" id="postBtn" disabled>โพสต์</button>
+      </div>
+      <div class="content">
+        <div class="slides" id="slidesContainer3"></div>
+      </div>
+      <div class="form">
+        <input type="text" id="nameInput" placeholder="ชื่อของคุณ">
+        <textarea id="textInput" rows="4" placeholder="เขียนคำอวยพรจากใจ 💌"></textarea>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div id="step4" class="step hidden">
+      <h2>🎉 ขอบคุณสำหรับคำอวยพรของคุณ!</h2>
+      <p>💖 เราจะเก็บไว้อย่างทรงคุณค่า</p>
+      <button class="btn btn-secondary" id="resetBtn">กลับหน้าแรก</button>
     </div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-    import {
-      getFirestore, collection, addDoc, query, orderBy, onSnapshot,
-      doc as docRef, updateDoc, deleteDoc, Timestamp
-    } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+  <script>
+    (function(){
+      const step1 = document.getElementById('step1');
+      const step2 = document.getElementById('step2');
+      const step3 = document.getElementById('step3');
+      const step4 = document.getElementById('step4');
+      const openBtn = document.getElementById('openBtn');
+      const fileInput = document.getElementById('fileInput');
+      const slides2 = document.getElementById('slidesContainer');
+      const slides3 = document.getElementById('slidesContainer3');
+      const toStep3 = document.getElementById('toStep3');
+      const backTo2 = document.getElementById('backTo2');
+      const postBtn = document.getElementById('postBtn');
+      const resetBtn = document.getElementById('resetBtn');
+      const nameInput = document.getElementById('nameInput');
+      const textInput = document.getElementById('textInput');
 
-    const body = document.body;
-    const modal = document.getElementById('modal');
-    const feedback = document.getElementById('feedback');
-    document.getElementById('nav-add').onclick = () => {
-      modal.classList.add('show');
-      body.classList.add('modal-open');
-      clearFeedback();
-    };
-    document.getElementById('modalClose').onclick = () => {
-      modal.classList.remove('show');
-      body.classList.remove('modal-open');
-    };
-    modal.addEventListener('click', e => {
-      if (e.target === modal) {
-        modal.classList.remove('show');
-        body.classList.remove('modal-open');
-      }
-    });
+      let files = [];
+      let idx = 0;
 
-    let currentUid = localStorage.getItem('uid');
-    if (!currentUid) {
-      currentUid = crypto.randomUUID();
-      localStorage.setItem('uid', currentUid);
-    }
+      function show(el){ el.classList.remove('hidden'); }
+      function hide(el){ el.classList.add('hidden'); }
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyBxYY_c14XFroS6dBIh4Jzl9XL4PMjipcg",
-      authDomain: "wishes-web.firebaseapp.com",
-      projectId: "wishes-web",
-      storageBucket: "unused",
-      messagingSenderId: "93224724611",
-      appId: "1:93224724611:web:491aab34365584864fd3b6",
-      measurementId: "G-6HQJWKWB8Z"
-    };
-    const app = initializeApp(firebaseConfig);
-    const db  = getFirestore(app);
-
-    const gallery   = document.getElementById('gallery');
-    const wishText  = document.getElementById('wishText');
-    const modalName = document.getElementById('modalName');
-    const imgUpload = document.getElementById('imgUpload');
-    const preview   = document.getElementById('preview');
-    const postBtn   = document.getElementById('postBtn');
-
-    const qFeed = query(collection(db,'wishes'), orderBy('createdAt','desc'));
-    onSnapshot(qFeed, snap => {
-      gallery.innerHTML = '';
-      snap.docs
-        .map(d => ({ id: d.id, ...d.data() }))
-        .filter(p => p.createdAt)
-        .sort((a,b) => b.createdAt.toMillis() - a.createdAt.toMillis())
-        .forEach(p => createCard(p, p.id));
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-
-    wishText.oninput = () => {
-      postBtn.disabled = !wishText.value.trim();
-    };
-
-    imgUpload.onchange = e => {
-      const f = e.target.files[0];
-      if (!f) { preview.style.display = 'none'; return; }
-      preview.src = URL.createObjectURL(f);
-      preview.style.display = 'block';
-    };
-
-    function clearFeedback() {
-      feedback.textContent = '';
-      feedback.className = 'feedback';
-    }
-
-    postBtn.onclick = async () => {
-      clearFeedback();
-      postBtn.disabled = true;
-      postBtn.innerHTML = `<span class="spinner"></span>กำลังโพสต์`;
-      try {
-        const text = wishText.value.trim();
-        if (!text) throw new Error('กรุณาเขียนคำอวยพรก่อนโพสต์');
-        const name = modalName.value.trim() || 'แขกผู้มีเกียรติ';
-        let imgUrl = 'https://via.placeholder.com/320x400?text=No+Image';
-        const f = imgUpload.files[0];
-        if (f) {
-          const img = await new Promise(r => {
-            const i = new Image(); i.onload = () => r(i);
-            i.src = URL.createObjectURL(f);
-          });
-          let [w,h] = [img.width, img.height], max = 800;
-          if (Math.max(w,h) > max) {
-            const ratio = max / Math.max(w,h);
-            w *= ratio; h *= ratio;
-          }
-          const c = document.createElement('canvas');
-          c.width = w; c.height = h;
-          const ctx = c.getContext('2d');
-          ctx.imageSmoothingEnabled = true;
-          ctx.imageSmoothingQuality = 'high';
-          ctx.drawImage(img, 0, 0, w, h);
-          let q = 0.95, data;
-          do {
-            data = c.toDataURL('image/jpeg', q);
-            q -= 0.05;
-          } while (data.length > 1_000_000 && q > 0.1);
-          imgUrl = data;
+      openBtn.addEventListener('click', ()=> fileInput.click());
+      fileInput.addEventListener('change', e=>{
+        files = Array.from(e.target.files);
+        if(files.length){
+          idx = 0;
+          renderSlides(slides2, files, true);
+          renderSlides(slides3, files, false);
+          hide(step1); show(step2);
         }
-        await addDoc(collection(db,'wishes'), {
-          name, text, imgUrl,
-          likes: 0, likedBy: [], uid: currentUid,
-          createdAt: Timestamp.now()
-        });
-        feedback.textContent = 'โพสต์สำเร็จ 🎉';
-        feedback.classList.add('success');
-        wishText.value = '';
-        modalName.value = '';
-        imgUpload.value   = '';
-        preview.style.display = 'none';
-      } catch (err) {
-        console.error(err);
-        feedback.textContent = err.message || 'เกิดข้อผิดพลาดในการโพสต์';
-        feedback.classList.add('error');
-      } finally {
-        postBtn.innerText = 'โพสต์';
-        postBtn.disabled = !wishText.value.trim();
-      }
-    };
+      });
 
-    function animateHeart(card) {
-      const h = document.createElement('div');
-      h.textContent = '❤';
-      Object.assign(h.style, {
-        position:'absolute', top:'50%', left:'50%',
-        fontSize:'4rem', color:'rgba(224,36,94,0.6)',
-        animation:'popHeartFadeShake .8s forwards', pointerEvents:'none'
+      toStep3.addEventListener('click', ()=>{
+        hide(step2); show(step3);
+        checkPostBtn();
       });
-      card.querySelector('.img-wrapper').appendChild(h);
-      h.addEventListener('animationend', () => h.remove());
-    }
-    async function handleLike(id, w) {
-      if ((w.likedBy || []).includes(currentUid)) return;
-      await updateDoc(docRef(db,'wishes',id), {
-        likes: (w.likes || 0) + 1,
-        likedBy: [...(w.likedBy || []), currentUid]
+      backTo2.addEventListener('click', ()=>{
+        hide(step3); show(step2);
       });
-    }
-    function createCard(w, id) {
-      const card = document.createElement('div');
-      card.className = 'card';
-      const delBtn = w.uid === currentUid
-        ? `<button class="delete-btn" title="ลบโพสต์">🗑️</button>`
-        : '';
-      card.innerHTML = `
-        <div class="img-wrapper" style="position:relative;">
-          <img src="${w.imgUrl}" />${delBtn}
-        </div>
-        <div class="like-indicator">
-          <span class="heart-icon">♥</span>
-          <span class="like-count">${w.likes||0}</span>
-        </div>
-        <div class="info">
-          <span class="author">${w.name}:</span>
-          <span class="wish">${w.text}</span>
-        </div>`;
-      const imgEl = card.querySelector('img');
-      imgEl.addEventListener('dblclick', async e => {
-        e.stopPropagation(); animateHeart(card);
-        await handleLike(id, w);
+      resetBtn.addEventListener('click', ()=>{
+        hide(step2); hide(step3); hide(step4);
+        show(step1);
+        fileInput.value = '';
+        nameInput.value = '';
+        textInput.value = '';
       });
-      if (w.uid === currentUid) {
-        card.querySelector('.delete-btn').onclick = async e => {
-          e.stopPropagation();
-          if (confirm('ลบโพสต์นี้?')) {
-            await deleteDoc(docRef(db,'wishes',id));
-          }
-        };
+
+      textInput.addEventListener('input', checkPostBtn);
+      function checkPostBtn(){
+        postBtn.disabled = !textInput.value.trim();
       }
-      gallery.append(card);
-    }
+
+      postBtn.addEventListener('click', ()=>{
+        // ที่นี่คุณอาจเก็บข้อมูลขึ้น Firestore หรือ API
+        hide(step3); show(step4);
+      });
+
+      function renderSlides(container, fileList, withTrash){
+        container.innerHTML = '';
+        fileList.forEach((f,i)=>{
+          const url = URL.createObjectURL(f);
+          const div = document.createElement('div');
+          div.className = 'slide';
+          div.style.transform = `translateX(${(i-idx)*100}%)`;
+          const img = document.createElement('img');
+          img.src = url;
+          div.appendChild(img);
+          if(withTrash){
+            const btn = document.createElement('button');
+            btn.className = 'trash';
+            btn.textContent = '🗑️';
+            btn.addEventListener('click', ()=>{
+              files.splice(i,1);
+              if(files.length===0){
+                resetBtn.click();
+                return;
+              }
+              idx = idx % files.length;
+              renderSlides(slides2, files, true);
+              renderSlides(slides3, files, false);
+            });
+            div.appendChild(btn);
+          }
+          container.appendChild(div);
+        });
+      }
+
+    })();
   </script>
 </body>
 </html>
