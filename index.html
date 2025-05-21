@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Tuck &amp; Tan</title>
   <!-- Font แนว IG: Pacifico + Poppins -->
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -162,6 +162,16 @@
       width:100%; padding:.75rem;
       border:1px solid #ddd; border-radius:var(--radius);
       background:var(--input-bg); font-size:.95rem;
+    }
+
+    /* Heart pop animation */
+    @keyframes popHeartFadeShake {
+      0%   { transform: translate(-50%,-50%) scale(0); opacity: 0; }
+      30%  { transform: translate(-50%,-50%) scale(1); opacity: 0.6; }
+      60%  { transform: translate(calc(-50%-5px),-50%) scale(1.1); opacity: 0.8; }
+      70%  { transform: translate(calc(-50%+5px),-50%) scale(1.1); }
+      80%  { transform: translate(-50%,-50%) scale(1); }
+      100% { transform: translate(-50%,-50%) scale(1); opacity: 0; }
     }
 
     /* Spinner */
@@ -337,7 +347,6 @@
         }).catch(console.error);
       });
 
-      // Delete own post
       if (w.uid === currentUid) {
         card.querySelector('.delete-btn').onclick = async e => {
           e.stopPropagation();
@@ -369,8 +378,7 @@
       currentStep = n;
       stepEls.forEach(el=>el.classList.toggle('active', +el.dataset.step===n));
       wizBack.innerText = '<ย้อนกลับ';
-      if (n===1) wizNext.style.visibility = 'hidden';
-      else        wizNext.style.visibility = 'visible';
+      wizNext.style.visibility = n===1 ? 'hidden' : 'visible';
       wizNext.innerText = n<3 ? 'ถัดไป>' : 'โพสต์';
       body.classList.add('modal-open');
       if (n===3 && selectedFiles.length) {
