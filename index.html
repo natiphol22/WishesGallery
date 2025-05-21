@@ -7,61 +7,91 @@
   <style>
     * { box-sizing: border-box; margin:0; padding:0 }
     body { font-family: Kanit, sans-serif; background:#f0f2f5; color:#262626; }
-    .hidden { display: none!important }
-    .step { position: fixed; top:0; left:0; right:0; bottom:0; background:#fff; display:flex; flex-direction:column; }
-    .header { padding:1rem; background:#fafafa; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center; }
-    .header .title { color:#666; }
-    .content { flex:1; display:flex; justify-content:center; align-items:center; position:relative; }
-    .btn { padding:.6rem 1rem; border:none; border-radius:8px; cursor:pointer; font-size:1rem; }
-    .btn-primary { background:#405de6; color:#fff; }
-    .btn-secondary { background:#ccc; color:#333; }
-    /* STEP1 */
-    #step1 .btn-open { font-size:2rem; width:56px; height:56px; line-height:56px; text-align:center; border-radius:50%; background:linear-gradient(135deg,#405de6,#5851db); color:#fff; border:none; }
+    #root { padding-bottom:60px; position:relative; min-height:100vh; }
+
+    /* Feed */
+    .feed { padding:1rem; margin-bottom:60px; }
+    .card { background:#fff; border-radius:16px; box-shadow:0 4px 16px rgba(0,0,0,0.1); margin-bottom:1rem; overflow:hidden; position:relative; transition:transform .2s; }
+    .card:hover { transform:translateY(-4px) }
+    .card img { width:100%; display:block; filter:brightness(1.1) saturate(1.1) contrast(1.05); }
+    .card .info { padding:.5rem 1rem; font-size:.95rem; }
+    .card .info .author { font-weight:600 }
+    .card .like { display:flex; align-items:center; padding:.5rem 1rem; font-size:.9rem; cursor:pointer }
+    .card .like span:first-child { margin-right:.25rem; color:#e0245e }
+    .card .delete-btn { position:absolute; top:8px; left:8px; background:rgba(255,255,255,0.9); border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; font-size:1rem }
+
+    /* Bottom nav */
+    .bottom-nav { position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; height:60px; background:#fff; display:flex; justify-content:center; align-items:center; box-shadow:0 -2px 8px rgba(0,0,0,0.05); z-index:50 }
+    .btn-add { font-size:2rem; background:linear-gradient(135deg,#405de6,#5851db); color:#fff; width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:none; cursor:pointer }
+
+    /* Multi-step */
+    .hidden { display:none!important }
+    .step { position:fixed; top:0; left:0; right:0; bottom:0; background:#fff; display:flex; flex-direction:column; z-index:100 }
+    .step1 { justify-content:center; align-items:center }
+    .header { padding:1rem; background:#fafafa; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center }
+    .header .title { color:#666 }
+    .btn { padding:.6rem 1rem; border:none; border-radius:8px; cursor:pointer; font-size:1rem }
+    .btn-primary { background:#405de6; color:#fff }
+    .btn-secondary { background:#ccc; color:#333 }
+
     /* STEP2 */
-    #step2 .slides { display:flex; width:100%; height:100%; overflow:hidden; touch-action: pan-y; }
-    #step2 .slide { min-width:100%; position:relative; }
-    #step2 img { width:100%; height:100%; object-fit:contain; filter:brightness(1.1) saturate(1.1) contrast(1.05); }
-    #step2 .trash { position:absolute; top:10px; right:10px; background:rgba(255,255,255,0.8); border:none; border-radius:50%; padding:.4rem; cursor:pointer; }
-    /* STEP3 */
-    #step3 .form { padding:1rem; }
-    #step3 .form input, #step3 .form textarea { width:100%; padding:.8rem; margin-bottom:1rem; border:1px solid #ddd; border-radius:8px; font-size:1rem; }
+    .slider { flex:1; position:relative; overflow:hidden; background:#000 }
+    .slides { display:flex; height:100% }
+    .slide { min-width:100%; position:relative; display:flex; justify-content:center; align-items:center }
+    .slide img { max-width:100%; max-height:100%; object-fit:contain; filter:brightness(1.1) saturate(1.1) contrast(1.05) }
+    .trash { position:absolute; top:10px; right:10px; background:rgba(255,255,255,0.8); border:none; border-radius:50%; padding:.4rem; cursor:pointer }
+
+    /* STEP3: พรีวิวรูปเล็กลง สูง 40% ของ viewport */
+    #step3 .slider { height:40vh; background:#000 }
+    /* ส่วนที่เหลือตาม STEP2 */
+    #step3 .slides, #step3 .slide, #step3 .slide img, #step3 .trash { /* เหมือน STEP2 */ }
+
+    .form { padding:1rem }
+    .form input, .form textarea { width:100%; padding:.8rem; margin-bottom:1rem; border:1px solid #ddd; border-radius:8px; font-size:1rem }
+
     /* STEP4 */
-    #step4 { justify-content:center; align-items:center; text-align:center; padding:2rem; }
-    #step4 h2 { margin-bottom:.5rem; }
-    /* bottom nav placeholder to offset */
-    #root { padding-bottom:60px; }
+    .success { flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:2rem }
+    .success button { margin-top:1rem }
   </style>
 </head>
 <body>
   <div id="root">
-    <!-- STEP 1 -->
-    <div id="step1" class="step">
-      <div class="header"><span class="title">STEP 1</span><span></span></div>
-      <div class="content">
-        <button class="btn-open" id="openBtn">＋</button>
-        <input type="file" id="fileInput" accept="image/*" multiple class="hidden">
+    <!-- FEED -->
+    <div class="feed" id="feed"></div>
+
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav">
+      <button class="btn-add" id="openBtn">＋</button>
+    </nav>
+
+    <!-- STEP1 -->
+    <div id="step1" class="step hidden">
+      <div class="header"><span class="title">STEP 1</span></div>
+      <div class="content" style="flex:1;display:flex;justify-content:center;align-items:center">
+        <p>กำลังรอเลือกรูป…</p>
       </div>
+      <input type="file" id="fileInput" accept="image/*" multiple class="hidden">
     </div>
 
-    <!-- STEP 2 -->
+    <!-- STEP2 -->
     <div id="step2" class="step hidden">
       <div class="header">
         <span class="title">โพสต์ใหม่</span>
         <button class="btn btn-primary" id="toStep3">ถัดไป &gt;</button>
       </div>
-      <div class="content">
-        <div class="slides" id="slidesContainer"></div>
+      <div class="slider">
+        <div class="slides" id="slides2"></div>
       </div>
     </div>
 
-    <!-- STEP 3 -->
+    <!-- STEP3 -->
     <div id="step3" class="step hidden">
       <div class="header">
-        <button class="btn btn-secondary" id="backTo2">&lt; เลือกรูปใหม่</button>
+        <button class="btn btn-secondary" id="backTo2">&lt; เลือกใหม่</button>
         <button class="btn btn-primary" id="postBtn" disabled>โพสต์</button>
       </div>
-      <div class="content">
-        <div class="slides" id="slidesContainer3"></div>
+      <div class="slider">
+        <div class="slides" id="slides3"></div>
       </div>
       <div class="form">
         <input type="text" id="nameInput" placeholder="ชื่อของคุณ">
@@ -69,104 +99,161 @@
       </div>
     </div>
 
-    <!-- STEP 4 -->
+    <!-- STEP4 -->
     <div id="step4" class="step hidden">
-      <h2>🎉 ขอบคุณสำหรับคำอวยพรของคุณ!</h2>
-      <p>💖 เราจะเก็บไว้อย่างทรงคุณค่า</p>
-      <button class="btn btn-secondary" id="resetBtn">กลับหน้าแรก</button>
+      <div class="success">
+        <h2>🎉 ขอบคุณสำหรับคำอวยพรของคุณ!</h2>
+        <p>💖 เราจะเก็บไว้อย่างทรงคุณค่า</p>
+        <button class="btn btn-secondary" id="resetBtn">กลับหน้าแรก</button>
+      </div>
     </div>
   </div>
 
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
   <script>
-    (function(){
-      const step1 = document.getElementById('step1');
-      const step2 = document.getElementById('step2');
-      const step3 = document.getElementById('step3');
-      const step4 = document.getElementById('step4');
-      const openBtn = document.getElementById('openBtn');
-      const fileInput = document.getElementById('fileInput');
-      const slides2 = document.getElementById('slidesContainer');
-      const slides3 = document.getElementById('slidesContainer3');
-      const toStep3 = document.getElementById('toStep3');
-      const backTo2 = document.getElementById('backTo2');
-      const postBtn = document.getElementById('postBtn');
-      const resetBtn = document.getElementById('resetBtn');
-      const nameInput = document.getElementById('nameInput');
-      const textInput = document.getElementById('textInput');
+  (function(){
+    // Firebase init
+    firebase.initializeApp({
+      apiKey:"AIzaSyBxYY_c14XFroS6dBIh4Jzl9XL4PMjipcg",
+      authDomain:"wishes-web.firebaseapp.com",
+      projectId:"wishes-web"
+    });
+    const db = firebase.firestore();
 
-      let files = [];
-      let idx = 0;
+    // Elements
+    const feed      = document.getElementById('feed');
+    const openBtn   = document.getElementById('openBtn');
+    const fileInput = document.getElementById('fileInput');
+    const toStep3   = document.getElementById('toStep3');
+    const backTo2   = document.getElementById('backTo2');
+    const postBtn   = document.getElementById('postBtn');
+    const resetBtn  = document.getElementById('resetBtn');
+    const nameInput = document.getElementById('nameInput');
+    const textInput = document.getElementById('textInput');
 
-      function show(el){ el.classList.remove('hidden'); }
-      function hide(el){ el.classList.add('hidden'); }
+    const step1 = document.getElementById('step1');
+    const step2 = document.getElementById('step2');
+    const step3 = document.getElementById('step3');
+    const step4 = document.getElementById('step4');
+    const slides2 = document.getElementById('slides2');
+    const slides3 = document.getElementById('slides3');
 
-      openBtn.addEventListener('click', ()=> fileInput.click());
-      fileInput.addEventListener('change', e=>{
-        files = Array.from(e.target.files);
-        if(files.length){
-          idx = 0;
-          renderSlides(slides2, files, true);
-          renderSlides(slides3, files, false);
-          hide(step1); show(step2);
-        }
-      });
+    let files = [], idx = 0;
+    let uid = localStorage.getItem('uid') || crypto.randomUUID();
+    localStorage.setItem('uid', uid);
 
-      toStep3.addEventListener('click', ()=>{
-        hide(step2); show(step3);
-        checkPostBtn();
-      });
-      backTo2.addEventListener('click', ()=>{
-        hide(step3); show(step2);
-      });
-      resetBtn.addEventListener('click', ()=>{
-        hide(step2); hide(step3); hide(step4);
-        show(step1);
-        fileInput.value = '';
-        nameInput.value = '';
-        textInput.value = '';
-      });
-
-      textInput.addEventListener('input', checkPostBtn);
-      function checkPostBtn(){
-        postBtn.disabled = !textInput.value.trim();
-      }
-
-      postBtn.addEventListener('click', ()=>{
-        // ที่นี่คุณอาจเก็บข้อมูลขึ้น Firestore หรือ API
-        hide(step3); show(step4);
-      });
-
-      function renderSlides(container, fileList, withTrash){
-        container.innerHTML = '';
-        fileList.forEach((f,i)=>{
-          const url = URL.createObjectURL(f);
-          const div = document.createElement('div');
-          div.className = 'slide';
-          div.style.transform = `translateX(${(i-idx)*100}%)`;
-          const img = document.createElement('img');
-          img.src = url;
-          div.appendChild(img);
-          if(withTrash){
-            const btn = document.createElement('button');
-            btn.className = 'trash';
-            btn.textContent = '🗑️';
-            btn.addEventListener('click', ()=>{
-              files.splice(i,1);
-              if(files.length===0){
-                resetBtn.click();
-                return;
-              }
-              idx = idx % files.length;
-              renderSlides(slides2, files, true);
-              renderSlides(slides3, files, false);
-            });
-            div.appendChild(btn);
+    // Load feed from Firestore
+    db.collection('wishes').orderBy('createdAt','desc')
+      .onSnapshot(snap=>{
+        feed.innerHTML = '';
+        snap.docs.forEach(doc=>{
+          const w = doc.data(), id = doc.id;
+          if(!w.createdAt) return;
+          const card = document.createElement('div'); card.className='card';
+          card.innerHTML = `
+            <img src="${w.imgUrl}">
+            ${w.uid===uid?'<button class="delete-btn">🗑️</button>':''}
+            <div class="like"><span>♥</span><span>${w.likes||0}</span></div>
+            <div class="info"><span class="author">${w.name}:</span> ${w.text}</div>`;
+          // Delete
+          if(w.uid===uid){
+            card.querySelector('.delete-btn')
+              .onclick=()=>db.collection('wishes').doc(id).delete();
           }
-          container.appendChild(div);
+          // Like double-click
+          card.querySelector('img')
+            .ondblclick=()=>{
+              if((w.likedBy||[]).includes(uid)) return;
+              db.collection('wishes').doc(id).update({
+                likes:(w.likes||0)+1,
+                likedBy:[...(w.likedBy||[]),uid]
+              });
+            };
+          feed.appendChild(card);
         });
-      }
+      });
 
-    })();
+    // Helpers
+    function show(el){ el.classList.remove('hidden') }
+    function hide(el){ el.classList.add('hidden') }
+    function render(container, list, withTrash){
+      container.innerHTML = '';
+      list.forEach((f,i)=>{
+        const url = URL.createObjectURL(f);
+        const div = document.createElement('div'); div.className='slide';
+        div.style.transform = `translateX(${(i-idx)*100}%)`;
+        const img = document.createElement('img'); img.src=url;
+        div.appendChild(img);
+        if(withTrash){
+          const b = document.createElement('button');
+          b.className='trash'; b.textContent='🗑️';
+          b.onclick=()=>{
+            files.splice(i,1);
+            if(!files.length){ resetBtn.click(); return; }
+            idx = idx % files.length;
+            render(slides2, files, true);
+            render(slides3, files, false);
+          };
+          div.appendChild(b);
+        }
+        container.appendChild(div);
+      });
+    }
+
+    // OPEN Picker
+    openBtn.onclick = ()=>{ show(step1); fileInput.click(); };
+
+    fileInput.onchange = e=>{
+      files = Array.from(e.target.files);
+      if(files.length){
+        idx=0;
+        render(slides2, files, true);
+        render(slides3, files, false);
+        hide(step1); show(step2);
+      } else {
+        hide(step1);
+      }
+    };
+
+    // To STEP3
+    toStep3.onclick = ()=>{
+      hide(step2); show(step3);
+      postBtn.disabled = !textInput.value.trim();
+    };
+
+    // Back to STEP2
+    backTo2.onclick = ()=>{
+      hide(step3); show(step2);
+    };
+
+    // Enable post button
+    textInput.oninput = ()=> postBtn.disabled = !textInput.value.trim();
+
+    // Post
+    postBtn.onclick = async ()=>{
+      await db.collection('wishes').add({
+        name: nameInput.value.trim() || 'แขกผู้มีเกียรติ',
+        text: textInput.value.trim(),
+        imgUrl: URL.createObjectURL(files[idx]),
+        likes:0, likedBy:[], uid,
+        createdAt: firebase.firestore.Timestamp.now()
+      });
+      hide(step3); show(step4);
+    };
+
+    // Reset all
+    resetBtn.onclick = ()=>{
+      [step1,step2,step3,step4].forEach(hide);
+      fileInput.value=''; nameInput.value=''; textInput.value='';
+      show(step1);
+    };
+
+    // Initialize: show feed + step1 hidden
+    hide(step1); hide(step2); hide(step3); hide(step4);
+  })();
   </script>
 </body>
 </html>
