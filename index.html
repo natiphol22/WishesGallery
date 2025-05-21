@@ -25,11 +25,8 @@
       margin: 0 auto;
       min-height: 100vh;
       padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom));
-      position: relative;
     }
-    body.modal-open {
-      overflow: hidden;
-    }
+    body.modal-open { overflow: hidden; }
 
     header {
       display: flex;
@@ -43,14 +40,11 @@
       font-family: 'Grand Hotel', cursive;
       font-size: 1.8rem;
     }
-    /* หัวใจมุมขวาเป็น glyph สีดำ */
-    header .top-heart {
-      content: "♥";
-      font-family: 'Sarabun', 'Arial', sans-serif;
-      font-size: 1.6rem;
-      font-weight: 700;
-      color: #000;
-      line-height: 1;
+    /* ไอคอนหัวใจ SVG สีดำ */
+    header .top-heart svg {
+      width: 24px;
+      height: 24px;
+      fill: #000;
     }
 
     /* gallery คอลัมน์เดียว */
@@ -84,59 +78,44 @@
     }
     .author { font-weight: 600; }
     .delete-btn {
-      position: absolute;
-      top: 8px; left: 8px;
+      position: absolute; top: 8px; left: 8px;
       background: rgba(255,255,255,0.9);
-      border: none;
-      border-radius: 50%;
+      border: none; border-radius: 50%;
       width: 28px; height: 28px;
-      cursor: pointer;
-      font-size: 1rem;
+      cursor: pointer; font-size: 1rem;
       transition: transform .2s, color .2s;
     }
     .delete-btn:hover { transform: scale(1.2); color: #e0245e; }
 
     .bottom-nav {
-      position: fixed;
-      bottom: 0; left: 50%;
+      position: fixed; bottom: 0; left: 50%;
       transform: translateX(-50%);
       width: 100%; height: var(--nav-height);
       backdrop-filter: blur(12px);
       background: #ffffffdd;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      z-index: 100;
-      box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
+      display: flex; justify-content: space-around; align-items: center;
+      z-index: 100; box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
     }
     .bottom-nav button {
       background: none; border: none;
       font-size: 1.6rem; cursor: pointer;
-      transition: transform .2s;
-      color: var(--text);
+      transition: transform .2s; color: var(--text);
     }
     .bottom-nav .primary {
       font-size: 2rem;
       background: linear-gradient(135deg, #405de6, #5851db);
-      color: #fff;
-      width: 48px; height: 48px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      color: #fff; width: 48px; height: 48px;
+      border-radius: 50%; display: flex;
+      align-items: center; justify-content: center;
       box-shadow: var(--shadow);
     }
     .bottom-nav button:hover { transform: scale(1.1); }
 
     .modal {
-      display: none;
-      position: fixed;
-      inset: 0;
+      display: none; position: fixed; inset: 0;
       background: rgba(0,0,0,0.4);
-      align-items: center;
-      justify-content: center;
-      padding: var(--spacing);
-      z-index: 200;
+      align-items: center; justify-content: center;
+      padding: var(--spacing); z-index: 200;
     }
     .modal.show { display: flex; }
     .modal-content {
@@ -150,11 +129,8 @@
     }
 
     .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: var(--spacing);
-      background: rgba(255,255,255,0.8);
+      display: flex; justify-content: space-between; align-items: center;
+      padding: var(--spacing); background: rgba(255,255,255,0.8);
     }
     .modal-header h2 { font-size: 1.5rem; }
     .modal-close {
@@ -166,9 +142,7 @@
 
     .modal-body {
       padding: var(--spacing);
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing);
+      display: flex; flex-direction: column; gap: var(--spacing);
     }
     .modal-body input,
     .modal-body textarea {
@@ -190,18 +164,18 @@
       position: relative; overflow: hidden;
     }
     .btn-upload input {
-      position: absolute;
-      inset: 0;
-      width: 100%; height: 100%; opacity: 0;
-      cursor: pointer;
+      position: absolute; inset: 0;
+      width: 100%; height: 100%; opacity: 0; cursor: pointer;
     }
 
-    /* พรีวิวรูป ใช้เต็มรูป แต่ขนาดเล็ก */
+    /* พรีวิวรูปขนาดเล็กลง ไม่ล้น modal */
     .preview-container {
       text-align: center;
-      width: 100%;
-      max-width: 300px;
+      width: 80%;
+      max-width: 250px;
+      max-height: 150px;
       margin: 0 auto;
+      overflow: hidden;
     }
     .preview-container img {
       width: 100%;
@@ -213,8 +187,7 @@
     }
 
     .modal-footer {
-      padding: var(--spacing);
-      text-align: right;
+      padding: var(--spacing); text-align: right;
       background: rgba(255,255,255,0.8);
     }
     .modal-footer button {
@@ -247,7 +220,12 @@
 <body>
   <header>
     <h1>Tuck &amp; Tan</h1>
-    <span class="top-heart">♥</span>
+    <span class="top-heart">
+      <!-- inline SVG ไอคอนหัวใจสีดำ -->
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 21s-1-.45-1-1.12c0-.67.33-1.3.88-1.64C13.2 17.37 14 16.23 14 15c0-1.66-1.34-3-3-3S8 13.34 8 15c0 1.23.8 2.37 2.12 3.24.55.34.88.97.88 1.64C11 20.55 12 21 12 21z"/>
+      </svg>
+    </span>
   </header>
 
   <div class="gallery" id="gallery"></div>
@@ -290,7 +268,6 @@
       doc as docRef, updateDoc, deleteDoc, Timestamp
     } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
 
-    // ปิด scroll เมื่อ modal เปิด
     const body = document.body;
     const modal = document.getElementById('modal');
     document.getElementById('nav-add').onclick = () => {
@@ -308,14 +285,12 @@
       }
     });
 
-    // สร้างหรือดึง uid
     let currentUid = localStorage.getItem('uid');
     if (!currentUid) {
       currentUid = crypto.randomUUID();
       localStorage.setItem('uid', currentUid);
     }
 
-    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyBxYY_c14XFroS6dBIh4Jzl9XL4PMjipcg",
       authDomain: "wishes-web.firebaseapp.com",
@@ -335,7 +310,6 @@
     const preview   = document.getElementById('preview');
     const postBtn   = document.getElementById('postBtn');
 
-    // ฟีดเรียลไทม์
     const qFeed = query(collection(db,'wishes'), orderBy('createdAt','desc'));
     onSnapshot(qFeed, snap => {
       gallery.innerHTML = '';
@@ -347,21 +321,14 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    // เปิดปุ่มโพสต์เมื่อมีข้อความ
     wishText.oninput = () => postBtn.disabled = !wishText.value.trim();
-
-    // พรีวิวรูป
     imgUpload.onchange = e => {
       const f = e.target.files[0];
-      if (!f) {
-        preview.style.display = 'none';
-        return;
-      }
+      if (!f) return preview.style.display='none';
       preview.src = URL.createObjectURL(f);
       preview.style.display = 'block';
     };
 
-    // กดโพสต์
     postBtn.onclick = async () => {
       postBtn.disabled = true;
       postBtn.innerHTML = `<span class="spinner"></span>กำลังโพสต์`;
@@ -374,97 +341,83 @@
           const i = new Image(); i.onload = () => r(i);
           i.src = URL.createObjectURL(f);
         });
-        let [w, h] = [img.width, img.height], max = 800;
-        if (Math.max(w,h) > max) {
-          const ratio = max / Math.max(w,h);
-          w *= ratio; h *= ratio;
+        let [w,h] = [img.width,img.height], max = 800;
+        if (Math.max(w,h)>max) {
+          const ratio = max/Math.max(w,h);
+          w*=ratio; h*=ratio;
         }
         const c = document.createElement('canvas');
-        c.width = w; c.height = h;
+        c.width=w; c.height=h;
         const ctx = c.getContext('2d');
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
-        ctx.drawImage(img, 0, 0, w, h);
-        let q = 0.95, data;
+        ctx.imageSmoothingEnabled=true;
+        ctx.imageSmoothingQuality='high';
+        ctx.drawImage(img,0,0,w,h);
+        let q=0.95,data;
         do {
-          data = c.toDataURL('image/jpeg', q);
-          q -= 0.05;
-        } while (data.length > 1_000_000 && q > 0.1);
-        imgUrl = data;
+          data=c.toDataURL('image/jpeg',q);
+          q-=0.05;
+        } while(data.length>1_000_000&&q>0.1);
+        imgUrl=data;
       }
       await addDoc(collection(db,'wishes'), {
-        name, text, imgUrl,
-        likes: 0, likedBy: [], uid: currentUid,
-        createdAt: Timestamp.now()
+        name,text,imgUrl,
+        likes:0,likedBy:[],uid:currentUid,
+        createdAt:Timestamp.now()
       });
-      wishText.value = '';
-      modalName.value = '';
-      imgUpload.value = '';
-      preview.style.display = 'none';
-      postBtn.innerText = 'โพสต์';
-      postBtn.disabled = true;
+      wishText.value='';
+      modalName.value='';
+      imgUpload.value='';
+      preview.style.display='none';
+      postBtn.innerText='โพสต์';
+      postBtn.disabled=true;
       modal.classList.remove('show');
       body.classList.remove('modal-open');
     };
 
-    // ฟังก์ชันแอนิเมชันหัวใจ
     function animateHeart(card) {
       const h = document.createElement('div');
-      h.textContent = '❤';
-      Object.assign(h.style, {
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        fontSize: '4rem',
-        color: 'rgba(224,36,94,0.6)',
-        animation: 'popHeartFadeShake .8s forwards',
-        pointerEvents: 'none'
+      h.textContent='❤';
+      Object.assign(h.style,{
+        position:'absolute',top:'50%',left:'50%',
+        fontSize:'4rem',color:'rgba(224,36,94,0.6)',
+        animation:'popHeartFadeShake .8s forwards',pointerEvents:'none'
       });
       card.querySelector('.img-wrapper').appendChild(h);
-      h.addEventListener('animationend', () => h.remove());
+      h.addEventListener('animationend',()=>h.remove());
     }
-
-    // ฟังก์ชันไลก์
-    async function handleLike(id, w) {
-      if ((w.likedBy || []).includes(currentUid)) return;
-      await updateDoc(docRef(db,'wishes',id), {
-        likes: (w.likes || 0) + 1,
-        likedBy: [...(w.likedBy || []), currentUid]
+    async function handleLike(id,w) {
+      if((w.likedBy||[]).includes(currentUid)) return;
+      await updateDoc(docRef(db,'wishes',id),{
+        likes:(w.likes||0)+1,
+        likedBy:[...(w.likedBy||[]),currentUid]
       });
     }
-
-    // สร้างการ์ดโพสต์
-    function createCard(w, id) {
-      const card = document.createElement('div');
-      card.className = 'card';
-      const delBtn = w.uid === currentUid
-        ? `<button class="delete-btn" title="ลบโพสต์">🗑️</button>`
-        : '';
-      card.innerHTML = `
+    function createCard(w,id) {
+      const card=document.createElement('div');
+      card.className='card';
+      const delBtn=w.uid===currentUid
+        ?`<button class="delete-btn" title="ลบโพสต์">🗑️</button>`:'';
+      card.innerHTML=`
         <div class="img-wrapper" style="position:relative;">
-          <img src="${w.imgUrl}" />
-          ${delBtn}
+          <img src="${w.imgUrl}"/>${delBtn}
         </div>
         <div class="like-indicator">
           <span class="heart-icon">♥</span>
-          <span class="like-count">${w.likes || 0}</span>
+          <span class="like-count">${w.likes||0}</span>
         </div>
         <div class="info">
           <span class="author">${w.name}:</span>
           <span class="wish">${w.text}</span>
         </div>`;
-      const imgEl = card.querySelector('img');
-      imgEl.addEventListener('dblclick', async e => {
-        e.stopPropagation();
-        animateHeart(card);
-        await handleLike(id, w);
+      const imgEl=card.querySelector('img');
+      imgEl.addEventListener('dblclick',async e=>{
+        e.stopPropagation(); animateHeart(card);
+        await handleLike(id,w);
       });
-      if (w.uid === currentUid) {
-        card.querySelector('.delete-btn').onclick = async e => {
+      if(w.uid===currentUid) {
+        card.querySelector('.delete-btn').onclick=async e=>{
           e.stopPropagation();
-          if (confirm('ลบโพสต์นี้?')) {
-            await deleteDoc(docRef(db,'wishes',id));
-          }
+          if(confirm('ลบโพสต์นี้?')) await deleteDoc(docRef(db,'wishes',id));
         };
       }
       gallery.append(card);
