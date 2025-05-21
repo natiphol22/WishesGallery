@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Multi-Step Post (Vanilla JS)</title>
+  <title>Tuck & Tan</title>
   <style>
     * { box-sizing: border-box; margin:0; padding:0 }
     body { font-family: Kanit, sans-serif; background:#f0f2f5; color:#262626; }
@@ -41,17 +41,24 @@
     .slide img { max-width:100%; max-height:100%; object-fit:contain; filter:brightness(1.1) saturate(1.1) contrast(1.05) }
     .trash { position:absolute; top:10px; right:10px; background:rgba(255,255,255,0.8); border:none; border-radius:50%; padding:.4rem; cursor:pointer }
 
-    /* STEP3: พรีวิวรูปเล็กลง สูง 40% ของ viewport */
-    #step3 .slider { height:40vh; background:#000 }
-    /* ส่วนที่เหลือตาม STEP2 */
-    #step3 .slides, #step3 .slide, #step3 .slide img, #step3 .trash { /* เหมือน STEP2 */ }
+    /* STEP3 */
+    #step3 .slider { height:40vh; } /* พรีวิวรูปเล็กลง */
+    #step3 .form { padding:1rem }
+    #step3 .form input, #step3 .form textarea { width:100%; padding:.8rem; margin-bottom:1rem; border:1px solid #ddd; border-radius:8px; font-size:1rem }
 
-    .form { padding:1rem }
-    .form input, .form textarea { width:100%; padding:.8rem; margin-bottom:1rem; border:1px solid #ddd; border-radius:8px; font-size:1rem }
-
-    /* STEP4 */
-    .success { flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:2rem }
-    .success button { margin-top:1rem }
+    /* Spinner overlay */
+    #spinnerOverlay {
+      position:fixed; inset:0; background:rgba(0,0,0,0.3);
+      display:flex; justify-content:center; align-items:center;
+      z-index:200; visibility:hidden; /* ซ่อนด้วย visibility */
+    }
+    #spinnerOverlay.visible { visibility:visible }
+    .spinner {
+      width:48px; height:48px;
+      border:5px solid #fff; border-top-color:transparent;
+      border-radius:50%; animation:spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform:rotate(360deg) } }
   </style>
 </head>
 <body>
@@ -64,10 +71,10 @@
       <button class="btn-add" id="openBtn">＋</button>
     </nav>
 
-    <!-- STEP1 -->
+    <!-- STEP1 (รอเลือกไฟล์) -->
     <div id="step1" class="step hidden">
       <div class="header"><span class="title">STEP 1</span></div>
-      <div class="content" style="flex:1;display:flex;justify-content:center;align-items:center">
+      <div style="flex:1;display:flex;justify-content:center;align-items:center">
         <p>กำลังรอเลือกรูป…</p>
       </div>
       <input type="file" id="fileInput" accept="image/*" multiple class="hidden">
@@ -99,13 +106,9 @@
       </div>
     </div>
 
-    <!-- STEP4 -->
-    <div id="step4" class="step hidden">
-      <div class="success">
-        <h2>🎉 ขอบคุณสำหรับคำอวยพรของคุณ!</h2>
-        <p>💖 เราจะเก็บไว้อย่างทรงคุณค่า</p>
-        <button class="btn btn-secondary" id="resetBtn">กลับหน้าแรก</button>
-      </div>
+    <!-- Spinner Overlay -->
+    <div id="spinnerOverlay">
+      <div class="spinner"></div>
     </div>
   </div>
 
@@ -130,14 +133,14 @@
     const toStep3   = document.getElementById('toStep3');
     const backTo2   = document.getElementById('backTo2');
     const postBtn   = document.getElementById('postBtn');
-    const resetBtn  = document.getElementById('resetBtn');
+    const resetBtn  = document.getElementById('resetBtn'); // unused now
     const nameInput = document.getElementById('nameInput');
     const textInput = document.getElementById('textInput');
+    const spinner   = document.getElementById('spinnerOverlay');
 
     const step1 = document.getElementById('step1');
     const step2 = document.getElementById('step2');
     const step3 = document.getElementById('step3');
-    const step4 = document.getElementById('step4');
     const slides2 = document.getElementById('slides2');
     const slides3 = document.getElementById('slides3');
 
@@ -145,7 +148,7 @@
     let uid = localStorage.getItem('uid') || crypto.randomUUID();
     localStorage.setItem('uid', uid);
 
-    // Load feed from Firestore
+    // Load feed
     db.collection('wishes').orderBy('createdAt','desc')
       .onSnapshot(snap=>{
         feed.innerHTML = '';
@@ -158,27 +161,23 @@
             ${w.uid===uid?'<button class="delete-btn">🗑️</button>':''}
             <div class="like"><span>♥</span><span>${w.likes||0}</span></div>
             <div class="info"><span class="author">${w.name}:</span> ${w.text}</div>`;
-          // Delete
           if(w.uid===uid){
-            card.querySelector('.delete-btn')
-              .onclick=()=>db.collection('wishes').doc(id).delete();
+            card.querySelector('.delete-btn').onclick=()=>db.collection('wishes').doc(id).delete();
           }
-          // Like double-click
-          card.querySelector('img')
-            .ondblclick=()=>{
-              if((w.likedBy||[]).includes(uid)) return;
-              db.collection('wishes').doc(id).update({
-                likes:(w.likes||0)+1,
-                likedBy:[...(w.likedBy||[]),uid]
-              });
-            };
+          card.querySelector('img').ondblclick=()=>{
+            if((w.likedBy||[]).includes(uid)) return;
+            db.collection('wishes').doc(id).update({
+              likes:(w.likes||0)+1,
+              likedBy:[...(w.likedBy||[]),uid]
+            });
+          };
           feed.appendChild(card);
         });
       });
 
     // Helpers
-    function show(el){ el.classList.remove('hidden') }
-    function hide(el){ el.classList.add('hidden') }
+    function show(el){ el.classList.remove('hidden'); }
+    function hide(el){ el.classList.add('hidden'); }
     function render(container, list, withTrash){
       container.innerHTML = '';
       list.forEach((f,i)=>{
@@ -188,14 +187,12 @@
         const img = document.createElement('img'); img.src=url;
         div.appendChild(img);
         if(withTrash){
-          const b = document.createElement('button');
-          b.className='trash'; b.textContent='🗑️';
+          const b = document.createElement('button'); b.className='trash'; b.textContent='🗑️';
           b.onclick=()=>{
             files.splice(i,1);
-            if(!files.length){ resetBtn.click(); return; }
+            if(!files.length){ hide(step1); step1.style.display='none'; return; }
             idx = idx % files.length;
-            render(slides2, files, true);
-            render(slides3, files, false);
+            render(slides2, files, true); render(slides3, files, false);
           };
           div.appendChild(b);
         }
@@ -203,7 +200,7 @@
       });
     }
 
-    // OPEN Picker
+    // Open picker
     openBtn.onclick = ()=>{ show(step1); fileInput.click(); };
 
     fileInput.onchange = e=>{
@@ -232,27 +229,32 @@
     // Enable post button
     textInput.oninput = ()=> postBtn.disabled = !textInput.value.trim();
 
-    // Post
+    // Post with spinner
     postBtn.onclick = async ()=>{
-      await db.collection('wishes').add({
-        name: nameInput.value.trim() || 'แขกผู้มีเกียรติ',
-        text: textInput.value.trim(),
-        imgUrl: URL.createObjectURL(files[idx]),
-        likes:0, likedBy:[], uid,
-        createdAt: firebase.firestore.Timestamp.now()
-      });
-      hide(step3); show(step4);
+      // show spinner
+      spinner.classList.add('visible');
+      try {
+        await db.collection('wishes').add({
+          name: nameInput.value.trim() || 'แขกผู้มีเกียรติ',
+          text: textInput.value.trim(),
+          imgUrl: URL.createObjectURL(files[idx]),
+          likes:0, likedBy:[], uid,
+          createdAt: firebase.firestore.Timestamp.now()
+        });
+      } catch(err) {
+        console.error(err);
+      } finally {
+        // hide spinner and step3
+        spinner.classList.remove('visible');
+        hide(step3);
+        // clear inputs
+        nameInput.value=''; textInput.value='';
+        fileInput.value='';
+      }
     };
 
-    // Reset all
-    resetBtn.onclick = ()=>{
-      [step1,step2,step3,step4].forEach(hide);
-      fileInput.value=''; nameInput.value=''; textInput.value='';
-      show(step1);
-    };
-
-    // Initialize: show feed + step1 hidden
-    hide(step1); hide(step2); hide(step3); hide(step4);
+    // Initialize
+    hide(step1); hide(step2); hide(step3);
   })();
   </script>
 </body>
