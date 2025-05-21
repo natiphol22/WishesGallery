@@ -7,7 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600&family=Grand+Hotel&display=swap" rel="stylesheet"/>
   <style>
     * { box-sizing:border-box; margin:0; padding:0 }
-    body { font-family:'Sarabun',sans-serif; background:#fafafa; color:#262626; }
+    body { font-family:'Sarabun',sans-serif; background:#fafafa; color:#262626 }
     img,button { background:none; border:none; }
 
     /* HEADER */
@@ -20,39 +20,23 @@
     header .actions .heart { font-size:1.4rem; color:#000; cursor:pointer; }
 
     /* FEED */
-    #root { padding-top:60px; padding-bottom:60px; }
-    .feed { width:100%; }
+    #root { padding-top:60px; padding-bottom:60px }
+    .feed { width:100% }
     .card {
       background:#fff; margin:0.5rem auto; max-width:480px;
       border:1px solid #e0e0e0; border-radius:12px;
       box-shadow:0 4px 12px rgba(0,0,0,0.05); position:relative;
     }
-    .card img {
-      width:100%; height:auto; object-fit:contain;
-    }
+    .card img { width:100%; height:auto; object-fit:contain }
     .card .actions {
       display:flex; align-items:center; padding:.5rem 1rem; gap:.5rem;
     }
-    .card .btn-like {
-      position:relative; font-size:1.6rem; cursor:pointer;
-    }
-    .card .btn-like .pop-heart {
-      position:absolute; top:50%; left:50%;
-      transform:translate(-50%,-50%) scale(0);
-      font-size:3rem; color:rgba(224,36,94,0.6);
-      animation:pop 0.8s forwards; pointer-events:none;
-    }
-    @keyframes pop {
-      0%{transform:translate(-50%,-50%) scale(0);opacity:0}
-      30%{transform:translate(-50%,-50%) scale(1);opacity:.6}
-      60%{transform:translate(-50%,-50%) scale(1.2);opacity:.8}
-      100%{transform:translate(-50%,-50%) scale(1);opacity:0}
-    }
-    .card .like-count { font-size:.9rem; }
+    .card .btn-like { font-size:1.6rem; cursor:pointer }
+    .card .like-count { font-size:.9rem }
     .card .info {
       padding:.5rem 1rem; font-size:.95rem;
     }
-    .card .info .author { font-weight:600; margin-right:.25rem; }
+    .card .info .author { font-weight:600; margin-right:.25rem }
     .card .delete-btn {
       position:absolute; top:8px; left:8px; font-size:1rem; cursor:pointer;
     }
@@ -63,7 +47,7 @@
       background:#fff; display:flex; justify-content:space-around; align-items:center;
       box-shadow:0 -1px 3px rgba(0,0,0,0.1); z-index:100;
     }
-    .bottom-nav .icon { font-size:1.6rem; cursor:pointer; }
+    .bottom-nav .icon { font-size:1.6rem; cursor:pointer }
     .bottom-nav .btn-add {
       font-size:2rem; width:48px; height:48px;
       background:linear-gradient(135deg,#405de6,#5851db);
@@ -72,7 +56,7 @@
     }
 
     /* MULTI-STEP */
-    .hidden { display:none!important; }
+    .hidden { display:none!important }
     .step {
       position:fixed; inset:0; background:#fff;
       display:flex; flex-direction:column; z-index:200;
@@ -90,7 +74,7 @@
     .step .slider {
       flex:1; overflow:hidden; background:#000;
     }
-    .slides { display:flex; height:100%; transition:transform .3s ease; }
+    .slides { display:flex; height:100%; transition:transform .3s ease }
     .slide {
       min-width:100%; display:flex; justify-content:center; align-items:center;
       position:relative;
@@ -103,14 +87,13 @@
       background:rgba(255,255,255,0.8); border-radius:50%; padding:.4rem;
       cursor:pointer;
     }
-    #step3 .slider { height:40vh; }
+    #step3 .slider { height:40vh }
 
     .step .form {
       padding:1rem; display:flex; flex-direction:column; gap:.5rem;
     }
     .step .form input, .step .form textarea {
-      width:100%; padding:.8rem; border:1px solid #ddd; border-radius:8px;
-      font-size:1rem;
+      width:100%; padding:.8rem; border:1px solid #ddd; border-radius:8px; font-size:1rem;
     }
 
     /* SPINNER */
@@ -119,13 +102,13 @@
       display:flex; justify-content:center; align-items:center;
       z-index:300; visibility:hidden;
     }
-    #spinnerOverlay.visible { visibility:visible; }
+    #spinnerOverlay.visible { visibility:visible }
     .spinner {
       width:50px; height:50px;
       border:5px solid #fff; border-top-color:transparent;
       border-radius:50%; animation:spin 1s linear infinite;
     }
-    @keyframes spin { to{ transform:rotate(360deg)} }
+    @keyframes spin{ to{transform:rotate(360deg)} }
   </style>
 </head>
 <body>
@@ -137,7 +120,7 @@
   <div id="root">
     <div class="feed" id="feed"></div>
 
-    <!-- STEP 1 -->
+    <!-- STEP1 -->
     <div id="step1" class="step hidden">
       <div class="header">
         <button class="btn" id="backFrom1">&lt; ย้อนกลับ</button>
@@ -150,7 +133,7 @@
       <input type="file" id="fileInput" accept="image/*" multiple class="hidden">
     </div>
 
-    <!-- STEP 2 -->
+    <!-- STEP2 -->
     <div id="step2" class="step hidden">
       <div class="header">
         <button class="btn" id="backFrom2">&lt; ย้อนกลับ</button>
@@ -160,7 +143,7 @@
       <div class="slider"><div class="slides" id="slides2"></div></div>
     </div>
 
-    <!-- STEP 3 -->
+    <!-- STEP3 -->
     <div id="step3" class="step hidden">
       <div class="header">
         <button class="btn" id="backTo3">&lt; ย้อนกลับ</button>
@@ -196,6 +179,7 @@
     });
     const db = firebase.firestore();
 
+    // Elements
     const feed      = document.getElementById('feed');
     const openBtn   = document.getElementById('openBtn');
     const backFrom1 = document.getElementById('backFrom1');
@@ -214,33 +198,29 @@
     const slides3   = document.getElementById('slides3');
 
     let files = [], idx = 0;
-    let uid = localStorage.getItem('uid') || crypto.randomUUID();
-    localStorage.setItem('uid',uid);
+    const uid = localStorage.getItem('uid') || crypto.randomUUID();
+    localStorage.setItem('uid', uid);
 
     // Load feed
     db.collection('wishes').orderBy('createdAt','desc')
       .onSnapshot(snap=>{
-        feed.innerHTML='';
+        feed.innerHTML = '';
         snap.docs.forEach(doc=>{
           const w=doc.data(), id=doc.id;
-          if(!w.createdAt)return;
-          const card=document.createElement('div');card.className='card';
-          card.innerHTML=`
+          if(!w.createdAt) return;
+          const card=document.createElement('div'); card.className='card';
+          card.innerHTML = `
             <img src="${w.imgUrl}">
             ${w.uid===uid?'<button class="delete-btn">🗑️</button>':''}
             <div class="actions">
-              <div class="btn-like">🤍<div class="pop-heart">❤️</div></div>
+              <div class="btn-like">🤍</div>
               <span class="like-count">${w.likes||0}</span>
             </div>
             <div class="info"><span class="author">${w.name}:</span> ${w.text}</div>`;
-          if(w.uid===uid)card.querySelector('.delete-btn')
+          if(w.uid===uid) card.querySelector('.delete-btn')
             .onclick=()=>db.collection('wishes').doc(id).delete();
-          const likeBtn=card.querySelector('.btn-like'),
-                pop=card.querySelector('.pop-heart');
-          likeBtn.ondblclick=async()=>{
-            if((w.likedBy||[]).includes(uid))return;
-            pop.style.display='block';
-            pop.addEventListener('animationend',()=>pop.style.display='none',{once:true});
+          card.querySelector('.btn-like').onclick=async()=>{
+            if((w.likedBy||[]).includes(uid)) return;
             await db.collection('wishes').doc(id).update({
               likes:(w.likes||0)+1,
               likedBy:[...(w.likedBy||[]),uid]
@@ -265,13 +245,12 @@
     function render(container,list,withTrash){
       container.innerHTML='';
       list.forEach((f,i)=>{
-        const div=document.createElement('div');div.className='slide';
+        const div=document.createElement('div'); div.className='slide';
         div.style.transform=`translateX(${(i-idx)*100}%)`;
-        const img=document.createElement('img');img.src=URL.createObjectURL(f);
+        const img=document.createElement('img'); img.src=URL.createObjectURL(f);
         div.appendChild(img);
         if(withTrash){
-          const b=document.createElement('button');
-          b.className='trash';b.textContent='🗑️';
+          const b=document.createElement('button'); b.className='trash'; b.textContent='🗑️';
           b.onclick=()=>{
             files.splice(i,1);
             if(!files.length){ hide(step1); return; }
@@ -287,7 +266,6 @@
     backFrom1.onclick=()=>hide(step1);
     openBtn.onclick=()=>{ show(step1); fileInput.click(); };
 
-    // File select
     fileInput.onchange=e=>{
       files=Array.from(e.target.files);
       if(files.length){
@@ -303,23 +281,32 @@
     // Step3 back
     backTo3.onclick=()=>{ hide(step3); show(step2); };
 
-    textInput.oninput=()=>postBtn.disabled=!textInput.value.trim();
+    textInput.oninput=()=> postBtn.disabled=!textInput.value.trim();
 
+    // Post
     postBtn.onclick=async()=>{
-      spinner.classList.add('visible');
+      show(spinner);
       try{
         const file=files[idx];
-        let imgData='';
-        if(file) imgData=await readFileAsDataURL(file);
+        let data='';
+        if(file) data=await readFileAsDataURL(file);
+        // Immediately prepend new card
+        const card=document.createElement('div'); card.className='card';
+        card.innerHTML=`
+          <img src="${data}">
+          <div class="actions"><div class="btn-like">🤍</div><span class="like-count">0</span></div>
+          <div class="info"><span class="author">${nameInput.value.trim()||'แขกผู้มีเกียรติ'}:</span> ${textInput.value.trim()}</div>`;
+        feed.prepend(card);
+
         await db.collection('wishes').add({
           name:nameInput.value.trim()||'แขกผู้มีเกียรติ',
           text:textInput.value.trim(),
-          imgUrl:imgData, likes:0, likedBy:[], uid,
+          imgUrl:data,
+          likes:0, likedBy:[], uid,
           createdAt:firebase.firestore.Timestamp.now()
         });
-      }catch(e){console.error(e)}
-      spinner.classList.remove('visible');
-      hide(step3);
+      }catch(e){console.error(e);}
+      hide(spinner); hide(step3);
       nameInput.value=''; textInput.value=''; fileInput.value='';
     };
 
