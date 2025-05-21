@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Tuck &amp; Tan</title>
-  <!-- Font แนว IG: Pacifico สำหรับหัว และ Poppins สำหรับเนื้อหา -->
+  <!-- Font แนว IG: Pacifico + Poppins -->
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -29,38 +29,40 @@
 
     /* HEADER */
     header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem;
-      background: #fff;
-      box-shadow: var(--shadow);
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem; background: #fff; box-shadow: var(--shadow);
     }
     header h1 {
       font-family: 'Pacifico', cursive;
       font-size: 1.8rem;
     }
     header .top-heart svg {
-      width: 28px; height: 28px;
-      fill: #e0245e;
+      width: 28px; height: 28px; fill: #e0245e;
     }
 
     /* GALLERY */
     .gallery {
-      padding: 1rem;
-      display: grid;
-      gap: 1rem;
+      padding: 1rem; display: grid; gap: 1rem;
     }
 
-    /* CARD (unchanged) */
-    .card { background:#fff; border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden; position:relative; transition:transform .2s }
+    /* CARD */
+    .card {
+      background:#fff; border-radius:var(--radius);
+      box-shadow:var(--shadow); overflow:hidden;
+      position:relative; transition:transform .2s;
+    }
     .card:hover { transform:translateY(-4px) }
     .card img { width:100%; display:block }
     .like-indicator { display:flex; align-items:center; padding:.5rem 1rem; font-size:.9rem }
     .heart-icon { margin-right:.25rem; color:#e0245e }
     .info { padding:0 1rem 1rem; font-size:.95rem }
     .author { font-weight:500 }
-    .delete-btn { position:absolute; top:8px; left:8px; background:rgba(255,255,255,0.9); border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; transition:transform .2s,color .2s }
+    .delete-btn {
+      position:absolute; top:8px; left:8px;
+      background:rgba(255,255,255,0.9); border:none;
+      border-radius:50%; width:28px; height:28px;
+      cursor:pointer; transition:transform .2s,color .2s;
+    }
     .delete-btn:hover { transform:scale(1.2); color:#e0245e }
 
     /* BOTTOM NAV */
@@ -73,7 +75,10 @@
       display:flex; justify-content:space-around; align-items:center;
       z-index:100; box-shadow:0 -2px 8px rgba(0,0,0,0.05);
     }
-    .bottom-nav button { background:none; border:none; font-size:1.6rem; cursor:pointer; transition:transform .2s }
+    .bottom-nav button {
+      background:none; border:none; font-size:1.6rem; cursor:pointer;
+      transition:transform .2s;
+    }
     .bottom-nav .primary {
       font-size:2rem;
       background:linear-gradient(135deg,#405de6,#5851db);
@@ -125,7 +130,8 @@
       display:flex; overflow-x:scroll; scroll-snap-type:x mandatory;
     }
     .carousel-item {
-      position:relative; flex:0 0 100%; scroll-snap-align:start;
+      flex:0 0 100%; scroll-snap-align:start;
+      position:relative;
     }
     .carousel-item img {
       width:100%; height:auto; object-fit:contain;
@@ -170,13 +176,10 @@
   <header>
     <h1>Tuck &amp; Tan</h1>
     <span class="top-heart">
-      <svg viewBox="0 0 24 24">
-        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5
-                 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09
-                 C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42
-                 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
-              fill="#e0245e"/>
-      </svg>
+      <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5
+        2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3
+        16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+        fill="#e0245e"/></svg>
     </span>
   </header>
 
@@ -195,19 +198,16 @@
       <button id="wizBack" class="btn-nav">&lt;ย้อนกลับ</button>
       <button id="wizNext" class="btn-nav">ถัดไป&gt;</button>
     </div>
-    <!-- Step 1 -->
     <div class="wizard-step" data-step="1">
       <input type="file" id="wizFileInput" accept="image/*" multiple hidden>
       <button id="triggerFilePicker">+ เลือกรูปภาพ</button>
     </div>
-    <!-- Step 2 -->
     <div class="wizard-step" data-step="2">
       <div id="wizCarousel" class="carousel"></div>
       <div class="carousel-indicator">
         <span id="currentIndex">1</span>/<span id="totalCount">1</span>
       </div>
     </div>
-    <!-- Step 3 -->
     <div class="wizard-step" data-step="3">
       <div class="preview-summary">
         <img id="summaryImg" alt="Preview รูป">
@@ -271,12 +271,11 @@
       window.scrollTo({ top:0, behavior:'smooth' });
     });
 
+    // Wizard navigation
     function goToStep(n){
       currentStep = n;
       stepEls.forEach(el=>el.classList.toggle('active', +el.dataset.step===n));
-      // back button text always "<ย้อนกลับ"
       wizBack.innerText = '<ย้อนกลับ';
-      // next button visibility & text
       if(n === 1){
         wizNext.style.visibility = 'hidden';
       } else {
@@ -284,8 +283,6 @@
         wizNext.innerText = n === 2 ? 'ถัดไป>' : 'โพสต์';
       }
       body.classList.add('modal-open');
-
-      // set summary image on step 3
       if(n === 3 && selectedFiles.length){
         summaryImg.src = URL.createObjectURL(selectedFiles[0]);
       }
@@ -296,26 +293,20 @@
       selectedFiles = []; fileInput.value=''; wizName.value=''; wizText.value='';
     }
 
-    navAdd.addEventListener('click', ()=>{
+    navAdd.onclick = ()=>{
       postWizard.classList.add('active');
       goToStep(1);
-    });
+    };
     wizBack.onclick = ()=> currentStep>1 ? goToStep(currentStep-1) : closeWizard();
     wizNext.onclick = async ()=>{
-      if(currentStep < 2 && selectedFiles.length){
-        goToStep(2);
-        return;
-      }
-      if(currentStep === 2){
-        goToStep(3);
-        return;
-      }
-      // step 3: post
+      if(currentStep<2 && selectedFiles.length){ goToStep(2); return; }
+      if(currentStep===2){ goToStep(3); return; }
+      // Step 3: post
       wizNext.disabled = true;
       wizNext.innerHTML = `<span class="spinner"></span>กำลังโพสต์`;
       const text = wizText.value.trim();
       const name = wizName.value.trim() || 'แขกผู้มีเกียรติ';
-      for(const f of (selectedFiles.length ? selectedFiles : [null])){
+      for(const f of (selectedFiles.length? selectedFiles:[null])){
         let imgUrl = 'https://via.placeholder.com/320x400?text=No+Image';
         if(f){
           const img = await new Promise(r=>{
@@ -323,20 +314,20 @@
             i.src=URL.createObjectURL(f);
           });
           let [w,h]=[img.width,img.height], max=800;
-          if(Math.max(w,h)>max){ const ratio = max/Math.max(w,h); w*=ratio; h*=ratio; }
+          if(Math.max(w,h)>max){ const ratio=max/Math.max(w,h); w*=ratio; h*=ratio; }
           const c = document.createElement('canvas'); c.width=w; c.height=h;
           const ctx = c.getContext('2d');
           ctx.imageSmoothingEnabled=true; ctx.imageSmoothingQuality='high';
           ctx.drawImage(img,0,0,w,h);
-          let q=0.95, data;
-          do { data = c.toDataURL('image/jpeg',q); q-=0.05; }
-          while(data.length>1_000_000 && q>0.1);
+          let q=0.95,data;
+          do{ data=c.toDataURL('image/jpeg',q); q-=0.05; }
+          while(data.length>1_000_000&&q>0.1);
           imgUrl = data;
         }
-        await addDoc(collection(db,'wishes'), {
-          name, text, imgUrl,
-          likes:0, likedBy:[], uid:localStorage.getItem('uid'),
-          createdAt: Timestamp.now()
+        await addDoc(collection(db,'wishes'),{
+          name,text,imgUrl,
+          likes:0,likedBy:[],uid:localStorage.getItem('uid'),
+          createdAt:Timestamp.now()
         });
       }
       closeWizard();
@@ -349,7 +340,7 @@
     fileInput.onchange = e=>{
       selectedFiles = Array.from(e.target.files);
       renderCarousel();
-      goToStep(2);  // auto-advance from step1
+      goToStep(2);
     };
     function renderCarousel(){
       wizCarousel.innerHTML = '';
@@ -359,12 +350,8 @@
         const img = document.createElement('img');
         img.src = URL.createObjectURL(f);
         const btn = document.createElement('button');
-        btn.className = 'del';
-        btn.innerText = '🗑️';
-        btn.onclick = ()=>{
-          selectedFiles.splice(i,1);
-          renderCarousel();
-        };
+        btn.className = 'del'; btn.innerText = '🗑️';
+        btn.onclick = ()=>{ selectedFiles.splice(i,1); renderCarousel(); };
         item.append(img, btn);
         wizCarousel.append(item);
       });
@@ -374,18 +361,16 @@
     }
     wizCarousel.addEventListener('scroll', ()=>{
       const idx = Math.round(wizCarousel.scrollLeft / wizCarousel.clientWidth);
-      currentIndex.innerText = idx + 1;
+      currentIndex.innerText = idx+1;
     });
 
-    // Like & delete (unchanged)
+    // Like & Delete
     let currentUid = localStorage.getItem('uid');
-    if(!currentUid){
-      currentUid = crypto.randomUUID();
-      localStorage.setItem('uid', currentUid);
-    }
+    if(!currentUid){ currentUid = crypto.randomUUID(); localStorage.setItem('uid',currentUid); }
+
     function animateHeart(card){
       const h = document.createElement('div');
-      h.textContent='❤';
+      h.textContent = '❤';
       Object.assign(h.style,{
         position:'absolute',top:'50%',left:'50%',
         fontSize:'4rem',color:'rgba(224,36,94,0.6)',
@@ -394,13 +379,14 @@
       card.querySelector('.img-wrapper').appendChild(h);
       h.addEventListener('animationend',()=>h.remove());
     }
+
     async function handleLike(id,w){
-      if((w.likedBy||[]).includes(currentUid)) return;
       await updateDoc(docRef(db,'wishes',id),{
         likes:(w.likes||0)+1,
         likedBy:[...(w.likedBy||[]),currentUid]
       });
     }
+
     function createCard(w,id){
       const card = document.createElement('div');
       card.className = 'card';
@@ -418,17 +404,25 @@
           <span class="author">${w.name}:</span>
           <span class="wish">${w.text}</span>
         </div>`;
+
       const imgEl = card.querySelector('img');
-      imgEl.addEventListener('dblclick', async e=>{
-        e.stopPropagation(); animateHeart(card);
-        await handleLike(id, w);
+      imgEl.addEventListener('dblclick', e=>{
+        e.stopPropagation();
+        if(card.dataset.liked) return;
+        card.dataset.liked = 'true';
+        animateHeart(card);
+        const countEl = card.querySelector('.like-count');
+        countEl.innerText = parseInt(countEl.innerText) + 1;
+        handleLike(id,w).catch(console.error);
       });
-      if(w.uid === currentUid){
+
+      if(w.uid===currentUid){
         card.querySelector('.delete-btn').onclick = async e=>{
           e.stopPropagation();
           if(confirm('ลบโพสต์นี้?')) await deleteDoc(docRef(db,'wishes',id));
         };
       }
+
       gallery.append(card);
     }
   </script>
