@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Tuck & Tan – Multi-Step Post</title>
+  <title>Tuck & Tan</title>
   <!-- ฟอนต์ Kanit -->
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet"/>
   <style>
@@ -15,54 +15,83 @@
       height: 100%;
       overflow: hidden;
     }
-    #root { height: 100%; }
+    #root { height: 100%; position: relative; }
 
-    .btn {
-      padding: .6rem 1.2rem;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      cursor: pointer;
+    /* Bottom Nav */
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 100%; height: 60px;
+      backdrop-filter: blur(12px);
+      background: #ffffffdd;
+      display: flex; justify-content: space-around; align-items: center;
+      z-index: 100; box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
     }
-    .btn-primary {
-      background: #405de6;
-      color: #fff;
+    .bottom-nav button {
+      background: none; border: none;
+      font-size: 1.6rem; cursor: pointer;
+      transition: transform .2s; color: #262626;
     }
-    .btn-secondary {
-      background: #ccc;
-      color: #333;
+    .bottom-nav .primary {
+      font-size: 2rem;
+      background: linear-gradient(135deg, #405de6, #5851db);
+      color: #fff; width: 48px; height: 48px;
+      border-radius: 50%; display: flex;
+      align-items: center; justify-content: center;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
     }
+    .bottom-nav button:hover { transform: scale(1.1); }
 
+    /* Feed gallery */
+    .feed {
+      padding: 1rem; margin-bottom: 60px; /* space for nav */
+      overflow-y: auto; height: calc(100% - 60px);
+    }
+    .card {
+      background: #fff; border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      margin-bottom: 1rem; overflow: hidden; position: relative;
+      transition: transform .2s;
+    }
+    .card:hover { transform: translateY(-4px); }
+    .card img { width: 100%; display: block; }
+    .like-indicator {
+      display: flex; align-items: center; padding: .5rem 1rem;
+      font-size: .9rem;
+    }
+    .heart-icon { margin-right: .25rem; color: #e0245e; }
+    .info { padding: 0 1rem 1rem; font-size: .95rem; }
+    .author { font-weight: 600; }
+    .delete-btn {
+      position: absolute; top: 8px; left: 8px;
+      background: rgba(255,255,255,0.9); border: none;
+      border-radius: 50%; width: 28px; height: 28px;
+      cursor: pointer; font-size: 1rem;
+      transition: transform .2s, color .2s;
+    }
+    .delete-btn:hover { transform: scale(1.2); color: #e0245e; }
+
+    /* Multi-Step UI */
     .step {
       position: absolute; top:0; left:0; right:0; bottom:0;
       display: flex; flex-direction: column;
-      background: #fff;
+      background: #fff; z-index: 200;
     }
-
     .header {
       padding: 1rem; display:flex; justify-content: space-between; align-items:center;
       background: #fafafa; border-bottom:1px solid #eee;
     }
     .header .title { color: #666; font-size: 1rem; }
+    .btn { padding: .6rem 1.2rem; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; }
+    .btn-primary { background: #405de6; color: #fff; }
+    .btn-secondary { background: #ccc; color: #333; }
 
-    .step1 {
-      justify-content: center; align-items: center;
-    }
-    .step1 .btn-add {
-      font-size: 2rem;
-    }
+    .step1 { justify-content: center; align-items: center; }
+    .step1 .btn-add { font-size: 2rem; }
 
-    .slider {
-      flex:1; position: relative; overflow: hidden;
-      background: #000;
-    }
-    .slides {
-      display: flex; height:100%;
-      touch-action: pan-y;
-    }
-    .slide {
-      min-width:100%; display:flex; justify-content:center; align-items:center;
-    }
+    .slider { flex:1; position: relative; overflow: hidden; background: #000; }
+    .slides { display: flex; height:100%; touch-action: pan-y; }
+    .slide { min-width:100%; display:flex; justify-content:center; align-items:center; }
     .slide img {
       max-width: 100%; max-height:100%;
       object-fit: cover;
@@ -75,14 +104,10 @@
       cursor:pointer;
     }
 
-    .form {
-      padding: 1rem;
-      background: #fff;
-    }
+    .form { padding: 1rem; background: #fff; }
     .form input, .form textarea {
       width:100%; padding:.8rem; margin-bottom:1rem;
-      border:1px solid #ddd; border-radius:8px;
-      font-size: 1rem;
+      border:1px solid #ddd; border-radius:8px; font-size:1rem;
     }
 
     .success {
@@ -105,152 +130,221 @@
 <body>
   <div id="root"></div>
 
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+  <!-- React / ReactDOM / Framer Motion -->
   <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/framer-motion/dist/framer-motion.umd.js"></script>
 
   <script type="text/javascript">
-    const { useState, useRef } = React;
+    const { useState, useRef, useEffect } = React;
     const { motion, AnimatePresence } = window['framer-motion'];
 
+    // Firebase init
+    const firebaseConfig = {
+      apiKey: "AIzaSyBxYY_c14XFroS6dBIh4Jzl9XL4PMjipcg",
+      authDomain: "wishes-web.firebaseapp.com",
+      projectId: "wishes-web",
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
     function App() {
+      // Multi-step states
       const [step, setStep] = useState(1);
       const [files, setFiles] = useState([]);
       const [index, setIndex] = useState(0);
       const [name, setName] = useState('');
       const [text, setText] = useState('');
-      const [showLightbox, setShowLightbox] = useState(false);
+      const [showLB, setShowLB] = useState(false);
       const fileInput = useRef();
 
+      // Feed state
+      const [posts, setPosts] = useState([]);
+      const uid = useRef(localStorage.getItem('uid') || crypto.randomUUID());
+      useEffect(() => {
+        localStorage.setItem('uid', uid.current);
+        return db.collection('wishes')
+          .orderBy('createdAt','desc')
+          .onSnapshot(snap => {
+            setPosts(snap.docs.map(d=>({id:d.id,...d.data()})));
+          });
+      }, []);
+
+      // Handlers Multi-Step
       const onAdd = () => fileInput.current.click();
       const onFiles = e => {
-        const selected = Array.from(e.target.files).map(f => URL.createObjectURL(f));
-        if (selected.length) {
-          setFiles(selected);
-          setIndex(0);
-          setStep(2);
-        }
+        const sel = Array.from(e.target.files).map(f=>URL.createObjectURL(f));
+        if (sel.length){ setFiles(sel); setIndex(0); setStep(2); }
       };
-
-      const nextFrom2 = () => setStep(3);
-      const removeCurrent = () => {
-        const arr = files.slice();
-        arr.splice(index,1);
+      const next2 = () => setStep(3);
+      const removeCur = () => {
+        const arr = files.slice(); arr.splice(index,1);
         if (!arr.length) return setStep(1);
-        setFiles(arr);
-        setIndex(i => i % arr.length);
+        setFiles(arr); setIndex(i=>i%arr.length);
       };
-      const slide = dir => {
-        setIndex(i => (i + dir + files.length) % files.length);
+      const slide = dir => setIndex(i=>(i+dir+files.length)%files.length);
+      const onPost = async () => {
+        // upload images as DataURL
+        const imgUrl = files[index];
+        await db.collection('wishes').add({
+          name: name||'แขกผู้มีเกียรติ',
+          text, imgUrl,
+          likes:0, likedBy:[], uid:uid.current,
+          createdAt: firebase.firestore.Timestamp.now()
+        });
+        setStep(4);
+      };
+      const resetAll = () => {
+        setStep(1); setFiles([]); setName(''); setText('');
       };
 
-      const onPost = () => setStep(4);
-      const reset = () => {
-        setStep(1);
-        setFiles([]); setName(''); setText('');
+      // Like & delete
+      const handleLike = async (id,w) => {
+        if ((w.likedBy||[]).includes(uid.current)) return;
+        await db.collection('wishes').doc(id).update({
+          likes: (w.likes||0)+1,
+          likedBy: [...(w.likedBy||[]), uid.current]
+        });
+      };
+      const deletePost = async id => {
+        if(confirm('ลบโพสต์นี้?')) await db.collection('wishes').doc(id).delete();
       };
 
       return (
         <div style={{height:'100%', position:'relative'}}>
+          {/* ฟีดเดิม */}
+          <div className="feed">
+            {posts.map(w=>(
+              <div key={w.id} className="card">
+                <img src={w.imgUrl}/>
+                {w.uid===uid.current && (
+                  <button className="delete-btn" onClick={()=>deletePost(w.id)}>🗑️</button>
+                )}
+                <div className="like-indicator" onDoubleClick={()=>handleLike(w.id,w)}>
+                  <span className="heart-icon">♥</span>
+                  <span>{w.likes||0}</span>
+                </div>
+                <div className="info">
+                  <span className="author">{w.name}:</span> {w.text}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Bottom Nav */}
+          <nav className="bottom-nav">
+            <button>🏠</button>
+            <button>🔍</button>
+            <button className="primary" onClick={()=>setStep(1)}>＋</button>
+            <button>❤️</button>
+            <button>👤</button>
+          </nav>
+
+          {/* Multi-Step Posting */}
           <AnimatePresence initial={false} mode="wait">
-            {step === 1 && (
-              <motion.div
-                key="s1" className="step step1"
-                initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}}
-              >
-                <button className="btn btn-primary btn-add" onClick={onAdd}>＋ เพิ่มโพสต์</button>
-                <input ref={fileInput} type="file" accept="image/*" multiple style={{display:'none'}}
-                  onChange={onFiles}/>
+            {step===1 && (
+              <motion.div key="s1" className="step"
+                initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}}>
+                <button className="btn btn-primary btn-add" onClick={onAdd}>
+                  ＋ เพิ่มโพสต์
+                </button>
+                <input ref={fileInput} type="file" accept="image/*"
+                  multiple style={{display:'none'}} onChange={onFiles}/>
               </motion.div>
             )}
-            {step === 2 && (
-              <motion.div
-                key="s2" className="step"
+            {step===2 && (
+              <motion.div key="s2" className="step"
                 initial={{x:'100%'}} animate={{x:0}} exit={{x:'-100%'}}
-                transition={{type:'tween'}}
-              >
+                transition={{type:'tween'}}>
                 <div className="header">
                   <span className="title">โพสต์ใหม่</span>
-                  <button className="btn btn-primary" onClick={nextFrom2}>ถัดไป &gt;</button>
+                  <button className="btn btn-primary" onClick={next2}>
+                    ถัดไป &gt;
+                  </button>
                 </div>
                 <div className="slider">
                   <div className="slides">
-                    {files.map((url,i) => (
-                      <div key={i} className="slide" style={{transform:`translateX(${(i-index)*100}%)`}}>
+                    {files.map((url,i)=>(
+                      <div key={i} className="slide"
+                        style={{transform:`translateX(${(i-index)*100}%)`}}>
                         <img src={url}/>
-                        <button className="trash" onClick={removeCurrent}>🗑️</button>
+                        <button className="trash" onClick={removeCur}>🗑️</button>
                       </div>
                     ))}
                   </div>
                 </div>
-                <div
-                  style={{position:'absolute', top:0,left:0,right:0,bottom:0}}
-                  onTouchStart={e=> this.touchX = e.touches[0].clientX}
-                  onTouchEnd={e=>{
-                    const dx = e.changedTouches[0].clientX - this.touchX;
-                    if (dx > 50) slide(-1);
-                    else if (dx < -50) slide(1);
-                  }}
-                />
+                <div onTouchStart={e=>this.startX=e.touches[0].clientX}
+                     onTouchEnd={e=>{
+                       const dx=e.changedTouches[0].clientX-this.startX;
+                       if(dx>50) slide(-1); else if(dx<-50) slide(1);
+                     }}
+                     style={{position:'absolute',inset:0}}/>
               </motion.div>
             )}
-            {step === 3 && (
-              <motion.div
-                key="s3" className="step"
+            {step===3 && (
+              <motion.div key="s3" className="step"
                 initial={{y:'100%'}} animate={{y:0}} exit={{y:'-100%'}}
-                transition={{type:'spring'}}
-              >
+                transition={{type:'spring'}}>
                 <div className="header">
-                  <button className="btn btn-secondary" onClick={()=>setStep(2)}>&lt; เลือกรูปใหม่</button>
-                  <button className="btn btn-primary" disabled={!text.trim()} onClick={onPost}>โพสต์</button>
+                  <button className="btn btn-secondary"
+                    onClick={()=>setStep(2)}>
+                    &lt; เลือกรูปใหม่
+                  </button>
+                  <button className="btn btn-primary"
+                    disabled={!text.trim()} onClick={onPost}>
+                    โพสต์
+                  </button>
                 </div>
                 <div className="slider">
                   <div className="slides">
-                    {files.map((url,i) => (
-                      <div key={i} className="slide" style={{transform:`translateX(${(i-index)*100}%)`}}>
+                    {files.map((url,i)=>(
+                      <div key={i} className="slide"
+                        style={{transform:`translateX(${(i-index)*100}%)`}}>
                         <img src={url}/>
                       </div>
                     ))}
                   </div>
                 </div>
                 <div className="form">
-                  <input
-                    type="text" placeholder="ชื่อของคุณ"
-                    value={name} onChange={e=>setName(e.target.value)}
-                  />
-                  <textarea
-                    rows="4" placeholder="เขียนคำอวยพรจากใจ 💌"
-                    value={text} onChange={e=>setText(e.target.value)}
-                  />
+                  <input type="text" placeholder="ชื่อของคุณ"
+                    value={name} onChange={e=>setName(e.target.value)}/>
+                  <textarea rows="4" placeholder="เขียนคำอวยพรจากใจ 💌"
+                    value={text} onChange={e=>setText(e.target.value)}/>
                 </div>
-                <div
-                  style={{position:'absolute', top:0,left:0,right:0,bottom:0}}
-                  onTouchStart={e=> this.touchX = e.touches[0].clientX}
-                  onTouchEnd={e=>{
-                    const dx = e.changedTouches[0].clientX - this.touchX;
-                    if (dx > 50) slide(-1);
-                    else if (dx < -50) slide(1);
-                  }}
-                />
+                <div onTouchStart={e=>this.startX=e.touches[0].clientX}
+                     onTouchEnd={e=>{
+                       const dx=e.changedTouches[0].clientX-this.startX;
+                       if(dx>50) slide(-1); else if(dx<-50) slide(1);
+                     }}
+                     style={{position:'absolute',inset:0}}/>
               </motion.div>
             )}
-            {step === 4 && (
-              <motion.div
-                key="s4" className="step success"
-                initial={{scale:0.8, opacity:0}} animate={{scale:1, opacity:1}} exit={{opacity:0}}
-              >
+            {step===4 && (
+              <motion.div key="s4" className="step success"
+                initial={{scale:0.8,opacity:0}} animate={{scale:1,opacity:1}} exit={{opacity:0}}>
                 <h2>🎉 ขอบคุณสำหรับคำอวยพรของคุณ!</h2>
                 <p>💖 เราจะเก็บไว้อย่างทรงคุณค่า</p>
                 <div style={{marginTop:'1.5rem'}}>
-                  <button className="btn btn-secondary" onClick={reset}>กลับหน้าแรก</button>
-                  <button className="btn btn-primary" style={{marginLeft:'1rem'}} onClick={()=>setShowLightbox(true)}>ดูโพสต์ทั้งหมด</button>
+                  <button className="btn btn-secondary" onClick={resetAll}>
+                    กลับหน้าแรก
+                  </button>
+                  <button className="btn btn-primary"
+                    style={{marginLeft:'1rem'}}
+                    onClick={()=>setShowLB(true)}>
+                    ดูโพสต์ทั้งหมด
+                  </button>
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
-          {showLightbox && (
-            <div className="lightbox" onClick={()=>setShowLightbox(false)}>
-              <img src={files[index]} />
+
+          {/* Lightbox */}
+          {showLB && (
+            <div className="lightbox" onClick={()=>setShowLB(false)}>
+              <img src={files[index]||''}/>
             </div>
           )}
         </div>
