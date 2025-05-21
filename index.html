@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Tuck &amp; Tan</title>
-  <!-- เปลี่ยนมาใช้ Kanit จาก Google Fonts -->
+  <!-- Google Font Kanit -->
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -27,6 +27,7 @@
       min-height: 100vh;
       padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom));
     }
+    body.modal-open { overflow: hidden; }
 
     /* HEADER */
     header {
@@ -38,11 +39,13 @@
       box-shadow: var(--shadow);
     }
     header h1 {
-      font-family: 'Grand Hotel', cursive;
+      font-weight: 700;
       font-size: 1.8rem;
     }
+    /* Beautiful heart icon */
     header .top-heart svg {
-      width: 24px; height: 24px; fill: #000;
+      width: 28px; height: 28px;
+      fill: #e0245e;
     }
 
     /* GALLERY */
@@ -121,11 +124,11 @@
       display:flex; justify-content:space-between; align-items:center;
       padding:1rem; background:#fff;
       box-shadow:0 2px 6px rgba(0,0,0,0.1);
-      font-size:1rem;
     }
     .btn-nav {
       background:none; border:none;
-      font-size:1.2rem; cursor:pointer;
+      font-size:1rem; cursor:pointer;
+      color: var(--text);
     }
 
     .wizard-step {
@@ -187,7 +190,7 @@
       background:var(--input-bg); font-size:.95rem;
     }
 
-    /* Spinner (reuse original) */
+    /* Spinner */
     .spinner {
       width:16px; height:16px;
       border:2px solid #fff; border-top-color:transparent;
@@ -202,8 +205,8 @@
   <header>
     <h1>Tuck &amp; Tan</h1>
     <span class="top-heart">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 21s-1-.45-1-1.12c0-.67.33-1.3.88-1.64C13.2 17.37 14 16.23 14 15c0-1.66-1.34-3-3-3S8 13.34 8 15c0 1.23.8 2.37 2.12 3.24.55.34.88.97.88 1.64C11 20.55 12 21 12 21z"/>
+      <svg viewBox="0 0 24 24">
+        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#e0245e"/>
       </svg>
     </span>
   </header>
@@ -223,9 +226,8 @@
   <!-- WIZARD OVERLAY -->
   <div id="postWizard" class="wizard-overlay">
     <div class="wizard-nav">
-      <button id="wizBack" class="btn-nav">&larr;</button>
-      <span id="wizTitle">เลือกรูปภาพ</span>
-      <button id="wizNext" class="btn-nav">ถัดไป &rarr;</button>
+      <button id="wizBack" class="btn-nav">ย้อนกลับ</button>
+      <button id="wizNext" class="btn-nav">→</button>
     </div>
     <!-- Step 1: File Picker -->
     <div class="wizard-step" data-step="1">
@@ -262,31 +264,22 @@
       doc as docRef, updateDoc, deleteDoc, Timestamp
     } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
 
-    /* ===== FIREBASE INIT ===== */
-    const firebaseConfig = {
-      apiKey: "AIzaSyBxYY_c14XFroS6dBIh4Jzl9XL4PMjipcg",
-      authDomain: "wishes-web.firebaseapp.com",
-      projectId: "wishes-web",
-      storageBucket: "unused",
-      messagingSenderId: "93224724611",
-      appId: "1:93224724611:web:491aab34365584864fd3b6",
-      measurementId: "G-6HQJWKWB8Z"
-    };
+    /* FIREBASE INIT */
+    const firebaseConfig = { /* ... */ };
     const app = initializeApp(firebaseConfig);
     const db  = getFirestore(app);
 
-    /* ===== GLOBAL STATE ===== */
+    /* STATE */
     let selectedFiles = [];
     let currentStep = 1;
     const body = document.body;
 
-    /* ===== ELEMENTS ===== */
+    /* ELEMENTS */
     const gallery       = document.getElementById('gallery');
     const navAdd        = document.getElementById('nav-add');
     const postWizard    = document.getElementById('postWizard');
     const wizBack       = document.getElementById('wizBack');
     const wizNext       = document.getElementById('wizNext');
-    const wizTitle      = document.getElementById('wizTitle');
     const stepEls       = document.querySelectorAll('.wizard-step');
     const fileInput     = document.getElementById('wizFileInput');
     const triggerPicker = document.getElementById('triggerFilePicker');
@@ -297,64 +290,30 @@
     const wizName       = document.getElementById('wizName');
     const wizText       = document.getElementById('wizText');
 
-    /* ===== SHOW FEED ===== */
+    /* SHOW FEED */
     const qFeed = query(collection(db,'wishes'), orderBy('createdAt','desc'));
     onSnapshot(qFeed, snap => {
       gallery.innerHTML = '';
-      snap.docs
-        .map(d => ({ id: d.id, ...d.data() }))
-        .filter(p => p.createdAt)
+      snap.docs.map(d=>({id:d.id,...d.data()}))
+        .filter(p=>p.createdAt)
         .sort((a,b)=>b.createdAt.toMillis()-a.createdAt.toMillis())
-        .forEach(p => createCard(p,p.id));
+        .forEach(p=>createCard(p,p.id));
       window.scrollTo({ top:0, behavior:'smooth' });
     });
 
-    /* ===== WIZARD NAVIGATION ===== */
+    /* WIZARD NAV */
     function goToStep(n){
       currentStep = n;
       stepEls.forEach(el=>{
         el.classList.toggle('active', +el.dataset.step===n);
       });
-      // update nav text / buttons
-      wizBack.style.visibility = n===1 ? 'hidden' : 'visible';
-      if(n<3){
-        wizNext.innerText = 'ถัดไป →';
-      } else {
-        wizNext.innerText = 'โพสต์';
-      }
-      // update title
-      const titles = ['เลือกรูปภาพ','ดูตัวอย่าง','กรอกคำอวยพร'];
-      wizTitle.innerText = titles[n-1];
-      // summaryImg for step3
-      if(n===3 && selectedFiles.length){
-        summaryImg.src = URL.createObjectURL(selectedFiles[0]);
-      }
-    }
-
-    navAdd.onclick = ()=>{
-      postWizard.classList.add('active');
+      // back text
+      wizBack.innerText = (n===2 ? 'ย้ายกลับ' : 'ย้อนกลับ');
+      // next text
+      wizNext.innerText = (n<3 ? '→' : 'โพสต์');
+      // lock scroll
       body.classList.add('modal-open');
-      goToStep(1);
-    };
-    wizBack.onclick = ()=>{
-      if(currentStep>1) goToStep(currentStep-1);
-      else closeWizard();
-    };
-    wizNext.onclick = async ()=>{
-      if(currentStep<2){
-        // from step1 -> step2
-        if(selectedFiles.length) goToStep(2);
-        return;
-      }
-      if(currentStep===2){
-        // from step2 -> step3
-        if(selectedFiles.length) goToStep(3);
-        return;
-      }
-      // step3 -> post
-      await postAll();
-    };
-
+    }
     function closeWizard(){
       postWizard.classList.remove('active');
       body.classList.remove('modal-open');
@@ -364,11 +323,33 @@
       wizText.value = '';
     }
 
-    /* ===== FILE PICKER & CAROUSEL ===== */
+    navAdd.onclick = ()=>{
+      postWizard.classList.add('active');
+      goToStep(1);
+    };
+    wizBack.onclick = ()=>{
+      if(currentStep>1) goToStep(currentStep-1);
+      else closeWizard();
+    };
+    wizNext.onclick = async ()=>{
+      if(currentStep<2){
+        if(selectedFiles.length) goToStep(2);
+        return;
+      }
+      if(currentStep===2){
+        goToStep(3);
+        return;
+      }
+      // step3 → post
+      await postAll();
+    };
+
+    /* FILE PICKER & CAROUSEL */
     triggerPicker.onclick = ()=> fileInput.click();
     fileInput.onchange = e=>{
       selectedFiles = Array.from(e.target.files);
       renderCarousel();
+      goToStep(2);            // auto-advance
     };
 
     function renderCarousel(){
@@ -378,7 +359,6 @@
         item.className = 'carousel-item';
         const img = document.createElement('img');
         img.src = URL.createObjectURL(f);
-        // delete btn
         const btn = document.createElement('button');
         btn.className = 'del';
         btn.innerText = '🗑️';
@@ -389,7 +369,7 @@
         item.append(img, btn);
         wizCarousel.append(item);
       });
-      totalCount.innerText = selectedFiles.length||1;
+      totalCount.innerText = selectedFiles.length || 1;
       currentIndex.innerText = 1;
       wizCarousel.scrollLeft = 0;
     }
@@ -398,7 +378,7 @@
       currentIndex.innerText = idx+1;
     });
 
-    /* ===== POSTING ===== */
+    /* POST ALL */
     async function postAll(){
       wizNext.disabled = true;
       wizNext.innerHTML = `<span class="spinner"></span>กำลังโพสต์`;
@@ -407,7 +387,6 @@
       for(const f of (selectedFiles.length? selectedFiles: [null])){
         let imgUrl = 'https://via.placeholder.com/320x400?text=No+Image';
         if(f){
-          // compress exactly like your original
           const img = await new Promise(r=>{
             const i=new Image(); i.onload=()=>r(i);
             i.src=URL.createObjectURL(f);
@@ -438,10 +417,10 @@
       }
       closeWizard();
       wizNext.disabled = false;
-      wizNext.innerText = 'โพสต์';
+      wizNext.innerText = '→';
     }
 
-    /* ===== LIKE & DELETE (unchanged) ===== */
+    /* LIKE & DELETE (unchanged) */
     let currentUid = localStorage.getItem('uid');
     if(!currentUid){
       currentUid = crypto.randomUUID();
