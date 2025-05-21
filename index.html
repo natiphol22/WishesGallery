@@ -1,150 +1,135 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Tuck & Tan</title>
-  <!-- ฟอนต์แนว Instagram สำหรับโลโก้ -->
-  <link href="https://fonts.googleapis.com/css2?family=Billabong&display=swap" rel="stylesheet"/>
+  <!-- ฟอนต์ Sarabun, Grand Hotel -->
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600&family=Grand+Hotel&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; margin:0; padding:0 }
-    body { font-family: Kanit, sans-serif; background:#fafafa; color:#262626; }
-    a, img { display: block; max-width: 100%; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Sarabun', sans-serif; background: #fafafa; color: #262626; }
+    img, button { background: none; border: none; }
 
     /* HEADER */
     header {
-      position: fixed; top:0; left:0; right:0;
-      height: 60px;
-      background: #fff;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 1rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      z-index: 100;
+      position: fixed; top: 0; left: 0; right: 0; height: 60px;
+      background: #fff; display: flex; align-items: center; justify-content: space-between;
+      padding: 0 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); z-index: 100;
+      font-family: 'Grand Hotel', cursive; font-size: 1.8rem;
     }
-    header .logo {
-      font-family: 'Billabong', cursive;
-      font-size: 2rem;
-    }
-    header .actions .heart {
-      font-size: 1.4rem; color: #000; cursor: pointer;
-    }
+    header .actions .heart { font-size: 1.4rem; color: #000; cursor: pointer; }
 
     /* FEED */
-    #root { padding-bottom: 60px; min-height: 100vh; }
-    .feed { padding: 60px 0 0; } /* รองรับ header สูง 60px */
+    #root { padding-top: 60px; padding-bottom: 60px; }
+    .feed { width: 100%; }
     .card {
-      background: #fff; margin-bottom: 1px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+      background: #fff; border: 1px solid #e0e0e0; border-radius: 12px;
+      margin: 0.5rem auto; max-width: 480px; overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05); position: relative;
     }
     .card img {
-      width: 100%; aspect-ratio: 1/1; object-fit: cover;
-      filter: brightness(1.1) saturate(1.1) contrast(1.05);
+      width: 100%; height: auto; object-fit: contain;
     }
     .card .actions {
-      display: flex; align-items: center; padding: .5rem;
+      display: flex; align-items: center; padding: 0.5rem 1rem;
     }
     .card .actions .btn-like {
-      position: relative; font-size: 1.6rem; cursor: pointer;
+      position: relative; font-size: 1.6rem; color: #262626;
+      cursor: pointer; margin-right: 0.5rem;
     }
     .card .actions .btn-like .pop-heart {
       position: absolute; top: 50%; left: 50%;
-      transform: translate(-50%,-50%) scale(0);
-      font-size: 3rem; color: rgba(224,36,94,0.6);
-      animation: pop 0.8s forwards; pointer-events: none;
+      transform: translate(-50%,-50%) scale(0); font-size: 3rem;
+      color: rgba(224,36,94,0.6); animation: pop 0.8s forwards;
+      pointer-events: none;
     }
     @keyframes pop {
-      0% { transform: translate(-50%,-50%) scale(0); opacity: 0 }
-      30% { transform: translate(-50%,-50%) scale(1); opacity: .6 }
-      60% { transform: translate(-50%,-50%) scale(1.2); opacity: .8 }
-      100% { transform: translate(-50%,-50%) scale(1); opacity: 0 }
+      0%   { transform: translate(-50%,-50%) scale(0); opacity:0 }
+      30%  { transform: translate(-50%,-50%) scale(1); opacity:.6 }
+      60%  { transform: translate(-50%,-50%) scale(1.2); opacity:.8 }
+      100% { transform: translate(-50%,-50%) scale(1); opacity:0 }
     }
+    .card .actions .like-count { font-size: 0.9rem; }
     .card .info {
-      padding: .5rem 1rem; font-size: .95rem;
+      padding: 0.5rem 1rem; font-size: 0.95rem;
     }
-    .card .info .author { font-weight: 600; margin-right: .5rem; }
+    .card .info .author { font-weight: 600; margin-right: 0.25rem; }
     .card .delete-btn {
       position: absolute; top: 8px; left: 8px;
-      background: rgba(255,255,255,0.9); border: none;
-      border-radius: 50%; width: 28px; height: 28px;
-      cursor: pointer; font-size: 1rem;
+      font-size: 1rem; cursor: pointer;
     }
 
     /* BOTTOM NAV */
     .bottom-nav {
-      position: fixed; bottom:0; left:0; right:0; height:60px;
-      background: #fff; box-shadow: 0 -1px 3px rgba(0,0,0,0.1);
-      display: flex; justify-content: space-around; align-items: center;
-      z-index: 100;
+      position: fixed; bottom: 0; left: 0; right: 0; height: 60px;
+      background: #fff; display: flex; justify-content: space-around; align-items: center;
+      box-shadow: 0 -1px 3px rgba(0,0,0,0.1); z-index: 100;
     }
-    .bottom-nav .icon {
-      font-size: 1.6rem; cursor: pointer; color: #262626;
-    }
+    .bottom-nav .icon { font-size: 1.6rem; color: #262626; cursor: pointer; }
     .bottom-nav .btn-add {
-      font-size: 2rem;
-      background: linear-gradient(135deg,#405de6,#5851db);
-      color: #fff; width:48px; height:48px; border-radius:50%;
-      display:flex; align-items:center; justify-content:center;
-      border:none; cursor:pointer;
+      font-size: 2rem; background: linear-gradient(135deg,#405de6,#5851db);
+      color: #fff; width: 48px; height: 48px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
     }
 
     /* MULTI-STEP OVERLAY */
     .hidden { display: none!important; }
     .step {
-      position: fixed; inset:0; background: #fff;
-      display:flex; flex-direction:column; z-index:200;
+      position: fixed; inset: 0; background: #fff;
+      display: flex; flex-direction: column; z-index: 200;
     }
     .step .header {
-      height: 50px; display:flex; align-items:center;
-      justify-content: space-between; padding: 0 .75rem;
-      background: #fafafa; border-bottom:1px solid #ddd;
+      height: 60px; display: flex; align-items: center;
+      justify-content: space-between; padding: 0 1rem;
+      border-bottom: 1px solid #e0e0e0;
+      font-family: 'Grand Hotel', cursive; font-size: 1.2rem;
     }
-    .step .header .title { font-size: 1rem; color:#262626; }
     .step .header .btn {
-      background:none; border:none; color:#0095f6;
-      font-size:1rem; cursor:pointer;
+      font-family: 'Sarabun', sans-serif; color: #0095f6; font-size: 1rem;
+      cursor: pointer;
     }
     .step .slider {
-      flex:1; position:relative; overflow:hidden; background:#000;
+      flex: 1; position: relative; overflow: hidden; background: #000;
     }
-    .slides { display:flex; height:100%; transition: transform .3s ease; }
+    .slides { display: flex; height: 100%; transition: transform .3s ease; }
     .slide {
-      min-width:100%; position:relative;
-      display:flex; justify-content:center; align-items:center;
+      min-width: 100%; display: flex; justify-content: center; align-items: center;
+      position: relative;
     }
     .slide img {
-      max-width:100%; max-height:100%; object-fit:contain;
+      max-width: 100%; max-height: 100%; object-fit: contain;
     }
     .slide .trash {
-      position:absolute; top:10px; right:10px;
-      background:rgba(255,255,255,0.8); border:none;
-      border-radius:50%; padding:.4rem; cursor:pointer;
+      position: absolute; top: 10px; right: 10px; font-size: 1.2rem;
+      background: rgba(255,255,255,0.8); border-radius: 50%; padding: .4rem;
+      cursor: pointer;
     }
-
-    /* STEP3 Preview smaller */
+    /* STEP3 preview smaller */
     #step3 .slider { height: 40vh; }
 
     .step .form {
-      padding: 1rem; display:flex; flex-direction:column; gap:.5rem;
+      padding: 1rem; display: flex; flex-direction: column; gap: .5rem;
     }
     .step .form input, .step .form textarea {
-      width:100%; padding:.8rem;
-      border:1px solid #ddd; border-radius:8px;
-      font-size:1rem;
+      width: 100%; padding: .8rem; border: 1px solid #ddd; border-radius: 8px;
+      font-size: 1rem;
     }
 
     /* SPINNER */
     #spinnerOverlay {
-      position:fixed; inset:0; background:rgba(0,0,0,0.3);
-      display:flex; justify-content:center; align-items:center;
-      z-index:300; visibility:hidden;
+      position: fixed; inset: 0; background: rgba(0,0,0,0.3);
+      display: flex; justify-content: center; align-items: center;
+      z-index: 300; visibility: hidden;
     }
     #spinnerOverlay.visible { visibility: visible; }
     .spinner {
-      width:50px; height:50px;
-      border:5px solid #fff; border-top-color:transparent;
-      border-radius:50%; animation: spin 1s linear infinite;
+      width: 50px; height: 50px;
+      border: 5px solid #fff; border-top-color: transparent;
+      border-radius: 50%; animation: spin 1s linear infinite;
     }
-    @keyframes spin { to { transform: rotate(360deg)} }
+    @keyframes spin { to { transform: rotate(360deg) } }
   </style>
 </head>
 <body>
@@ -154,57 +139,59 @@
   </header>
 
   <div id="root">
-    <!-- Feed -->
     <div class="feed" id="feed"></div>
 
-    <!-- Bottom Nav -->
-    <nav class="bottom-nav">
-      <div class="icon">🏠</div>
-      <div class="icon">🔍</div>
-      <button class="btn-add" id="openBtn">＋</button>
-      <div class="icon">🎥</div>
-      <div class="icon">👤</div>
-    </nav>
-
-    <!-- STEP 1: รอเลือกรูป -->
+    <!-- Multi-Step Overlays -->
     <div id="step1" class="step hidden">
-      <div class="header"><div class="title">STEP 1: เลือกรูป</div></div>
-      <div style="flex:1;display:flex;justify-content:center;align-items:center">
+      <div class="header">
+        <button class="btn" id="backFrom1">&lt; ย้อนกลับ</button>
+        <div>STEP 1: เลือกรูป</div>
+        <div></div>
+      </div>
+      <div style="flex:1; display:flex; justify-content:center; align-items:center">
         <p>กรุณาเลือกรูปสำหรับโพสต์</p>
       </div>
       <input type="file" id="fileInput" accept="image/*" multiple class="hidden">
     </div>
 
-    <!-- STEP 2: พรีวิวรูป -->
     <div id="step2" class="step hidden">
       <div class="header">
-        <div class="title">โพสต์ใหม่</div>
+        <div>STEP 2: พรีวิว</div>
         <button class="btn" id="toStep3">ถัดไป</button>
       </div>
-      <div class="slider"><div class="slides" id="slides2"></div></div>
+      <div class="slider">
+        <div class="slides" id="slides2"></div>
+      </div>
     </div>
 
-    <!-- STEP 3: กรอกข้อมูล -->
     <div id="step3" class="step hidden">
       <div class="header">
         <button class="btn" id="backTo2">&lt; ย้อนกลับ</button>
         <button class="btn" id="postBtn" disabled>โพสต์</button>
       </div>
-      <div class="slider"><div class="slides" id="slides3"></div></div>
+      <div class="slider">
+        <div class="slides" id="slides3"></div>
+      </div>
       <div class="form">
         <input type="text" id="nameInput" placeholder="ชื่อของคุณ">
         <textarea id="textInput" rows="4" placeholder="เขียนคำอวยพรจากใจ 💌"></textarea>
       </div>
     </div>
 
-    <!-- Spinner -->
     <div id="spinnerOverlay"><div class="spinner"></div></div>
   </div>
+
+  <nav class="bottom-nav">
+    <div class="icon">🏠</div>
+    <div class="icon">🔍</div>
+    <button class="btn-add" id="openBtn">＋</button>
+    <div class="icon">🎥</div>
+    <div class="icon">👤</div>
+  </nav>
 
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-
   <script>
   (function(){
     // Firebase init
@@ -218,6 +205,7 @@
     // Elements
     const feed      = document.getElementById('feed');
     const openBtn   = document.getElementById('openBtn');
+    const backFrom1 = document.getElementById('backFrom1');
     const fileInput = document.getElementById('fileInput');
     const toStep3   = document.getElementById('toStep3');
     const backTo2   = document.getElementById('backTo2');
@@ -235,35 +223,34 @@
     let uid = localStorage.getItem('uid') || crypto.randomUUID();
     localStorage.setItem('uid', uid);
 
-    // Load feed from Firestore
+    // Load feed
     db.collection('wishes').orderBy('createdAt','desc')
       .onSnapshot(snap=>{
         feed.innerHTML = '';
         snap.docs.forEach(doc=>{
           const w = doc.data(), id = doc.id;
           if(!w.createdAt) return;
-          const card = document.createElement('div'); card.className = 'card';
+          const card = document.createElement('div'); card.className='card';
           card.innerHTML = `
             <img src="${w.imgUrl}">
             ${w.uid===uid?'<button class="delete-btn">🗑️</button>':''}
             <div class="actions">
               <div class="btn-like">♡<div class="pop-heart">❤</div></div>
+              <span class="like-count">${w.likes||0}</span>
             </div>
             <div class="info"><span class="author">${w.name}:</span> ${w.text}</div>`;
-          // Delete
-          if(w.uid===uid){
+          if(w.uid===uid) {
             card.querySelector('.delete-btn').onclick = ()=> db.collection('wishes').doc(id).delete();
           }
-          // Like
           const likeBtn = card.querySelector('.btn-like');
           const pop     = card.querySelector('.pop-heart');
-          likeBtn.ondblclick = async () => {
+          likeBtn.ondblclick = async ()=>{
             if((w.likedBy||[]).includes(uid)) return;
-            pop.style.display = 'block';
-            pop.addEventListener('animationend', ()=> pop.style.display='none', {once:true});
+            pop.style.display='block';
+            pop.addEventListener('animationend', ()=> pop.style.display='none',{once:true});
             await db.collection('wishes').doc(id).update({
-              likes: (w.likes||0)+1,
-              likedBy: [...(w.likedBy||[]), uid]
+              likes:(w.likes||0)+1,
+              likedBy:[...(w.likedBy||[]),uid]
             });
           };
           feed.appendChild(card);
@@ -271,33 +258,30 @@
       });
 
     // Helpers
-    function show(el){ el.classList.remove('hidden'); }
-    function hide(el){ el.classList.add('hidden'); }
+    const show = el => el.classList.remove('hidden');
+    const hide = el => el.classList.add('hidden');
 
     function readFileAsDataURL(file){
-      return new Promise(resolve=>{
-        const reader = new FileReader();
-        reader.onload = ()=> resolve(reader.result);
-        reader.readAsDataURL(file);
+      return new Promise(res=>{
+        const r = new FileReader();
+        r.onload = ()=> res(r.result);
+        r.readAsDataURL(file);
       });
     }
 
     function render(container, list, withTrash){
-      container.innerHTML = '';
+      container.innerHTML='';
       list.forEach((f,i)=>{
-        const div = document.createElement('div'); div.className = 'slide';
+        const div = document.createElement('div'); div.className='slide';
         div.style.transform = `translateX(${(i-idx)*100}%)`;
         const img = document.createElement('img'); img.src = URL.createObjectURL(f);
         div.appendChild(img);
         if(withTrash){
-          const b = document.createElement('button');
-          b.className = 'trash'; b.textContent = '🗑️';
-          b.onclick = ()=>{
+          const b = document.createElement('button'); b.className='trash'; b.textContent='🗑️';
+          b.onclick=()=>{
             files.splice(i,1);
             if(!files.length){ hide(step1); return; }
-            idx = idx % files.length;
-            render(slides2, files, true);
-            render(slides3, files, false);
+            idx%=files.length; render(slides2,files,true); render(slides3,files,false);
           };
           div.appendChild(b);
         }
@@ -305,50 +289,44 @@
       });
     }
 
-    // Open picker
-    openBtn.onclick = ()=>{ show(step1); fileInput.click(); };
+    // Step1
+    backFrom1.onclick = ()=> hide(step1);
+    openBtn.onclick   = ()=>{ show(step1); fileInput.click(); };
 
-    fileInput.onchange = e => {
+    fileInput.onchange = e=>{
       files = Array.from(e.target.files);
       if(files.length){
-        idx = 0;
-        render(slides2, files, true);
-        render(slides3, files, false);
+        idx=0;
+        render(slides2,files,true);
+        render(slides3,files,false);
         hide(step1); show(step2);
-      } else {
-        hide(step1);
-      }
+      } else hide(step1);
     };
 
-    // Next/back
     toStep3.onclick = ()=>{ hide(step2); show(step3); postBtn.disabled = !textInput.value.trim(); };
-    backTo2.onclick = ()=>{ hide(step3); show(step2); fileInput.value = ''; };
+    backTo2.onclick = ()=>{ hide(step3); show(step2); fileInput.value=''; };
     textInput.oninput = ()=> postBtn.disabled = !textInput.value.trim();
 
-    // Post with spinner
     postBtn.onclick = async ()=>{
       spinner.classList.add('visible');
-      try{
+      try {
         const file = files[idx];
         let imgData = '';
         if(file) imgData = await readFileAsDataURL(file);
         await db.collection('wishes').add({
-          name: nameInput.value.trim() || 'แขกผู้มีเกียรติ',
+          name: nameInput.value.trim()||'แขกผู้มีเกียรติ',
           text: textInput.value.trim(),
           imgUrl: imgData,
-          likes: 0, likedBy: [], uid,
+          likes:0, likedBy:[], uid,
           createdAt: firebase.firestore.Timestamp.now()
         });
-      }catch(e){
-        console.error(e);
-      }finally{
-        spinner.classList.remove('visible');
-        hide(step3);
-        nameInput.value=''; textInput.value=''; fileInput.value='';
-      }
+      } catch(e){ console.error(e); }
+      spinner.classList.remove('visible');
+      hide(step3);
+      nameInput.value=''; textInput.value=''; fileInput.value='';
     };
 
-    // Init
+    // Initialize
     hide(step1); hide(step2); hide(step3);
   })();
   </script>
