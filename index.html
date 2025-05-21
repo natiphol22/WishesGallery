@@ -15,8 +15,6 @@
       --spacing: 1rem;
       --shadow: 0 8px 24px rgba(0,0,0,0.1);
       --nav-height: 60px;
-      --primary-start: #405de6;
-      --primary-end: #5851db;
     }
     * { box-sizing: border-box; margin:0; padding:0 }
     body {
@@ -28,9 +26,8 @@
       min-height: 100vh;
       padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom));
       position: relative;
-      transition: none;
     }
-    /* 4. ป้องกันเลื่อน background เวลา modal เปิด */
+    /* ป้องกันเลื่อนพื้นหลังเมื่อ modal เปิด */
     body.modal-open {
       overflow: hidden;
     }
@@ -43,19 +40,19 @@
       font-family: 'Grand Hotel', cursive;
       font-size: 1.8rem;
     }
-    /* 1. หัวใจมุมขวา เส้นหนาขึ้น */
+    /* หัวใจมุมขวาเป็นสีดำ */
     header .top-heart {
       font-size: 1.6rem;
       font-weight: 700;
-      color: #e0245e;
+      color: #000;
       line-height: 1;
     }
 
-    /* 3. gallery รองรับมือถือหลากหลาย: บนจอเล็ก 1 คอลัมน์, ใหญ่ขึ้น 2 คอลัมน์ */
+    /* แก้ให้ gallery เป็นคอลัมน์เดียว */
     .gallery {
       padding: var(--spacing);
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      grid-template-columns: 1fr;
       gap: var(--spacing);
     }
     .card {
@@ -103,7 +100,7 @@
     }
     .bottom-nav .primary {
       font-size: 2rem;
-      background: linear-gradient(135deg, var(--primary-start), var(--primary-end));
+      background: linear-gradient(135deg, #405de6, #5851db);
       color: #fff; width: 48px; height: 48px;
       border-radius: 50%; display: flex;
       align-items: center; justify-content: center;
@@ -128,7 +125,6 @@
       box-shadow: var(--shadow);
       overflow: hidden;
     }
-    /* 5. ตัดเส้นสีน้ำเงินออก: ลบ .modal-content::before */
 
     .modal-header {
       display: flex; justify-content: space-between; align-items: center;
@@ -160,7 +156,7 @@
     .btn-upload {
       display: block; width: 100%;
       text-align: center; padding: .75rem;
-      background: linear-gradient(135deg, var(--primary-start), var(--primary-end));
+      background: linear-gradient(135deg, #405de6, #5851db);
       color: #fff; font-weight: 600;
       border-radius: var(--radius); cursor: pointer;
       position: relative; overflow: hidden;
@@ -169,20 +165,18 @@
 
     .preview-container {
       text-align: center;
-      /* 2. ปรับขนาด preview ให้บาลานซ์บนมือถือ */
-      max-height: 60vh;
+      /* ลดขนาด preview ให้เล็กลง เพื่อให้กดปุ่มโพสได้ */
+      max-height: 200px;
       overflow: hidden;
     }
     .preview-container img {
       max-width: 100%;
       max-height: 100%;
-      width: auto;
-      height: auto;
-      display: block;
-      margin: 0 auto;
       object-fit: cover;
       border-radius: var(--radius);
       box-shadow: var(--shadow);
+      display: block;
+      margin: 0 auto;
     }
 
     .modal-footer {
@@ -191,7 +185,7 @@
     }
     .modal-footer button {
       padding: .6rem 1.4rem; font-weight: 600;
-      background: linear-gradient(135deg, var(--primary-start), var(--primary-end));
+      background: linear-gradient(135deg, #405de6, #5851db);
       color: #fff; border: none; border-radius: var(--radius);
       cursor: pointer; transition: opacity .2s, transform .2s;
     }
@@ -266,14 +260,11 @@
     // ปิด scroll เมื่อ modal เปิด
     const body = document.body;
     const modal = document.getElementById('modal');
-    const openBtn = document.getElementById('nav-add');
-    const closeBtn = document.getElementById('modalClose');
-
-    openBtn.onclick = () => {
+    document.getElementById('nav-add').onclick = () => {
       modal.classList.add('show');
       body.classList.add('modal-open');
     };
-    closeBtn.onclick = () => {
+    document.getElementById('modalClose').onclick = () => {
       modal.classList.remove('show');
       body.classList.remove('modal-open');
     };
@@ -376,7 +367,6 @@
       body.classList.remove('modal-open');
     };
 
-    // ฟังก์ชันสร้างการ์ด + like + delete (เหมือนเดิม)
     function animateHeart(card) {
       const h = document.createElement('div');
       h.textContent = '❤';
