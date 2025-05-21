@@ -4,14 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Tuck &amp; Tan</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600&family=Grand+Hotel&display=swap" rel="stylesheet">
+  <!-- เปลี่ยนมาใช้ Kanit จาก Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #f0f2f5;
       --text: #262626;
       --input-bg: #fafafa;
       --input-text: #333;
-      --radius: 16px;
+      --radius: 12px;
       --spacing: 1rem;
       --shadow: 0 8px 24px rgba(0,0,0,0.1);
       --nav-height: 60px;
@@ -20,14 +21,14 @@
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: 'Sarabun', sans-serif;
+      font-family: 'Kanit', sans-serif;
       max-width: 480px;
       margin: 0 auto;
       min-height: 100vh;
       padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom));
     }
-    body.modal-open { overflow: hidden; }
 
+    /* HEADER */
     header {
       display: flex;
       justify-content: space-between;
@@ -40,20 +41,19 @@
       font-family: 'Grand Hotel', cursive;
       font-size: 1.8rem;
     }
-    /* ไอคอนหัวใจ SVG สีดำ */
     header .top-heart svg {
-      width: 24px;
-      height: 24px;
-      fill: #000;
+      width: 24px; height: 24px; fill: #000;
     }
 
-    /* gallery คอลัมน์เดียว */
+    /* GALLERY */
     .gallery {
       padding: var(--spacing);
       display: grid;
       grid-template-columns: 1fr;
       gap: var(--spacing);
     }
+
+    /* CARD */
     .card {
       background: #fff;
       border-radius: var(--radius);
@@ -66,170 +66,152 @@
     .card img { width: 100%; display: block; }
 
     .like-indicator {
-      display: flex;
-      align-items: center;
-      padding: .5rem 1rem;
-      font-size: .9rem;
+      display: flex; align-items: center;
+      padding: .5rem 1rem; font-size: .9rem;
     }
-    .heart-icon { margin-right: .25rem; color: #e0245e; }
-    .info {
-      padding: 0 1rem 1rem;
-      font-size: .95rem;
-    }
-    .author { font-weight: 600; }
-    .delete-btn {
-      position: absolute; top: 8px; left: 8px;
-      background: rgba(255,255,255,0.9);
-      border: none; border-radius: 50%;
-      width: 28px; height: 28px;
-      cursor: pointer; font-size: 1rem;
-      transition: transform .2s, color .2s;
-    }
-    .delete-btn:hover { transform: scale(1.2); color: #e0245e; }
+    .heart-icon { margin-right:.25rem; color:#e0245e }
+    .info { padding:0 1rem 1rem; font-size:.95rem }
+    .author { font-weight:600 }
 
+    .delete-btn {
+      position:absolute; top:8px; left:8px;
+      background:rgba(255,255,255,0.9); border:none;
+      border-radius:50%; width:28px; height:28px;
+      cursor:pointer; transition:transform .2s,color .2s;
+    }
+    .delete-btn:hover { transform:scale(1.2); color:#e0245e; }
+
+    /* BOTTOM NAV */
     .bottom-nav {
-      position: fixed; bottom: 0; left: 50%;
-      transform: translateX(-50%);
-      width: 100%; height: var(--nav-height);
-      backdrop-filter: blur(12px);
-      background: #ffffffdd;
-      display: flex; justify-content: space-around; align-items: center;
-      z-index: 100; box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
+      position:fixed; bottom:0; left:50%;
+      transform:translateX(-50%);
+      width:100%; height:var(--nav-height);
+      backdrop-filter:blur(12px);
+      background:#ffffffdd;
+      display:flex; justify-content:space-around; align-items:center;
+      z-index:100; box-shadow:0 -2px 8px rgba(0,0,0,0.05);
     }
     .bottom-nav button {
-      background: none; border: none;
-      font-size: 1.6rem; cursor: pointer;
-      transition: transform .2s; color: var(--text);
+      background:none; border:none;
+      font-size:1.6rem; cursor:pointer;
+      transition:transform .2s; color:var(--text);
     }
     .bottom-nav .primary {
-      font-size: 2rem;
-      background: linear-gradient(135deg, #405de6, #5851db);
-      color: #fff; width: 48px; height: 48px;
-      border-radius: 50%; display: flex;
-      align-items: center; justify-content: center;
-      box-shadow: var(--shadow);
+      font-size:2rem;
+      background:linear-gradient(135deg,#405de6,#5851db);
+      color:#fff; width:48px; height:48px;
+      border-radius:50%; display:flex;
+      align-items:center; justify-content:center;
+      box-shadow:var(--shadow);
     }
-    .bottom-nav button:hover { transform: scale(1.1); }
+    .bottom-nav button:hover { transform:scale(1.1) }
 
-    .modal {
-      display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,0.4);
-      align-items: center; justify-content: center;
-      padding: var(--spacing); z-index: 200;
+    /* ========== WIZARD OVERLAY ========== */
+    .wizard-overlay {
+      position:fixed; inset:0;
+      background:rgba(255,255,255,0.9);
+      backdrop-filter:blur(8px);
+      display:none;
+      flex-direction:column;
+      z-index:200;
     }
-    .modal.show { display: flex; }
-    .modal-content {
-      position: relative;
-      width: 100%; max-width: 420px;
-      background: #ffffffcc;
-      backdrop-filter: blur(12px);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-    }
+    .wizard-overlay.active { display:flex; }
 
-    .modal-header {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: var(--spacing); background: rgba(255,255,255,0.8);
+    .wizard-nav {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:1rem; background:#fff;
+      box-shadow:0 2px 6px rgba(0,0,0,0.1);
+      font-size:1rem;
     }
-    .modal-header h2 { font-size: 1.5rem; }
-    .modal-close {
-      background: none; border: none;
-      font-size: 1.5rem; cursor: pointer;
-      transition: transform .2s;
-    }
-    .modal-close:hover { transform: scale(1.2); }
-
-    .modal-body {
-      padding: var(--spacing);
-      display: flex; flex-direction: column; gap: var(--spacing);
-    }
-    .modal-body input,
-    .modal-body textarea {
-      width: 100%; padding: .75rem;
-      background: var(--input-bg); color: var(--input-text);
-      border: 1px solid #ddd; border-radius: var(--radius);
-      font-size: .95rem; resize: none;
-    }
-    .modal-body input::placeholder,
-    .modal-body textarea::placeholder {
-      color: #aaa;
-    }
-    .btn-upload {
-      display: block; width: 100%;
-      text-align: center; padding: .75rem;
-      background: linear-gradient(135deg, #405de6, #5851db);
-      color: #fff; font-weight: 600;
-      border-radius: var(--radius); cursor: pointer;
-      position: relative; overflow: hidden;
-    }
-    .btn-upload input {
-      position: absolute; inset: 0;
-      width: 100%; height: 100%; opacity: 0; cursor: pointer;
+    .btn-nav {
+      background:none; border:none;
+      font-size:1.2rem; cursor:pointer;
     }
 
-    /* พรีวิวรูปขนาดเล็กลง ไม่ล้น modal */
-    .preview-container {
-      text-align: center;
-      width: 80%;
-      max-width: 250px;
-      max-height: 150px;
-      margin: 0 auto;
-      overflow: hidden;
+    .wizard-step {
+      flex:1; display:none;
+      flex-direction:column; align-items:center; justify-content:center;
+      padding:1.5rem; overflow-y:auto;
     }
-    .preview-container img {
-      width: 100%;
-      height: auto;
-      object-fit: contain;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      display: block;
+    .wizard-step.active { display:flex; }
+
+    /* Step 1 */
+    #triggerFilePicker {
+      padding:.8rem 1.2rem;
+      border-radius:var(--radius);
+      background:linear-gradient(135deg,#405de6,#5851db);
+      color:#fff; font-size:1rem;
+      cursor:pointer;
     }
 
-    .modal-footer {
-      padding: var(--spacing); text-align: right;
-      background: rgba(255,255,255,0.8);
+    /* Step 2: Carousel */
+    .carousel {
+      width:100%; flex:1;
+      display:flex; overflow-x:scroll;
+      scroll-snap-type:x mandatory;
     }
-    .modal-footer button {
-      padding: .6rem 1.4rem; font-weight: 600;
-      background: linear-gradient(135deg, #405de6, #5851db);
-      color: #fff; border: none; border-radius: var(--radius);
-      cursor: pointer; transition: opacity .2s, transform .2s;
+    .carousel-item {
+      position:relative; flex:0 0 100%;
+      scroll-snap-align:start;
     }
-    .modal-footer button:disabled { opacity: .5; cursor: default; }
-    .modal-footer button:not(:disabled):hover { transform: translateY(-2px); }
+    .carousel-item img {
+      width:100%; height:auto; object-fit:contain;
+      filter:brightness(1.05) saturate(0.9) contrast(1.1);
+    }
+    .carousel-item .del {
+      position:absolute; top:8px; right:8px;
+      background:rgba(255,255,255,0.8); border:none;
+      border-radius:50%; padding:.4rem; cursor:pointer;
+    }
+    .carousel-indicator {
+      margin-top:.5rem; font-size:.9rem;
+    }
 
+    /* Step 3: Form */
+    .preview-summary img {
+      width:100%; max-height:40vh;
+      object-fit:cover;
+      filter:brightness(1.05) saturate(0.9) contrast(1.1);
+      border-radius:var(--radius); margin-bottom:1rem;
+    }
+    .form-group {
+      width:100%; margin-bottom:1rem;
+    }
+    .form-group label {
+      display:block; margin-bottom:.3rem; font-weight:500;
+    }
+    .form-group input,
+    .form-group textarea {
+      width:100%; padding:.75rem;
+      border:1px solid #ddd; border-radius:var(--radius);
+      background:var(--input-bg); font-size:.95rem;
+    }
+
+    /* Spinner (reuse original) */
     .spinner {
-      width: 16px; height: 16px;
-      border: 2px solid #fff; border-top-color: transparent;
-      border-radius: 50%; display: inline-block;
-      animation: spin 1s linear infinite; vertical-align: middle;
-      margin-right: 6px;
+      width:16px; height:16px;
+      border:2px solid #fff; border-top-color:transparent;
+      border-radius:50%; display:inline-block;
+      animation:spin 1s linear infinite;
+      vertical-align:middle; margin-right:6px;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    @keyframes popHeartFadeShake {
-      0%   { transform: translate(-50%,-50%) scale(0); opacity: 0; }
-      30%  { transform: translate(-50%,-50%) scale(1); opacity: 0.6; }
-      60%  { transform: translate(calc(-50%-5px),-50%) scale(1.1); opacity: 0.8; }
-      70%  { transform: translate(calc(-50%+5px),-50%) scale(1.1); }
-      80%  { transform: translate(-50%,-50%) scale(1); }
-      100% { transform: translate(-50%,-50%) scale(1); opacity: 0; }
-    }
+    @keyframes spin { to{ transform:rotate(360deg) } }
   </style>
 </head>
 <body>
   <header>
     <h1>Tuck &amp; Tan</h1>
     <span class="top-heart">
-      <!-- inline SVG ไอคอนหัวใจสีดำ -->
       <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path d="M12 21s-1-.45-1-1.12c0-.67.33-1.3.88-1.64C13.2 17.37 14 16.23 14 15c0-1.66-1.34-3-3-3S8 13.34 8 15c0 1.23.8 2.37 2.12 3.24.55.34.88.97.88 1.64C11 20.55 12 21 12 21z"/>
       </svg>
     </span>
   </header>
 
+  <!-- GALLERY FEED -->
   <div class="gallery" id="gallery"></div>
 
+  <!-- BOTTOM NAV -->
   <nav class="bottom-nav">
     <button id="nav-home">🏠</button>
     <button id="nav-search">🔍</button>
@@ -238,25 +220,37 @@
     <button id="nav-profile">👤</button>
   </nav>
 
-  <div id="modal" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>สร้างโพสต์ใหม่</h2>
-        <button id="modalClose" class="modal-close">✕</button>
+  <!-- WIZARD OVERLAY -->
+  <div id="postWizard" class="wizard-overlay">
+    <div class="wizard-nav">
+      <button id="wizBack" class="btn-nav">&larr;</button>
+      <span id="wizTitle">เลือกรูปภาพ</span>
+      <button id="wizNext" class="btn-nav">ถัดไป &rarr;</button>
+    </div>
+    <!-- Step 1: File Picker -->
+    <div class="wizard-step" data-step="1">
+      <input type="file" id="wizFileInput" accept="image/*" multiple hidden>
+      <button id="triggerFilePicker">+ เลือกรูปภาพ</button>
+    </div>
+    <!-- Step 2: Carousel Preview -->
+    <div class="wizard-step" data-step="2">
+      <div id="wizCarousel" class="carousel"></div>
+      <div class="carousel-indicator">
+        <span id="currentIndex">1</span>/<span id="totalCount">1</span>
       </div>
-      <div class="modal-body">
-        <input type="text" id="modalName" placeholder="ชื่อของคุณ (ไม่บังคับ)">
-        <textarea id="wishText" rows="4" placeholder="เขียนคำอวยพรของคุณ..." required></textarea>
-        <label class="btn-upload">
-          📷 อัปโหลดรูป
-          <input type="file" id="imgUpload" accept="image/*">
-        </label>
-        <div class="preview-container">
-          <img id="preview" alt="พรีวิวรูป" style="display:none;">
-        </div>
+    </div>
+    <!-- Step 3: Form -->
+    <div class="wizard-step" data-step="3">
+      <div class="preview-summary">
+        <img id="summaryImg" alt="Preview รูป">
       </div>
-      <div class="modal-footer">
-        <button id="postBtn" disabled>โพสต์</button>
+      <div class="form-group">
+        <label for="wizName">ชื่อของคุณ</label>
+        <input type="text" id="wizName" placeholder="ไม่บังคับ">
+      </div>
+      <div class="form-group">
+        <label for="wizText">คำอวยพร 💌</label>
+        <textarea id="wizText" rows="4" placeholder="เขียนคำอวยพร..." required></textarea>
       </div>
     </div>
   </div>
@@ -268,29 +262,7 @@
       doc as docRef, updateDoc, deleteDoc, Timestamp
     } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
 
-    const body = document.body;
-    const modal = document.getElementById('modal');
-    document.getElementById('nav-add').onclick = () => {
-      modal.classList.add('show');
-      body.classList.add('modal-open');
-    };
-    document.getElementById('modalClose').onclick = () => {
-      modal.classList.remove('show');
-      body.classList.remove('modal-open');
-    };
-    modal.addEventListener('click', e => {
-      if (e.target === modal) {
-        modal.classList.remove('show');
-        body.classList.remove('modal-open');
-      }
-    });
-
-    let currentUid = localStorage.getItem('uid');
-    if (!currentUid) {
-      currentUid = crypto.randomUUID();
-      localStorage.setItem('uid', currentUid);
-    }
-
+    /* ===== FIREBASE INIT ===== */
     const firebaseConfig = {
       apiKey: "AIzaSyBxYY_c14XFroS6dBIh4Jzl9XL4PMjipcg",
       authDomain: "wishes-web.firebaseapp.com",
@@ -303,78 +275,179 @@
     const app = initializeApp(firebaseConfig);
     const db  = getFirestore(app);
 
-    const gallery   = document.getElementById('gallery');
-    const wishText  = document.getElementById('wishText');
-    const modalName = document.getElementById('modalName');
-    const imgUpload = document.getElementById('imgUpload');
-    const preview   = document.getElementById('preview');
-    const postBtn   = document.getElementById('postBtn');
+    /* ===== GLOBAL STATE ===== */
+    let selectedFiles = [];
+    let currentStep = 1;
+    const body = document.body;
 
+    /* ===== ELEMENTS ===== */
+    const gallery       = document.getElementById('gallery');
+    const navAdd        = document.getElementById('nav-add');
+    const postWizard    = document.getElementById('postWizard');
+    const wizBack       = document.getElementById('wizBack');
+    const wizNext       = document.getElementById('wizNext');
+    const wizTitle      = document.getElementById('wizTitle');
+    const stepEls       = document.querySelectorAll('.wizard-step');
+    const fileInput     = document.getElementById('wizFileInput');
+    const triggerPicker = document.getElementById('triggerFilePicker');
+    const wizCarousel   = document.getElementById('wizCarousel');
+    const currentIndex  = document.getElementById('currentIndex');
+    const totalCount    = document.getElementById('totalCount');
+    const summaryImg    = document.getElementById('summaryImg');
+    const wizName       = document.getElementById('wizName');
+    const wizText       = document.getElementById('wizText');
+
+    /* ===== SHOW FEED ===== */
     const qFeed = query(collection(db,'wishes'), orderBy('createdAt','desc'));
     onSnapshot(qFeed, snap => {
       gallery.innerHTML = '';
       snap.docs
         .map(d => ({ id: d.id, ...d.data() }))
         .filter(p => p.createdAt)
-        .sort((a,b) => b.createdAt.toMillis() - a.createdAt.toMillis())
-        .forEach(p => createCard(p, p.id));
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+        .sort((a,b)=>b.createdAt.toMillis()-a.createdAt.toMillis())
+        .forEach(p => createCard(p,p.id));
+      window.scrollTo({ top:0, behavior:'smooth' });
     });
 
-    wishText.oninput = () => postBtn.disabled = !wishText.value.trim();
-    imgUpload.onchange = e => {
-      const f = e.target.files[0];
-      if (!f) return preview.style.display='none';
-      preview.src = URL.createObjectURL(f);
-      preview.style.display = 'block';
-    };
-
-    postBtn.onclick = async () => {
-      postBtn.disabled = true;
-      postBtn.innerHTML = `<span class="spinner"></span>กำลังโพสต์`;
-      const text = wishText.value.trim();
-      const name = modalName.value.trim() || 'แขกผู้มีเกียรติ';
-      let imgUrl = 'https://via.placeholder.com/320x400?text=No+Image';
-      const f = imgUpload.files[0];
-      if (f) {
-        const img = await new Promise(r => {
-          const i = new Image(); i.onload = () => r(i);
-          i.src = URL.createObjectURL(f);
-        });
-        let [w,h] = [img.width,img.height], max = 800;
-        if (Math.max(w,h)>max) {
-          const ratio = max/Math.max(w,h);
-          w*=ratio; h*=ratio;
-        }
-        const c = document.createElement('canvas');
-        c.width=w; c.height=h;
-        const ctx = c.getContext('2d');
-        ctx.imageSmoothingEnabled=true;
-        ctx.imageSmoothingQuality='high';
-        ctx.drawImage(img,0,0,w,h);
-        let q=0.95,data;
-        do {
-          data=c.toDataURL('image/jpeg',q);
-          q-=0.05;
-        } while(data.length>1_000_000&&q>0.1);
-        imgUrl=data;
-      }
-      await addDoc(collection(db,'wishes'), {
-        name,text,imgUrl,
-        likes:0,likedBy:[],uid:currentUid,
-        createdAt:Timestamp.now()
+    /* ===== WIZARD NAVIGATION ===== */
+    function goToStep(n){
+      currentStep = n;
+      stepEls.forEach(el=>{
+        el.classList.toggle('active', +el.dataset.step===n);
       });
-      wishText.value='';
-      modalName.value='';
-      imgUpload.value='';
-      preview.style.display='none';
-      postBtn.innerText='โพสต์';
-      postBtn.disabled=true;
-      modal.classList.remove('show');
-      body.classList.remove('modal-open');
+      // update nav text / buttons
+      wizBack.style.visibility = n===1 ? 'hidden' : 'visible';
+      if(n<3){
+        wizNext.innerText = 'ถัดไป →';
+      } else {
+        wizNext.innerText = 'โพสต์';
+      }
+      // update title
+      const titles = ['เลือกรูปภาพ','ดูตัวอย่าง','กรอกคำอวยพร'];
+      wizTitle.innerText = titles[n-1];
+      // summaryImg for step3
+      if(n===3 && selectedFiles.length){
+        summaryImg.src = URL.createObjectURL(selectedFiles[0]);
+      }
+    }
+
+    navAdd.onclick = ()=>{
+      postWizard.classList.add('active');
+      body.classList.add('modal-open');
+      goToStep(1);
+    };
+    wizBack.onclick = ()=>{
+      if(currentStep>1) goToStep(currentStep-1);
+      else closeWizard();
+    };
+    wizNext.onclick = async ()=>{
+      if(currentStep<2){
+        // from step1 -> step2
+        if(selectedFiles.length) goToStep(2);
+        return;
+      }
+      if(currentStep===2){
+        // from step2 -> step3
+        if(selectedFiles.length) goToStep(3);
+        return;
+      }
+      // step3 -> post
+      await postAll();
     };
 
-    function animateHeart(card) {
+    function closeWizard(){
+      postWizard.classList.remove('active');
+      body.classList.remove('modal-open');
+      selectedFiles = [];
+      fileInput.value = '';
+      wizName.value = '';
+      wizText.value = '';
+    }
+
+    /* ===== FILE PICKER & CAROUSEL ===== */
+    triggerPicker.onclick = ()=> fileInput.click();
+    fileInput.onchange = e=>{
+      selectedFiles = Array.from(e.target.files);
+      renderCarousel();
+    };
+
+    function renderCarousel(){
+      wizCarousel.innerHTML = '';
+      selectedFiles.forEach((f,i)=>{
+        const item = document.createElement('div');
+        item.className = 'carousel-item';
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(f);
+        // delete btn
+        const btn = document.createElement('button');
+        btn.className = 'del';
+        btn.innerText = '🗑️';
+        btn.onclick = ()=>{
+          selectedFiles.splice(i,1);
+          renderCarousel();
+        };
+        item.append(img, btn);
+        wizCarousel.append(item);
+      });
+      totalCount.innerText = selectedFiles.length||1;
+      currentIndex.innerText = 1;
+      wizCarousel.scrollLeft = 0;
+    }
+    wizCarousel.addEventListener('scroll', ()=>{
+      const idx = Math.round(wizCarousel.scrollLeft / wizCarousel.clientWidth);
+      currentIndex.innerText = idx+1;
+    });
+
+    /* ===== POSTING ===== */
+    async function postAll(){
+      wizNext.disabled = true;
+      wizNext.innerHTML = `<span class="spinner"></span>กำลังโพสต์`;
+      const text = wizText.value.trim();
+      const name = wizName.value.trim() || 'แขกผู้มีเกียรติ';
+      for(const f of (selectedFiles.length? selectedFiles: [null])){
+        let imgUrl = 'https://via.placeholder.com/320x400?text=No+Image';
+        if(f){
+          // compress exactly like your original
+          const img = await new Promise(r=>{
+            const i=new Image(); i.onload=()=>r(i);
+            i.src=URL.createObjectURL(f);
+          });
+          let [w,h]=[img.width,img.height], max=800;
+          if(Math.max(w,h)>max){
+            const ratio = max/Math.max(w,h);
+            w*=ratio; h*=ratio;
+          }
+          const c = document.createElement('canvas');
+          c.width=w; c.height=h;
+          const ctx = c.getContext('2d');
+          ctx.imageSmoothingEnabled=true;
+          ctx.imageSmoothingQuality='high';
+          ctx.drawImage(img,0,0,w,h);
+          let q=0.95,data;
+          do {
+            data=c.toDataURL('image/jpeg',q);
+            q-=0.05;
+          } while(data.length>1_000_000 && q>0.1);
+          imgUrl = data;
+        }
+        await addDoc(collection(db,'wishes'), {
+          name, text, imgUrl,
+          likes:0, likedBy:[], uid:localStorage.getItem('uid'),
+          createdAt: Timestamp.now()
+        });
+      }
+      closeWizard();
+      wizNext.disabled = false;
+      wizNext.innerText = 'โพสต์';
+    }
+
+    /* ===== LIKE & DELETE (unchanged) ===== */
+    let currentUid = localStorage.getItem('uid');
+    if(!currentUid){
+      currentUid = crypto.randomUUID();
+      localStorage.setItem('uid', currentUid);
+    }
+    function animateHeart(card){
       const h = document.createElement('div');
       h.textContent='❤';
       Object.assign(h.style,{
@@ -385,14 +458,14 @@
       card.querySelector('.img-wrapper').appendChild(h);
       h.addEventListener('animationend',()=>h.remove());
     }
-    async function handleLike(id,w) {
+    async function handleLike(id,w){
       if((w.likedBy||[]).includes(currentUid)) return;
       await updateDoc(docRef(db,'wishes',id),{
         likes:(w.likes||0)+1,
         likedBy:[...(w.likedBy||[]),currentUid]
       });
     }
-    function createCard(w,id) {
+    function createCard(w,id){
       const card=document.createElement('div');
       card.className='card';
       const delBtn=w.uid===currentUid
@@ -414,7 +487,7 @@
         e.stopPropagation(); animateHeart(card);
         await handleLike(id,w);
       });
-      if(w.uid===currentUid) {
+      if(w.uid===currentUid){
         card.querySelector('.delete-btn').onclick=async e=>{
           e.stopPropagation();
           if(confirm('ลบโพสต์นี้?')) await deleteDoc(docRef(db,'wishes',id));
