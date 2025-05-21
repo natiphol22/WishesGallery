@@ -1,331 +1,427 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Tuck & Tan</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600&family=Grand+Hotel&display=swap" rel="stylesheet"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tuck &amp; Tan</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600&family=Grand+Hotel&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing:border-box; margin:0; padding:0 }
-    body { font-family:'Sarabun',sans-serif; background:#fafafa; color:#262626; }
-    img,button { background:none; border:none; }
+    :root {
+      --bg: #f0f2f5;
+      --text: #262626;
+      --input-bg: #fafafa;
+      --input-text: #333;
+      --radius: 16px;
+      --spacing: 1rem;
+      --shadow: 0 8px 24px rgba(0,0,0,0.1);
+      --nav-height: 60px;
+    }
+    * { box-sizing: border-box; margin:0; padding:0 }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Sarabun', sans-serif;
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom));
+    }
+    body.modal-open { overflow: hidden; }
 
-    /* HEADER */
     header {
-      position:fixed; top:0; left:0; right:0; height:60px;
-      background:#fff; display:flex; align-items:center; justify-content:space-between;
-      padding:0 1rem; box-shadow:0 1px 3px rgba(0,0,0,0.1); z-index:100;
-      font-family:'Grand Hotel',cursive; font-size:1.8rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--spacing);
+      background: #fff;
+      box-shadow: var(--shadow);
     }
-    header .actions .heart { font-size:1.4rem; color:#000; cursor:pointer; }
+    header h1 {
+      font-family: 'Grand Hotel', cursive;
+      font-size: 1.8rem;
+    }
+    /* ไอคอนหัวใจ SVG สีดำ */
+    header .top-heart svg {
+      width: 24px;
+      height: 24px;
+      fill: #000;
+    }
 
-    /* FEED */
-    #root { padding-top:60px; padding-bottom:60px; }
-    .feed { width:100%; }
+    /* gallery คอลัมน์เดียว */
+    .gallery {
+      padding: var(--spacing);
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--spacing);
+    }
     .card {
-      background:#fff; margin:0.5rem auto; max-width:480px;
-      border:1px solid #e0e0e0; border-radius:12px;
-      box-shadow:0 4px 12px rgba(0,0,0,0.05); position:relative;
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      transition: transform .2s;
+      position: relative;
     }
-    .card img {
-      width:100%; height:auto; object-fit:contain;
-    }
-    .card .actions {
-      display:flex; align-items:center; padding:.5rem 1rem; gap:.5rem;
-    }
-    .card .btn-like {
-      position:relative; font-size:1.6rem; cursor:pointer;
-    }
-    .card .btn-like .pop-heart {
-      position:absolute; top:50%; left:50%;
-      transform:translate(-50%,-50%) scale(0);
-      font-size:3rem; color:rgba(224,36,94,0.6);
-      animation:pop 0.8s forwards; pointer-events:none;
-    }
-    @keyframes pop {
-      0%{transform:translate(-50%,-50%) scale(0);opacity:0}
-      30%{transform:translate(-50%,-50%) scale(1);opacity:.6}
-      60%{transform:translate(-50%,-50%) scale(1.2);opacity:.8}
-      100%{transform:translate(-50%,-50%) scale(1);opacity:0}
-    }
-    .card .like-count { font-size:.9rem; }
-    .card .info {
-      padding:.5rem 1rem; font-size:.95rem;
-    }
-    .card .info .author { font-weight:600; margin-right:.25rem; }
-    .card .delete-btn {
-      position:absolute; top:8px; left:8px; font-size:1rem; cursor:pointer;
-    }
+    .card:hover { transform: translateY(-4px); }
+    .card img { width: 100%; display: block; }
 
-    /* BOTTOM NAV */
+    .like-indicator {
+      display: flex;
+      align-items: center;
+      padding: .5rem 1rem;
+      font-size: .9rem;
+    }
+    .heart-icon { margin-right: .25rem; color: #e0245e; }
+    .info {
+      padding: 0 1rem 1rem;
+      font-size: .95rem;
+    }
+    .author { font-weight: 600; }
+    .delete-btn {
+      position: absolute; top: 8px; left: 8px;
+      background: rgba(255,255,255,0.9);
+      border: none; border-radius: 50%;
+      width: 28px; height: 28px;
+      cursor: pointer; font-size: 1rem;
+      transition: transform .2s, color .2s;
+    }
+    .delete-btn:hover { transform: scale(1.2); color: #e0245e; }
+
     .bottom-nav {
-      position:fixed; bottom:0; left:0; right:0; height:60px;
-      background:#fff; display:flex; justify-content:space-around; align-items:center;
-      box-shadow:0 -1px 3px rgba(0,0,0,0.1); z-index:100;
+      position: fixed; bottom: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 100%; height: var(--nav-height);
+      backdrop-filter: blur(12px);
+      background: #ffffffdd;
+      display: flex; justify-content: space-around; align-items: center;
+      z-index: 100; box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
     }
-    .bottom-nav .icon { font-size:1.6rem; cursor:pointer; }
-    .bottom-nav .btn-add {
-      font-size:2rem; width:48px; height:48px;
-      background:linear-gradient(135deg,#405de6,#5851db);
-      color:#fff; border-radius:50%; display:flex;
-      align-items:center; justify-content:center; cursor:pointer;
+    .bottom-nav button {
+      background: none; border: none;
+      font-size: 1.6rem; cursor: pointer;
+      transition: transform .2s; color: var(--text);
+    }
+    .bottom-nav .primary {
+      font-size: 2rem;
+      background: linear-gradient(135deg, #405de6, #5851db);
+      color: #fff; width: 48px; height: 48px;
+      border-radius: 50%; display: flex;
+      align-items: center; justify-content: center;
+      box-shadow: var(--shadow);
+    }
+    .bottom-nav button:hover { transform: scale(1.1); }
+
+    .modal {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.4);
+      align-items: center; justify-content: center;
+      padding: var(--spacing); z-index: 200;
+    }
+    .modal.show { display: flex; }
+    .modal-content {
+      position: relative;
+      width: 100%; max-width: 420px;
+      background: #ffffffcc;
+      backdrop-filter: blur(12px);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
     }
 
-    /* MULTI-STEP */
-    .hidden { display:none!important; }
-    .step {
-      position:fixed; inset:0; background:#fff;
-      display:flex; flex-direction:column; z-index:200;
+    .modal-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: var(--spacing); background: rgba(255,255,255,0.8);
     }
-    .step .header {
-      height:60px; display:flex; align-items:center;
-      justify-content:space-between; padding:0 1rem;
-      border-bottom:1px solid #e0e0e0;
-      font-family:'Grand Hotel',cursive; font-size:1.2rem;
+    .modal-header h2 { font-size: 1.5rem; }
+    .modal-close {
+      background: none; border: none;
+      font-size: 1.5rem; cursor: pointer;
+      transition: transform .2s;
     }
-    .step .header .btn {
-      font-family:'Sarabun',sans-serif; color:#0095f6;
-      font-size:1rem; cursor:pointer;
-    }
-    .step .slider {
-      flex:1; overflow:hidden; background:#000;
-    }
-    .slides { display:flex; height:100%; transition:transform .3s ease; }
-    .slide {
-      min-width:100%; display:flex; justify-content:center; align-items:center;
-      position:relative;
-    }
-    .slide img {
-      max-width:100%; max-height:100%; object-fit:contain;
-    }
-    .slide .trash {
-      position:absolute; top:10px; right:10px; font-size:1.2rem;
-      background:rgba(255,255,255,0.8); border-radius:50%; padding:.4rem;
-      cursor:pointer;
-    }
-    #step3 .slider { height:40vh; }
+    .modal-close:hover { transform: scale(1.2); }
 
-    .step .form {
-      padding:1rem; display:flex; flex-direction:column; gap:.5rem;
+    .modal-body {
+      padding: var(--spacing);
+      display: flex; flex-direction: column; gap: var(--spacing);
     }
-    .step .form input, .step .form textarea {
-      width:100%; padding:.8rem; border:1px solid #ddd; border-radius:8px;
-      font-size:1rem;
+    .modal-body input,
+    .modal-body textarea {
+      width: 100%; padding: .75rem;
+      background: var(--input-bg); color: var(--input-text);
+      border: 1px solid #ddd; border-radius: var(--radius);
+      font-size: .95rem; resize: none;
+    }
+    .modal-body input::placeholder,
+    .modal-body textarea::placeholder {
+      color: #aaa;
+    }
+    .btn-upload {
+      display: block; width: 100%;
+      text-align: center; padding: .75rem;
+      background: linear-gradient(135deg, #405de6, #5851db);
+      color: #fff; font-weight: 600;
+      border-radius: var(--radius); cursor: pointer;
+      position: relative; overflow: hidden;
+    }
+    .btn-upload input {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%; opacity: 0; cursor: pointer;
     }
 
-    /* SPINNER */
-    #spinnerOverlay {
-      position:fixed; inset:0; background:rgba(0,0,0,0.3);
-      display:flex; justify-content:center; align-items:center;
-      z-index:300; visibility:hidden;
+    /* พรีวิวรูปขนาดเล็กลง ไม่ล้น modal */
+    .preview-container {
+      text-align: center;
+      width: 80%;
+      max-width: 250px;
+      max-height: 150px;
+      margin: 0 auto;
+      overflow: hidden;
     }
-    #spinnerOverlay.visible { visibility:visible; }
+    .preview-container img {
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      display: block;
+    }
+
+    .modal-footer {
+      padding: var(--spacing); text-align: right;
+      background: rgba(255,255,255,0.8);
+    }
+    .modal-footer button {
+      padding: .6rem 1.4rem; font-weight: 600;
+      background: linear-gradient(135deg, #405de6, #5851db);
+      color: #fff; border: none; border-radius: var(--radius);
+      cursor: pointer; transition: opacity .2s, transform .2s;
+    }
+    .modal-footer button:disabled { opacity: .5; cursor: default; }
+    .modal-footer button:not(:disabled):hover { transform: translateY(-2px); }
+
     .spinner {
-      width:50px; height:50px;
-      border:5px solid #fff; border-top-color:transparent;
-      border-radius:50%; animation:spin 1s linear infinite;
+      width: 16px; height: 16px;
+      border: 2px solid #fff; border-top-color: transparent;
+      border-radius: 50%; display: inline-block;
+      animation: spin 1s linear infinite; vertical-align: middle;
+      margin-right: 6px;
     }
-    @keyframes spin { to{ transform:rotate(360deg)} }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes popHeartFadeShake {
+      0%   { transform: translate(-50%,-50%) scale(0); opacity: 0; }
+      30%  { transform: translate(-50%,-50%) scale(1); opacity: 0.6; }
+      60%  { transform: translate(calc(-50%-5px),-50%) scale(1.1); opacity: 0.8; }
+      70%  { transform: translate(calc(-50%+5px),-50%) scale(1.1); }
+      80%  { transform: translate(-50%,-50%) scale(1); }
+      100% { transform: translate(-50%,-50%) scale(1); opacity: 0; }
+    }
   </style>
 </head>
 <body>
   <header>
-    <div class="logo">Tuck & Tan</div>
-    <div class="actions"><div class="heart">❤</div></div>
+    <h1>Tuck &amp; Tan</h1>
+    <span class="top-heart">
+      <!-- inline SVG ไอคอนหัวใจสีดำ -->
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 21s-1-.45-1-1.12c0-.67.33-1.3.88-1.64C13.2 17.37 14 16.23 14 15c0-1.66-1.34-3-3-3S8 13.34 8 15c0 1.23.8 2.37 2.12 3.24.55.34.88.97.88 1.64C11 20.55 12 21 12 21z"/>
+      </svg>
+    </span>
   </header>
 
-  <div id="root">
-    <div class="feed" id="feed"></div>
-
-    <!-- STEP 1 -->
-    <div id="step1" class="step hidden">
-      <div class="header">
-        <button class="btn" id="backFrom1">&lt; ย้อนกลับ</button>
-        <div>STEP 1: เลือกรูป</div>
-        <div></div>
-      </div>
-      <div style="flex:1;display:flex;justify-content:center;align-items:center">
-        <p>กรุณาเลือกรูปสำหรับโพสต์</p>
-      </div>
-      <input type="file" id="fileInput" accept="image/*" multiple class="hidden">
-    </div>
-
-    <!-- STEP 2 -->
-    <div id="step2" class="step hidden">
-      <div class="header">
-        <button class="btn" id="backFrom2">&lt; ย้อนกลับ</button>
-        <div>STEP 2: พรีวิว</div>
-        <button class="btn" id="toStep3">ถัดไป</button>
-      </div>
-      <div class="slider"><div class="slides" id="slides2"></div></div>
-    </div>
-
-    <!-- STEP 3 -->
-    <div id="step3" class="step hidden">
-      <div class="header">
-        <button class="btn" id="backTo3">&lt; ย้อนกลับ</button>
-        <button class="btn" id="postBtn" disabled>โพสต์</button>
-      </div>
-      <div class="slider"><div class="slides" id="slides3"></div></div>
-      <div class="form">
-        <input type="text" id="nameInput" placeholder="ชื่อของคุณ">
-        <textarea id="textInput" rows="4" placeholder="เขียนคำอวยพรจากใจ 💌"></textarea>
-      </div>
-    </div>
-
-    <div id="spinnerOverlay"><div class="spinner"></div></div>
-  </div>
+  <div class="gallery" id="gallery"></div>
 
   <nav class="bottom-nav">
-    <div class="icon">🏠</div>
-    <div class="icon">🔍</div>
-    <button class="btn-add" id="openBtn">＋</button>
-    <div class="icon">🎥</div>
-    <div class="icon">👤</div>
+    <button id="nav-home">🏠</button>
+    <button id="nav-search">🔍</button>
+    <button id="nav-add" class="primary">＋</button>
+    <button id="nav-heart">❤️</button>
+    <button id="nav-profile">👤</button>
   </nav>
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-  <script>
-  (function(){
-    firebase.initializeApp({
-      apiKey:"AIzaSyBxYY_c14XFroS6dBIh4Jzl9XL4PMjipcg",
-      authDomain:"wishes-web.firebaseapp.com",
-      projectId:"wishes-web"
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>สร้างโพสต์ใหม่</h2>
+        <button id="modalClose" class="modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="text" id="modalName" placeholder="ชื่อของคุณ (ไม่บังคับ)">
+        <textarea id="wishText" rows="4" placeholder="เขียนคำอวยพรของคุณ..." required></textarea>
+        <label class="btn-upload">
+          📷 อัปโหลดรูป
+          <input type="file" id="imgUpload" accept="image/*">
+        </label>
+        <div class="preview-container">
+          <img id="preview" alt="พรีวิวรูป" style="display:none;">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="postBtn" disabled>โพสต์</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+    import {
+      getFirestore, collection, addDoc, query, orderBy, onSnapshot,
+      doc as docRef, updateDoc, deleteDoc, Timestamp
+    } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+
+    const body = document.body;
+    const modal = document.getElementById('modal');
+    document.getElementById('nav-add').onclick = () => {
+      modal.classList.add('show');
+      body.classList.add('modal-open');
+    };
+    document.getElementById('modalClose').onclick = () => {
+      modal.classList.remove('show');
+      body.classList.remove('modal-open');
+    };
+    modal.addEventListener('click', e => {
+      if (e.target === modal) {
+        modal.classList.remove('show');
+        body.classList.remove('modal-open');
+      }
     });
-    const db = firebase.firestore();
 
-    const feed      = document.getElementById('feed');
-    const openBtn   = document.getElementById('openBtn');
-    const backFrom1 = document.getElementById('backFrom1');
-    const backFrom2 = document.getElementById('backFrom2');
-    const toStep3   = document.getElementById('toStep3');
-    const backTo3   = document.getElementById('backTo3');
+    let currentUid = localStorage.getItem('uid');
+    if (!currentUid) {
+      currentUid = crypto.randomUUID();
+      localStorage.setItem('uid', currentUid);
+    }
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBxYY_c14XFroS6dBIh4Jzl9XL4PMjipcg",
+      authDomain: "wishes-web.firebaseapp.com",
+      projectId: "wishes-web",
+      storageBucket: "unused",
+      messagingSenderId: "93224724611",
+      appId: "1:93224724611:web:491aab34365584864fd3b6",
+      measurementId: "G-6HQJWKWB8Z"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db  = getFirestore(app);
+
+    const gallery   = document.getElementById('gallery');
+    const wishText  = document.getElementById('wishText');
+    const modalName = document.getElementById('modalName');
+    const imgUpload = document.getElementById('imgUpload');
+    const preview   = document.getElementById('preview');
     const postBtn   = document.getElementById('postBtn');
-    const fileInput = document.getElementById('fileInput');
-    const nameInput = document.getElementById('nameInput');
-    const textInput = document.getElementById('textInput');
-    const spinner   = document.getElementById('spinnerOverlay');
-    const step1     = document.getElementById('step1');
-    const step2     = document.getElementById('step2');
-    const step3     = document.getElementById('step3');
-    const slides2   = document.getElementById('slides2');
-    const slides3   = document.getElementById('slides3');
 
-    let files = [], idx = 0;
-    let uid = localStorage.getItem('uid') || crypto.randomUUID();
-    localStorage.setItem('uid',uid);
+    const qFeed = query(collection(db,'wishes'), orderBy('createdAt','desc'));
+    onSnapshot(qFeed, snap => {
+      gallery.innerHTML = '';
+      snap.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .filter(p => p.createdAt)
+        .sort((a,b) => b.createdAt.toMillis() - a.createdAt.toMillis())
+        .forEach(p => createCard(p, p.id));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
 
-    // Load feed
-    db.collection('wishes').orderBy('createdAt','desc')
-      .onSnapshot(snap=>{
-        feed.innerHTML='';
-        snap.docs.forEach(doc=>{
-          const w=doc.data(), id=doc.id;
-          if(!w.createdAt)return;
-          const card=document.createElement('div');card.className='card';
-          card.innerHTML=`
-            <img src="${w.imgUrl}">
-            ${w.uid===uid?'<button class="delete-btn">🗑️</button>':''}
-            <div class="actions">
-              <div class="btn-like">🤍<div class="pop-heart">❤️</div></div>
-              <span class="like-count">${w.likes||0}</span>
-            </div>
-            <div class="info"><span class="author">${w.name}:</span> ${w.text}</div>`;
-          if(w.uid===uid)card.querySelector('.delete-btn')
-            .onclick=()=>db.collection('wishes').doc(id).delete();
-          const likeBtn=card.querySelector('.btn-like'),
-                pop=card.querySelector('.pop-heart');
-          likeBtn.ondblclick=async()=>{
-            if((w.likedBy||[]).includes(uid))return;
-            pop.style.display='block';
-            pop.addEventListener('animationend',()=>pop.style.display='none',{once:true});
-            await db.collection('wishes').doc(id).update({
-              likes:(w.likes||0)+1,
-              likedBy:[...(w.likedBy||[]),uid]
-            });
-          };
-          feed.appendChild(card);
+    wishText.oninput = () => postBtn.disabled = !wishText.value.trim();
+    imgUpload.onchange = e => {
+      const f = e.target.files[0];
+      if (!f) return preview.style.display='none';
+      preview.src = URL.createObjectURL(f);
+      preview.style.display = 'block';
+    };
+
+    postBtn.onclick = async () => {
+      postBtn.disabled = true;
+      postBtn.innerHTML = `<span class="spinner"></span>กำลังโพสต์`;
+      const text = wishText.value.trim();
+      const name = modalName.value.trim() || 'แขกผู้มีเกียรติ';
+      let imgUrl = 'https://via.placeholder.com/320x400?text=No+Image';
+      const f = imgUpload.files[0];
+      if (f) {
+        const img = await new Promise(r => {
+          const i = new Image(); i.onload = () => r(i);
+          i.src = URL.createObjectURL(f);
         });
-      });
-
-    // Helpers
-    const show=el=>el.classList.remove('hidden'),
-          hide=el=>el.classList.add('hidden');
-
-    function readFileAsDataURL(file){
-      return new Promise(res=>{
-        const r=new FileReader();
-        r.onload=()=>res(r.result);
-        r.readAsDataURL(file);
-      });
-    }
-
-    function render(container,list,withTrash){
-      container.innerHTML='';
-      list.forEach((f,i)=>{
-        const div=document.createElement('div');div.className='slide';
-        div.style.transform=`translateX(${(i-idx)*100}%)`;
-        const img=document.createElement('img');img.src=URL.createObjectURL(f);
-        div.appendChild(img);
-        if(withTrash){
-          const b=document.createElement('button');
-          b.className='trash';b.textContent='🗑️';
-          b.onclick=()=>{
-            files.splice(i,1);
-            if(!files.length){ hide(step1); return; }
-            idx%=files.length; render(slides2,files,true); render(slides3,files,false);
-          };
-          div.appendChild(b);
+        let [w,h] = [img.width,img.height], max = 800;
+        if (Math.max(w,h)>max) {
+          const ratio = max/Math.max(w,h);
+          w*=ratio; h*=ratio;
         }
-        container.appendChild(div);
+        const c = document.createElement('canvas');
+        c.width=w; c.height=h;
+        const ctx = c.getContext('2d');
+        ctx.imageSmoothingEnabled=true;
+        ctx.imageSmoothingQuality='high';
+        ctx.drawImage(img,0,0,w,h);
+        let q=0.95,data;
+        do {
+          data=c.toDataURL('image/jpeg',q);
+          q-=0.05;
+        } while(data.length>1_000_000&&q>0.1);
+        imgUrl=data;
+      }
+      await addDoc(collection(db,'wishes'), {
+        name,text,imgUrl,
+        likes:0,likedBy:[],uid:currentUid,
+        createdAt:Timestamp.now()
+      });
+      wishText.value='';
+      modalName.value='';
+      imgUpload.value='';
+      preview.style.display='none';
+      postBtn.innerText='โพสต์';
+      postBtn.disabled=true;
+      modal.classList.remove('show');
+      body.classList.remove('modal-open');
+    };
+
+    function animateHeart(card) {
+      const h = document.createElement('div');
+      h.textContent='❤';
+      Object.assign(h.style,{
+        position:'absolute',top:'50%',left:'50%',
+        fontSize:'4rem',color:'rgba(224,36,94,0.6)',
+        animation:'popHeartFadeShake .8s forwards',pointerEvents:'none'
+      });
+      card.querySelector('.img-wrapper').appendChild(h);
+      h.addEventListener('animationend',()=>h.remove());
+    }
+    async function handleLike(id,w) {
+      if((w.likedBy||[]).includes(currentUid)) return;
+      await updateDoc(docRef(db,'wishes',id),{
+        likes:(w.likes||0)+1,
+        likedBy:[...(w.likedBy||[]),currentUid]
       });
     }
-
-    // Step1
-    backFrom1.onclick=()=>hide(step1);
-    openBtn.onclick=()=>{ show(step1); fileInput.click(); };
-
-    // File select
-    fileInput.onchange=e=>{
-      files=Array.from(e.target.files);
-      if(files.length){
-        idx=0; render(slides2,files,true); render(slides3,files,false);
-        hide(step1); show(step2);
-      } else hide(step1);
-    };
-
-    // Step2 back/next
-    backFrom2.onclick=()=>{ hide(step2); show(step1); fileInput.value=''; };
-    toStep3.onclick=()=>{ hide(step2); show(step3); postBtn.disabled=!textInput.value.trim(); };
-
-    // Step3 back
-    backTo3.onclick=()=>{ hide(step3); show(step2); };
-
-    textInput.oninput=()=>postBtn.disabled=!textInput.value.trim();
-
-    postBtn.onclick=async()=>{
-      spinner.classList.add('visible');
-      try{
-        const file=files[idx];
-        let imgData='';
-        if(file) imgData=await readFileAsDataURL(file);
-        await db.collection('wishes').add({
-          name:nameInput.value.trim()||'แขกผู้มีเกียรติ',
-          text:textInput.value.trim(),
-          imgUrl:imgData, likes:0, likedBy:[], uid,
-          createdAt:firebase.firestore.Timestamp.now()
-        });
-      }catch(e){console.error(e)}
-      spinner.classList.remove('visible');
-      hide(step3);
-      nameInput.value=''; textInput.value=''; fileInput.value='';
-    };
-
-    // Init
-    hide(step1); hide(step2); hide(step3);
-  })();
+    function createCard(w,id) {
+      const card=document.createElement('div');
+      card.className='card';
+      const delBtn=w.uid===currentUid
+        ?`<button class="delete-btn" title="ลบโพสต์">🗑️</button>`:'';
+      card.innerHTML=`
+        <div class="img-wrapper" style="position:relative;">
+          <img src="${w.imgUrl}"/>${delBtn}
+        </div>
+        <div class="like-indicator">
+          <span class="heart-icon">♥</span>
+          <span class="like-count">${w.likes||0}</span>
+        </div>
+        <div class="info">
+          <span class="author">${w.name}:</span>
+          <span class="wish">${w.text}</span>
+        </div>`;
+      const imgEl=card.querySelector('img');
+      imgEl.addEventListener('dblclick',async e=>{
+        e.stopPropagation(); animateHeart(card);
+        await handleLike(id,w);
+      });
+      if(w.uid===currentUid) {
+        card.querySelector('.delete-btn').onclick=async e=>{
+          e.stopPropagation();
+          if(confirm('ลบโพสต์นี้?')) await deleteDoc(docRef(db,'wishes',id));
+        };
+      }
+      gallery.append(card);
+    }
   </script>
 </body>
 </html>
