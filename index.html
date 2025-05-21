@@ -53,7 +53,10 @@
     }
     .card:hover { transform:translateY(-4px) }
     .card img { width:100%; display:block }
-    .like-indicator { display:flex; align-items:center; padding:.5rem 1rem; font-size:.9rem }
+    .like-indicator {
+      display:flex; align-items:center;
+      padding:.5rem 1rem; font-size:.9rem;
+    }
     .heart-icon { margin-right:.25rem; color:#e0245e }
     .info { padding:0 1rem 1rem; font-size:.95rem }
     .author { font-weight:500 }
@@ -176,10 +179,13 @@
   <header>
     <h1>Tuck &amp; Tan</h1>
     <span class="top-heart">
-      <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5
-        2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3
-        16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
-        fill="#e0245e"/></svg>
+      <svg viewBox="0 0 24 24">
+        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5
+                 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09
+                 C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42
+                 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+              fill="#e0245e"/>
+      </svg>
     </span>
   </header>
 
@@ -243,6 +249,13 @@
     const app = initializeApp(firebaseConfig);
     const db  = getFirestore(app);
 
+    // Current user ID
+    let currentUid = localStorage.getItem('uid');
+    if (!currentUid) {
+      currentUid = crypto.randomUUID();
+      localStorage.setItem('uid', currentUid);
+    }
+
     let selectedFiles = [], currentStep = 1, initialized = false;
     const body = document.body;
     const gallery = document.getElementById('gallery');
@@ -260,7 +273,7 @@
     const wizName       = document.getElementById('wizName');
     const wizText       = document.getElementById('wizText');
 
-    // Feed listener (incremental)
+    // Incremental feed listener
     const qFeed = query(collection(db,'wishes'), orderBy('createdAt','desc'));
     onSnapshot(qFeed, snap => {
       snap.docChanges().forEach(change => {
@@ -282,43 +295,50 @@
       initialized = true;
     });
 
+    // Create or prepend a card
     function addCard(w, id, prepend) {
       const card = document.createElement('div');
       card.className = 'card';
       card.dataset.id = id;
-      // innerHTML เดิม
-      const delBtn = w.uid===localStorage.getItem('uid')
+
+      // Determine if current user already liked
+      const hasLiked = Array.isArray(w.likedBy) && w.likedBy.includes(currentUid);
+      if (hasLiked) {
+        card.dataset.liked = 'true';
+      }
+
+      const delBtn = w.uid === currentUid
         ? `<button class="delete-btn" title="ลบโพสต์">🗑️</button>` : '';
       card.innerHTML = `
         <div class="img-wrapper" style="position:relative;">
           <img src="${w.imgUrl}"/>${delBtn}
         </div>
         <div class="like-indicator">
-          <span class="heart-icon">♥</span>
+          <span class="heart-icon" style="${hasLiked?'opacity:0.6;':''}">♥</span>
           <span class="like-count">${w.likes||0}</span>
         </div>
         <div class="info">
           <span class="author">${w.name}:</span>
           <span class="wish">${w.text}</span>
         </div>`;
-      // double-click like (optimistic, non-blocking)
+
+      // Double-click to like (once per user)
       const imgEl = card.querySelector('img');
       imgEl.addEventListener('dblclick', e => {
         e.stopPropagation();
-        // prevent multi-like
-        if (card.dataset.liked) return;
+        if (card.dataset.liked === 'true') return;
         card.dataset.liked = 'true';
         animateHeart(card);
         const countEl = card.querySelector('.like-count');
-        countEl.innerText = parseInt(countEl.innerText)+1;
-        // write to Firestore
+        countEl.innerText = parseInt(countEl.innerText,10) + 1;
         updateDoc(docRef(db,'wishes',id), {
-          likes: (w.likes||0)+1,
-          likedBy: [...(w.likedBy||[]), localStorage.getItem('uid')]
+          likes: (w.likes||0) + 1,
+          likedBy: [...(w.likedBy||[]), currentUid]
         }).catch(console.error);
       });
-      // delete
-      if (w.uid===localStorage.getItem('uid')) {
+
+      // Delete own post
+      if (w.uid === currentUid) {
         card.querySelector('.delete-btn').onclick = async e => {
           e.stopPropagation();
           if (confirm('ลบโพสต์นี้?')) {
@@ -326,12 +346,12 @@
           }
         };
       }
-      // add to DOM
+
       if (prepend) gallery.prepend(card);
       else         gallery.append(card);
     }
 
-    // double-tap heart animation
+    // Heart pop animation
     function animateHeart(card){
       const h = document.createElement('div');
       h.textContent = '❤';
@@ -402,7 +422,7 @@
         }
         await addDoc(collection(db,'wishes'), {
           name, text, imgUrl,
-          likes: 0, likedBy: [], uid: localStorage.getItem('uid'),
+          likes: 0, likedBy: [], uid: currentUid,
           createdAt: Timestamp.now()
         });
       }
