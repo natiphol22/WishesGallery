@@ -17,7 +17,7 @@
       padding:0 1rem; box-shadow:0 1px 3px rgba(0,0,0,0.1); z-index:100;
       font-family:'Grand Hotel',cursive; font-size:1.8rem;
     }
-    header .actions .heart { font-size:1.4rem; color:#000; cursor:pointer; }
+    header .heart { font-size:1.4rem; color:#000; cursor:pointer; }
 
     /* FEED */
     #root { padding-top:60px; padding-bottom:60px }
@@ -28,18 +28,12 @@
       box-shadow:0 4px 12px rgba(0,0,0,0.05); position:relative;
     }
     .card img { width:100%; height:auto; object-fit:contain }
-    .card .actions {
-      display:flex; align-items:center; padding:.5rem 1rem; gap:.5rem;
-    }
-    .card .btn-like { font-size:1.6rem; cursor:pointer }
-    .card .like-count { font-size:.9rem }
-    .card .info {
-      padding:.5rem 1rem; font-size:.95rem;
-    }
-    .card .info .author { font-weight:600; margin-right:.25rem }
-    .card .delete-btn {
-      position:absolute; top:8px; left:8px; font-size:1rem; cursor:pointer;
-    }
+    .actions { display:flex; align-items:center; padding:.5rem 1rem; gap:.5rem }
+    .btn-like { font-size:1.6rem; cursor:pointer }
+    .like-count { font-size:.9rem }
+    .info { padding:.5rem 1rem; font-size:.95rem }
+    .author { font-weight:600; margin-right:.25rem }
+    .delete-btn { position:absolute; top:8px; left:8px; font-size:1rem; cursor:pointer }
 
     /* BOTTOM NAV */
     .bottom-nav {
@@ -47,8 +41,8 @@
       background:#fff; display:flex; justify-content:space-around; align-items:center;
       box-shadow:0 -1px 3px rgba(0,0,0,0.1); z-index:100;
     }
-    .bottom-nav .icon { font-size:1.6rem; cursor:pointer }
-    .bottom-nav .btn-add {
+    .icon { font-size:1.6rem; cursor:pointer }
+    .btn-add {
       font-size:2rem; width:48px; height:48px;
       background:linear-gradient(135deg,#405de6,#5851db);
       color:#fff; border-radius:50%; display:flex;
@@ -67,33 +61,29 @@
       border-bottom:1px solid #e0e0e0;
       font-family:'Grand Hotel',cursive; font-size:1.2rem;
     }
-    .step .header .btn {
+    .step .btn {
       font-family:'Sarabun',sans-serif; color:#0095f6;
       font-size:1rem; cursor:pointer;
     }
-    .step .slider {
-      flex:1; overflow:hidden; background:#000;
-    }
+    .slider { flex:1; overflow:hidden; background:#000 }
     .slides { display:flex; height:100%; transition:transform .3s ease }
     .slide {
       min-width:100%; display:flex; justify-content:center; align-items:center;
       position:relative;
     }
-    .slide img {
-      max-width:100%; max-height:100%; object-fit:contain;
-    }
-    .slide .trash {
+    .slide img { max-width:100%; max-height:100%; object-fit:contain }
+    .trash {
       position:absolute; top:10px; right:10px; font-size:1.2rem;
       background:rgba(255,255,255,0.8); border-radius:50%; padding:.4rem;
       cursor:pointer;
     }
     #step3 .slider { height:40vh }
-
-    .step .form {
+    .form {
       padding:1rem; display:flex; flex-direction:column; gap:.5rem;
     }
-    .step .form input, .step .form textarea {
-      width:100%; padding:.8rem; border:1px solid #ddd; border-radius:8px; font-size:1rem;
+    .form input, .form textarea {
+      width:100%; padding:.8rem; border:1px solid #ddd; border-radius:8px;
+      font-size:1rem;
     }
 
     /* SPINNER */
@@ -108,19 +98,19 @@
       border:5px solid #fff; border-top-color:transparent;
       border-radius:50%; animation:spin 1s linear infinite;
     }
-    @keyframes spin{ to{transform:rotate(360deg)} }
+    @keyframes spin { to{transform:rotate(360deg)} }
   </style>
 </head>
 <body>
   <header>
     <div class="logo">Tuck & Tan</div>
-    <div class="actions"><div class="heart">❤</div></div>
+    <div class="heart">❤</div>
   </header>
 
   <div id="root">
     <div class="feed" id="feed"></div>
 
-    <!-- STEP1 -->
+    <!-- STEP 1 -->
     <div id="step1" class="step hidden">
       <div class="header">
         <button class="btn" id="backFrom1">&lt; ย้อนกลับ</button>
@@ -133,7 +123,7 @@
       <input type="file" id="fileInput" accept="image/*" multiple class="hidden">
     </div>
 
-    <!-- STEP2 -->
+    <!-- STEP 2 -->
     <div id="step2" class="step hidden">
       <div class="header">
         <button class="btn" id="backFrom2">&lt; ย้อนกลับ</button>
@@ -143,11 +133,11 @@
       <div class="slider"><div class="slides" id="slides2"></div></div>
     </div>
 
-    <!-- STEP3 -->
+    <!-- STEP 3 -->
     <div id="step3" class="step hidden">
       <div class="header">
         <button class="btn" id="backTo3">&lt; ย้อนกลับ</button>
-        <button class="btn" id="postBtn" disabled>โพสต์</button>
+        <button class="btn" id="postBtn">โพสต์</button>
       </div>
       <div class="slider"><div class="slides" id="slides3"></div></div>
       <div class="form">
@@ -206,9 +196,9 @@
       .onSnapshot(snap=>{
         feed.innerHTML = '';
         snap.docs.forEach(doc=>{
-          const w=doc.data(), id=doc.id;
+          const w = doc.data(), id = doc.id;
           if(!w.createdAt) return;
-          const card=document.createElement('div'); card.className='card';
+          const card = document.createElement('div'); card.className='card';
           card.innerHTML = `
             <img src="${w.imgUrl}">
             ${w.uid===uid?'<button class="delete-btn">🗑️</button>':''}
@@ -217,13 +207,14 @@
               <span class="like-count">${w.likes||0}</span>
             </div>
             <div class="info"><span class="author">${w.name}:</span> ${w.text}</div>`;
-          if(w.uid===uid) card.querySelector('.delete-btn')
-            .onclick=()=>db.collection('wishes').doc(id).delete();
-          card.querySelector('.btn-like').onclick=async()=>{
+          if(w.uid===uid){
+            card.querySelector('.delete-btn').onclick = ()=> db.collection('wishes').doc(id).delete();
+          }
+          card.querySelector('.btn-like').onclick = async ()=>{
             if((w.likedBy||[]).includes(uid)) return;
             await db.collection('wishes').doc(id).update({
-              likes:(w.likes||0)+1,
-              likedBy:[...(w.likedBy||[]),uid]
+              likes: (w.likes||0)+1,
+              likedBy: [...(w.likedBy||[]), uid]
             });
           };
           feed.appendChild(card);
@@ -236,25 +227,27 @@
 
     function readFileAsDataURL(file){
       return new Promise(res=>{
-        const r=new FileReader();
-        r.onload=()=>res(r.result);
+        const r = new FileReader();
+        r.onload = ()=> res(r.result);
         r.readAsDataURL(file);
       });
     }
 
     function render(container,list,withTrash){
-      container.innerHTML='';
+      container.innerHTML = '';
       list.forEach((f,i)=>{
-        const div=document.createElement('div'); div.className='slide';
-        div.style.transform=`translateX(${(i-idx)*100}%)`;
-        const img=document.createElement('img'); img.src=URL.createObjectURL(f);
+        const div = document.createElement('div'); div.className='slide';
+        div.style.transform = `translateX(${(i-idx)*100}%)`;
+        const img = document.createElement('img'); img.src = URL.createObjectURL(f);
         div.appendChild(img);
         if(withTrash){
-          const b=document.createElement('button'); b.className='trash'; b.textContent='🗑️';
-          b.onclick=()=>{
+          const b = document.createElement('button'); b.className='trash'; b.textContent='🗑️';
+          b.onclick = ()=>{
             files.splice(i,1);
             if(!files.length){ hide(step1); return; }
-            idx%=files.length; render(slides2,files,true); render(slides3,files,false);
+            idx %= files.length;
+            render(slides2, files, true);
+            render(slides3, files, false);
           };
           div.appendChild(b);
         }
@@ -262,56 +255,63 @@
       });
     }
 
-    // Step1
-    backFrom1.onclick=()=>hide(step1);
-    openBtn.onclick=()=>{ show(step1); fileInput.click(); };
+    // Step 1
+    backFrom1.onclick = ()=> hide(step1);
+    openBtn.onclick   = ()=>{ show(step1); fileInput.click(); };
 
-    fileInput.onchange=e=>{
-      files=Array.from(e.target.files);
+    fileInput.onchange = e=>{
+      files = Array.from(e.target.files);
       if(files.length){
-        idx=0; render(slides2,files,true); render(slides3,files,false);
+        idx = 0;
+        render(slides2, files, true);
+        render(slides3, files, false);
         hide(step1); show(step2);
       } else hide(step1);
     };
 
-    // Step2 back/next
-    backFrom2.onclick=()=>{ hide(step2); show(step1); fileInput.value=''; };
-    toStep3.onclick=()=>{ hide(step2); show(step3); postBtn.disabled=!textInput.value.trim(); };
+    // Step 2
+    backFrom2.onclick = ()=>{
+      hide(step2); show(step1); fileInput.value = '';
+    };
+    toStep3.onclick   = ()=>{ hide(step2); show(step3); };
 
-    // Step3 back
-    backTo3.onclick=()=>{ hide(step3); show(step2); };
-
-    textInput.oninput=()=> postBtn.disabled=!textInput.value.trim();
-
-    // Post
-    postBtn.onclick=async()=>{
+    // Step 3
+    backTo3.onclick   = ()=>{ hide(step3); show(step2); };
+    postBtn.onclick   = async ()=>{
       show(spinner);
-      try{
-        const file=files[idx];
-        let data='';
-        if(file) data=await readFileAsDataURL(file);
-        // Immediately prepend new card
-        const card=document.createElement('div'); card.className='card';
-        card.innerHTML=`
+      try {
+        const f = files[idx];
+        let data = '';
+        if(f) data = await readFileAsDataURL(f);
+        // Prepend new card immediately
+        const card = document.createElement('div'); card.className='card';
+        card.innerHTML = `
           <img src="${data}">
           <div class="actions"><div class="btn-like">🤍</div><span class="like-count">0</span></div>
           <div class="info"><span class="author">${nameInput.value.trim()||'แขกผู้มีเกียรติ'}:</span> ${textInput.value.trim()}</div>`;
         feed.prepend(card);
 
         await db.collection('wishes').add({
-          name:nameInput.value.trim()||'แขกผู้มีเกียรติ',
-          text:textInput.value.trim(),
-          imgUrl:data,
-          likes:0, likedBy:[], uid,
-          createdAt:firebase.firestore.Timestamp.now()
+          name: nameInput.value.trim()||'แขกผู้มีเกียรติ',
+          text: textInput.value.trim(),
+          imgUrl: data,
+          likes: 0, likedBy: [], uid,
+          createdAt: firebase.firestore.Timestamp.now()
         });
-      }catch(e){console.error(e);}
-      hide(spinner); hide(step3);
-      nameInput.value=''; textInput.value=''; fileInput.value='';
+      } catch(err) {
+        console.error(err);
+      }
+      hide(spinner);
+      hide(step3);
+      nameInput.value = '';
+      textInput.value = '';
+      fileInput.value = '';
     };
 
-    // Init
-    hide(step1); hide(step2); hide(step3);
+    // Initialize
+    hide(step1);
+    hide(step2);
+    hide(step3);
   })();
   </script>
 </body>
