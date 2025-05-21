@@ -2,152 +2,329 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Tuck & Tan</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600&family=Grand+Hotel&display=swap" rel="stylesheet"/>
   <style>
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Sarabun',sans-serif;background:#fafafa;color:#262626}
-    img,button{background:none;border:none;}
-    header{position:fixed;top:0;left:0;right:0;height:60px;
-      background:#fff;display:flex;align-items:center;justify-content:space-between;
-      padding:0 1rem;box-shadow:0 1px 3px rgba(0,0,0,0.1);z-index:100;
-      font-family:'Grand Hotel',cursive;font-size:1.8rem;}
-    header .heart{font-size:1.4rem;cursor:pointer;}
-    #root{padding-top:60px;padding-bottom:60px}
-    .feed{width:100%}
-    .card{background:#fff;border:1px solid #e0e0e0;border-radius:12px;
-      margin:0.5rem auto;max-width:480px;overflow:hidden;
-      box-shadow:0 4px 12px rgba(0,0,0,0.05);position:relative;}
-    .card img{width:100%;object-fit:contain;}
-    .actions{display:flex;align-items:center;padding:.5rem 1rem;gap:.5rem}
-    .btn-like{font-size:1.6rem;cursor:pointer}
-    .like-count{font-size:.9rem}
-    .info{padding:.5rem 1rem;font-size:.95rem}
-    .author{font-weight:600;margin-right:.25rem}
-    .delete-btn{position:absolute;top:8px;left:8px;cursor:pointer}
-    .bottom-nav{position:fixed;bottom:0;left:0;right:0;height:60px;
-      background:#fff;display:flex;justify-content:space-around;align-items:center;
-      box-shadow:0 -1px 3px rgba(0,0,0,0.1);z-index:100}
-    .icon{font-size:1.6rem;cursor:pointer}
-    .btn-add{font-size:2rem;width:48px;height:48px;
+    * { box-sizing:border-box; margin:0; padding:0 }
+    body { font-family:'Sarabun',sans-serif; background:#fafafa; color:#262626; }
+    img,button { background:none; border:none; }
+
+    /* HEADER */
+    header {
+      position:fixed; top:0; left:0; right:0; height:60px;
+      background:#fff; display:flex; align-items:center; justify-content:space-between;
+      padding:0 1rem; box-shadow:0 1px 3px rgba(0,0,0,0.1); z-index:100;
+      font-family:'Grand Hotel',cursive; font-size:1.8rem;
+    }
+    header .actions .heart { font-size:1.4rem; color:#000; cursor:pointer; }
+
+    /* FEED */
+    #root { padding-top:60px; padding-bottom:60px; }
+    .feed { width:100%; }
+    .card {
+      background:#fff; margin:0.5rem auto; max-width:480px;
+      border:1px solid #e0e0e0; border-radius:12px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.05); position:relative;
+    }
+    .card img {
+      width:100%; height:auto; object-fit:contain;
+    }
+    .card .actions {
+      display:flex; align-items:center; padding:.5rem 1rem; gap:.5rem;
+    }
+    .card .btn-like {
+      position:relative; font-size:1.6rem; cursor:pointer;
+    }
+    .card .btn-like .pop-heart {
+      position:absolute; top:50%; left:50%;
+      transform:translate(-50%,-50%) scale(0);
+      font-size:3rem; color:rgba(224,36,94,0.6);
+      animation:pop 0.8s forwards; pointer-events:none;
+    }
+    @keyframes pop {
+      0%{transform:translate(-50%,-50%) scale(0);opacity:0}
+      30%{transform:translate(-50%,-50%) scale(1);opacity:.6}
+      60%{transform:translate(-50%,-50%) scale(1.2);opacity:.8}
+      100%{transform:translate(-50%,-50%) scale(1);opacity:0}
+    }
+    .card .like-count { font-size:.9rem; }
+    .card .info {
+      padding:.5rem 1rem; font-size:.95rem;
+    }
+    .card .info .author { font-weight:600; margin-right:.25rem; }
+    .card .delete-btn {
+      position:absolute; top:8px; left:8px; font-size:1rem; cursor:pointer;
+    }
+
+    /* BOTTOM NAV */
+    .bottom-nav {
+      position:fixed; bottom:0; left:0; right:0; height:60px;
+      background:#fff; display:flex; justify-content:space-around; align-items:center;
+      box-shadow:0 -1px 3px rgba(0,0,0,0.1); z-index:100;
+    }
+    .bottom-nav .icon { font-size:1.6rem; cursor:pointer; }
+    .bottom-nav .btn-add {
+      font-size:2rem; width:48px; height:48px;
       background:linear-gradient(135deg,#405de6,#5851db);
-      color:#fff;border-radius:50%;display:flex;
-      align-items:center;justify-content:center;cursor:pointer}
-    .hidden{display:none!important}
-    .step{position:fixed;inset:0;background:#fff;display:flex;flex-direction:column;z-index:200}
-    .step .header{height:60px;display:flex;align-items:center;
-      justify-content:space-between;padding:0 1rem;border-bottom:1px solid #e0e0e0;
-      font-family:'Grand Hotel',cursive;font-size:1.2rem}
-    .step .btn{font-family:'Sarabun',sans-serif;color:#0095f6;font-size:1rem;cursor:pointer}
-    .slider{flex:1;overflow:hidden;background:#000}
-    .slides{display:flex;height:100%;transition:transform .3s ease}
-    .slide{min-width:100%;display:flex;justify-content:center;align-items:center;position:relative}
-    .slide img{max-width:100%;max-height:100%;object-fit:contain}
-    .trash{position:absolute;top:10px;right:10px;font-size:1.2rem;
-      background:rgba(255,255,255,0.8);border-radius:50%;padding:.4rem;cursor:pointer}
-    #step3 .slider{height:40vh}
-    .form{padding:1rem;display:flex;flex-direction:column;gap:.5rem}
-    .form input,.form textarea{width:100%;padding:.8rem;border:1px solid #ddd;border-radius:8px;font-size:1rem}
-    #spinnerOverlay{position:fixed;inset:0;background:rgba(0,0,0,0.3);
-      display:flex;justify-content:center;align-items:center;z-index:300;visibility:hidden}
-    #spinnerOverlay.visible{visibility:visible}
-    .spinner{width:50px;height:50px;border:5px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite}
-    @keyframes spin{to{transform:rotate(360deg)}}
+      color:#fff; border-radius:50%; display:flex;
+      align-items:center; justify-content:center; cursor:pointer;
+    }
+
+    /* MULTI-STEP */
+    .hidden { display:none!important; }
+    .step {
+      position:fixed; inset:0; background:#fff;
+      display:flex; flex-direction:column; z-index:200;
+    }
+    .step .header {
+      height:60px; display:flex; align-items:center;
+      justify-content:space-between; padding:0 1rem;
+      border-bottom:1px solid #e0e0e0;
+      font-family:'Grand Hotel',cursive; font-size:1.2rem;
+    }
+    .step .header .btn {
+      font-family:'Sarabun',sans-serif; color:#0095f6;
+      font-size:1rem; cursor:pointer;
+    }
+    .step .slider {
+      flex:1; overflow:hidden; background:#000;
+    }
+    .slides { display:flex; height:100%; transition:transform .3s ease; }
+    .slide {
+      min-width:100%; display:flex; justify-content:center; align-items:center;
+      position:relative;
+    }
+    .slide img {
+      max-width:100%; max-height:100%; object-fit:contain;
+    }
+    .slide .trash {
+      position:absolute; top:10px; right:10px; font-size:1.2rem;
+      background:rgba(255,255,255,0.8); border-radius:50%; padding:.4rem;
+      cursor:pointer;
+    }
+    #step3 .slider { height:40vh; }
+
+    .step .form {
+      padding:1rem; display:flex; flex-direction:column; gap:.5rem;
+    }
+    .step .form input, .step .form textarea {
+      width:100%; padding:.8rem; border:1px solid #ddd; border-radius:8px;
+      font-size:1rem;
+    }
+
+    /* SPINNER */
+    #spinnerOverlay {
+      position:fixed; inset:0; background:rgba(0,0,0,0.3);
+      display:flex; justify-content:center; align-items:center;
+      z-index:300; visibility:hidden;
+    }
+    #spinnerOverlay.visible { visibility:visible; }
+    .spinner {
+      width:50px; height:50px;
+      border:5px solid #fff; border-top-color:transparent;
+      border-radius:50%; animation:spin 1s linear infinite;
+    }
+    @keyframes spin { to{ transform:rotate(360deg)} }
   </style>
 </head>
 <body>
   <header>
     <div class="logo">Tuck & Tan</div>
-    <div class="heart">❤</div>
+    <div class="actions"><div class="heart">❤</div></div>
   </header>
+
   <div id="root">
     <div class="feed" id="feed"></div>
+
+    <!-- STEP 1 -->
     <div id="step1" class="step hidden">
       <div class="header">
-        <button class="btn" id="back1">&lt; ย้อนกลับ</button><div>STEP 1: เลือกรูป</div><div></div>
+        <button class="btn" id="backFrom1">&lt; ย้อนกลับ</button>
+        <div>STEP 1: เลือกรูป</div>
+        <div></div>
       </div>
-      <div style="flex:1;display:flex;justify-content:center;align-items:center"><p>เลือกรูปสำหรับโพสต์</p></div>
+      <div style="flex:1;display:flex;justify-content:center;align-items:center">
+        <p>กรุณาเลือกรูปสำหรับโพสต์</p>
+      </div>
       <input type="file" id="fileInput" accept="image/*" multiple class="hidden">
     </div>
+
+    <!-- STEP 2 -->
     <div id="step2" class="step hidden">
       <div class="header">
-        <button class="btn" id="back2">&lt; ย้อนกลับ</button><div>STEP 2: พรีวิว</div>
-        <button class="btn" id="to3">ถัดไป</button>
+        <button class="btn" id="backFrom2">&lt; ย้อนกลับ</button>
+        <div>STEP 2: พรีวิว</div>
+        <button class="btn" id="toStep3">ถัดไป</button>
       </div>
       <div class="slider"><div class="slides" id="slides2"></div></div>
     </div>
+
+    <!-- STEP 3 -->
     <div id="step3" class="step hidden">
       <div class="header">
-        <button class="btn" id="back3">&lt; ย้อนกลับ</button><button class="btn" id="postBtn">โพสต์</button>
+        <button class="btn" id="backTo3">&lt; ย้อนกลับ</button>
+        <button class="btn" id="postBtn" disabled>โพสต์</button>
       </div>
       <div class="slider"><div class="slides" id="slides3"></div></div>
-      <div class="form"><input type="text" id="nameInput" placeholder="ชื่อของคุณ">
-      <textarea id="textInput" rows="4" placeholder="เขียนคำอวยพรจากใจ 💌"></textarea></div>
+      <div class="form">
+        <input type="text" id="nameInput" placeholder="ชื่อของคุณ">
+        <textarea id="textInput" rows="4" placeholder="เขียนคำอวยพรจากใจ 💌"></textarea>
+      </div>
     </div>
+
     <div id="spinnerOverlay"><div class="spinner"></div></div>
   </div>
+
   <nav class="bottom-nav">
-    <div class="icon">🏠</div><div class="icon">🔍</div>
+    <div class="icon">🏠</div>
+    <div class="icon">🔍</div>
     <button class="btn-add" id="openBtn">＋</button>
-    <div class="icon">🎥</div><div class="icon">👤</div>
+    <div class="icon">🎥</div>
+    <div class="icon">👤</div>
   </nav>
 
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
   <script>
   (function(){
-    firebase.initializeApp({apiKey:"AIzaSyBxYY...",authDomain:"wishes-web.firebaseapp.com",projectId:"wishes-web"});
-    const db=firebase.firestore();
-    const feed=document.getElementById('feed'),openBtn=document.getElementById('openBtn'),
-          back1=document.getElementById('back1'),back2=document.getElementById('back2'),
-          to3=document.getElementById('to3'),back3=document.getElementById('back3'),
-          postBtn=document.getElementById('postBtn'),fileInput=document.getElementById('fileInput'),
-          nameInput=document.getElementById('nameInput'),textInput=document.getElementById('textInput'),
-          spinner=document.getElementById('spinnerOverlay'),
-          step1=document.getElementById('step1'),step2=document.getElementById('step2'),
-          step3=document.getElementById('step3'),
-          slides2=document.getElementById('slides2'),slides3=document.getElementById('slides3');
-    let files=[],idx=0;const uid=localStorage.getItem('uid')||crypto.randomUUID();localStorage.setItem('uid',uid);
-    db.collection('wishes').orderBy('createdAt','desc').onSnapshot(snap=>{feed.innerHTML='';snap.docs.forEach(doc=>{
-      const w=doc.data(),id=doc.id;if(!w.createdAt)return;
-      const c=document.createElement('div');c.className='card';
-      c.innerHTML=`<img src="${w.imgUrl}">${w.uid===uid?'<button class="delete-btn">🗑️</button>':''}
-      <div class="actions"><div class="btn-like">🤍</div><span class="like-count">${w.likes||0}</span></div>
-      <div class="info"><span class="author">${w.name}:</span> ${w.text}</div>`;
-      if(w.uid===uid)c.querySelector('.delete-btn').onclick=()=>db.collection('wishes').doc(id).delete();
-      c.querySelector('.btn-like').onclick=async()=>{if((w.likedBy||[]).includes(uid))return;
-        await db.collection('wishes').doc(id).update({likes:(w.likes||0)+1,likedBy:[...(w.likedBy||[]),uid]});};
-      feed.appendChild(c);
-    });});
-    const show=el=>el.classList.remove('hidden'),hide=el=>el.classList.add('hidden');
-    function readURL(f){return new Promise(r=>{const R=new FileReader();R.onload=()=>r(R.result);R.readAsDataURL(f);});}
-    function render(c,L,T){c.innerHTML='';L.forEach((f,i)=>{const d=document.createElement('div');d.className='slide';
-      d.style.transform=`translateX(${(i-idx)*100}%)`;const iE=document.createElement('img');iE.src=URL.createObjectURL(f);d.appendChild(iE);
-      if(T){const b=document.createElement('button');b.className='trash';b.textContent='🗑️';b.onclick=()=>{
-        files.splice(i,1);if(!files.length){hide(step1);return;}idx%=files.length;render(slides2,files,true);render(slides3,files,false);};d.appendChild(b);}
-      c.appendChild(d);
-    });}
-    back1.onclick=()=>hide(step1);openBtn.onclick=()=>{show(step1);fileInput.click();};
-    fileInput.onchange=e=>{files=Array.from(e.target.files);if(files.length){idx=0;render(slides2,files,true);render(slides3,files,false);hide(step1);show(step2);}
-      else hide(step1);};
-    back2.onclick=()=>{hide(step2);show(step1);fileInput.value='';};to3.onclick=()=>{hide(step2);show(step3);};
-    back3.onclick=()=>{hide(step3);show(step2);};
-    postBtn.onclick=async()=>{
-      show(spinner);
-      try{
-        const f=files[idx];const p=f?URL.createObjectURL(f):'https://via.placeholder.com/320x400?text=No+Image';
-        const nc=document.createElement('div');nc.className='card';
-        nc.innerHTML=`<img src="${p}"><div class="actions"><div class="btn-like">🤍</div><span class="like-count">0</span></div>
-          <div class="info"><span class="author">${nameInput.value.trim()||'แขกผู้มีเกียรติ'}:</span> ${textInput.value.trim()}</div>`;
-        feed.prepend(nc);
-        const data=f?await readURL(f):p;
-        await db.collection('wishes').add({name:nameInput.value.trim()||'แขกผู้มีเกียรติ',
-          text:textInput.value.trim(),imgUrl:data,likes:0,likedBy:[],uid,createdAt:firebase.firestore.Timestamp.now()});
-      }catch(e){console.error(e);}
-      hide(spinner);hide(step3);nameInput.value='';textInput.value='';fileInput.value='';
+    firebase.initializeApp({
+      apiKey:"AIzaSyBxYY_c14XFroS6dBIh4Jzl9XL4PMjipcg",
+      authDomain:"wishes-web.firebaseapp.com",
+      projectId:"wishes-web"
+    });
+    const db = firebase.firestore();
+
+    const feed      = document.getElementById('feed');
+    const openBtn   = document.getElementById('openBtn');
+    const backFrom1 = document.getElementById('backFrom1');
+    const backFrom2 = document.getElementById('backFrom2');
+    const toStep3   = document.getElementById('toStep3');
+    const backTo3   = document.getElementById('backTo3');
+    const postBtn   = document.getElementById('postBtn');
+    const fileInput = document.getElementById('fileInput');
+    const nameInput = document.getElementById('nameInput');
+    const textInput = document.getElementById('textInput');
+    const spinner   = document.getElementById('spinnerOverlay');
+    const step1     = document.getElementById('step1');
+    const step2     = document.getElementById('step2');
+    const step3     = document.getElementById('step3');
+    const slides2   = document.getElementById('slides2');
+    const slides3   = document.getElementById('slides3');
+
+    let files = [], idx = 0;
+    let uid = localStorage.getItem('uid') || crypto.randomUUID();
+    localStorage.setItem('uid',uid);
+
+    // Load feed
+    db.collection('wishes').orderBy('createdAt','desc')
+      .onSnapshot(snap=>{
+        feed.innerHTML='';
+        snap.docs.forEach(doc=>{
+          const w=doc.data(), id=doc.id;
+          if(!w.createdAt)return;
+          const card=document.createElement('div');card.className='card';
+          card.innerHTML=`
+            <img src="${w.imgUrl}">
+            ${w.uid===uid?'<button class="delete-btn">🗑️</button>':''}
+            <div class="actions">
+              <div class="btn-like">🤍<div class="pop-heart">❤️</div></div>
+              <span class="like-count">${w.likes||0}</span>
+            </div>
+            <div class="info"><span class="author">${w.name}:</span> ${w.text}</div>`;
+          if(w.uid===uid)card.querySelector('.delete-btn')
+            .onclick=()=>db.collection('wishes').doc(id).delete();
+          const likeBtn=card.querySelector('.btn-like'),
+                pop=card.querySelector('.pop-heart');
+          likeBtn.ondblclick=async()=>{
+            if((w.likedBy||[]).includes(uid))return;
+            pop.style.display='block';
+            pop.addEventListener('animationend',()=>pop.style.display='none',{once:true});
+            await db.collection('wishes').doc(id).update({
+              likes:(w.likes||0)+1,
+              likedBy:[...(w.likedBy||[]),uid]
+            });
+          };
+          feed.appendChild(card);
+        });
+      });
+
+    // Helpers
+    const show=el=>el.classList.remove('hidden'),
+          hide=el=>el.classList.add('hidden');
+
+    function readFileAsDataURL(file){
+      return new Promise(res=>{
+        const r=new FileReader();
+        r.onload=()=>res(r.result);
+        r.readAsDataURL(file);
+      });
+    }
+
+    function render(container,list,withTrash){
+      container.innerHTML='';
+      list.forEach((f,i)=>{
+        const div=document.createElement('div');div.className='slide';
+        div.style.transform=`translateX(${(i-idx)*100}%)`;
+        const img=document.createElement('img');img.src=URL.createObjectURL(f);
+        div.appendChild(img);
+        if(withTrash){
+          const b=document.createElement('button');
+          b.className='trash';b.textContent='🗑️';
+          b.onclick=()=>{
+            files.splice(i,1);
+            if(!files.length){ hide(step1); return; }
+            idx%=files.length; render(slides2,files,true); render(slides3,files,false);
+          };
+          div.appendChild(b);
+        }
+        container.appendChild(div);
+      });
+    }
+
+    // Step1
+    backFrom1.onclick=()=>hide(step1);
+    openBtn.onclick=()=>{ show(step1); fileInput.click(); };
+
+    // File select
+    fileInput.onchange=e=>{
+      files=Array.from(e.target.files);
+      if(files.length){
+        idx=0; render(slides2,files,true); render(slides3,files,false);
+        hide(step1); show(step2);
+      } else hide(step1);
     };
-    hide(step1);hide(step2);hide(step3);
+
+    // Step2 back/next
+    backFrom2.onclick=()=>{ hide(step2); show(step1); fileInput.value=''; };
+    toStep3.onclick=()=>{ hide(step2); show(step3); postBtn.disabled=!textInput.value.trim(); };
+
+    // Step3 back
+    backTo3.onclick=()=>{ hide(step3); show(step2); };
+
+    textInput.oninput=()=>postBtn.disabled=!textInput.value.trim();
+
+    postBtn.onclick=async()=>{
+      spinner.classList.add('visible');
+      try{
+        const file=files[idx];
+        let imgData='';
+        if(file) imgData=await readFileAsDataURL(file);
+        await db.collection('wishes').add({
+          name:nameInput.value.trim()||'แขกผู้มีเกียรติ',
+          text:textInput.value.trim(),
+          imgUrl:imgData, likes:0, likedBy:[], uid,
+          createdAt:firebase.firestore.Timestamp.now()
+        });
+      }catch(e){console.error(e)}
+      spinner.classList.remove('visible');
+      hide(step3);
+      nameInput.value=''; textInput.value=''; fileInput.value='';
+    };
+
+    // Init
+    hide(step1); hide(step2); hide(step3);
   })();
   </script>
 </body>
