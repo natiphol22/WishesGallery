@@ -27,21 +27,26 @@
       padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom));
       position: relative;
     }
-    /* ป้องกันเลื่อนพื้นหลังเมื่อ modal เปิด */
     body.modal-open {
       overflow: hidden;
     }
 
     header {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: var(--spacing); background: #fff; box-shadow: var(--shadow);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--spacing);
+      background: #fff;
+      box-shadow: var(--shadow);
     }
     header h1 {
       font-family: 'Grand Hotel', cursive;
       font-size: 1.8rem;
     }
-    /* หัวใจมุมขวาเป็นสัญลักษณ์ ♥ สีดำ */
+    /* หัวใจมุมขวาเป็น glyph สีดำ */
     header .top-heart {
+      content: "♥";
+      font-family: 'Sarabun', 'Arial', sans-serif;
       font-size: 1.6rem;
       font-weight: 700;
       color: #000;
@@ -56,8 +61,10 @@
       gap: var(--spacing);
     }
     .card {
-      background: #fff; border-radius: var(--radius);
-      box-shadow: var(--shadow); overflow: hidden;
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
       transition: transform .2s;
       position: relative;
     }
@@ -65,30 +72,40 @@
     .card img { width: 100%; display: block; }
 
     .like-indicator {
-      display: flex; align-items: center; padding: .5rem 1rem;
+      display: flex;
+      align-items: center;
+      padding: .5rem 1rem;
       font-size: .9rem;
     }
     .heart-icon { margin-right: .25rem; color: #e0245e; }
     .info {
-      padding: 0 1rem 1rem; font-size: .95rem;
+      padding: 0 1rem 1rem;
+      font-size: .95rem;
     }
     .author { font-weight: 600; }
     .delete-btn {
-      position: absolute; top: 8px; left: 8px;
-      background: rgba(255,255,255,0.9); border: none;
-      border-radius: 50%; width: 28px; height: 28px;
-      cursor: pointer; font-size: 1rem;
+      position: absolute;
+      top: 8px; left: 8px;
+      background: rgba(255,255,255,0.9);
+      border: none;
+      border-radius: 50%;
+      width: 28px; height: 28px;
+      cursor: pointer;
+      font-size: 1rem;
       transition: transform .2s, color .2s;
     }
     .delete-btn:hover { transform: scale(1.2); color: #e0245e; }
 
     .bottom-nav {
-      position: fixed; bottom: 0; left: 50%;
+      position: fixed;
+      bottom: 0; left: 50%;
       transform: translateX(-50%);
       width: 100%; height: var(--nav-height);
       backdrop-filter: blur(12px);
       background: #ffffffdd;
-      display: flex; justify-content: space-around; align-items: center;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
       z-index: 100;
       box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
     }
@@ -101,21 +118,27 @@
     .bottom-nav .primary {
       font-size: 2rem;
       background: linear-gradient(135deg, #405de6, #5851db);
-      color: #fff; width: 48px; height: 48px;
-      border-radius: 50%; display: flex;
-      align-items: center; justify-content: center;
+      color: #fff;
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       box-shadow: var(--shadow);
     }
     .bottom-nav button:hover { transform: scale(1.1); }
 
     .modal {
-      display: none; position: fixed; inset: 0;
+      display: none;
+      position: fixed;
+      inset: 0;
       background: rgba(0,0,0,0.4);
-      align-items: center; justify-content: center;
-      padding: var(--spacing); z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: var(--spacing);
+      z-index: 200;
     }
     .modal.show { display: flex; }
-
     .modal-content {
       position: relative;
       width: 100%; max-width: 420px;
@@ -127,8 +150,11 @@
     }
 
     .modal-header {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: var(--spacing); background: rgba(255,255,255,0.8);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--spacing);
+      background: rgba(255,255,255,0.8);
     }
     .modal-header h2 { font-size: 1.5rem; }
     .modal-close {
@@ -140,7 +166,9 @@
 
     .modal-body {
       padding: var(--spacing);
-      display: flex; flex-direction: column; gap: var(--spacing);
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing);
     }
     .modal-body input,
     .modal-body textarea {
@@ -161,25 +189,32 @@
       border-radius: var(--radius); cursor: pointer;
       position: relative; overflow: hidden;
     }
-    .btn-upload input { position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; }
+    .btn-upload input {
+      position: absolute;
+      inset: 0;
+      width: 100%; height: 100%; opacity: 0;
+      cursor: pointer;
+    }
 
+    /* พรีวิวรูป ใช้เต็มรูป แต่ขนาดเล็ก */
     .preview-container {
       text-align: center;
-      max-height: 200px; /* ความสูงสูงสุด */
-      overflow: hidden;
+      width: 100%;
+      max-width: 300px;
+      margin: 0 auto;
     }
     .preview-container img {
-      width: 100%;       /* เต็มความกว้าง */
-      height: auto;      /* รักษาอัตราส่วน */
-      object-fit: contain; /* แสดงภาพครบทั้งภาพ */
+      width: 100%;
+      height: auto;
+      object-fit: contain;
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       display: block;
-      margin: 0 auto;
     }
 
     .modal-footer {
-      padding: var(--spacing); text-align: right;
+      padding: var(--spacing);
+      text-align: right;
       background: rgba(255,255,255,0.8);
     }
     .modal-footer button {
@@ -198,7 +233,6 @@
       animation: spin 1s linear infinite; vertical-align: middle;
       margin-right: 6px;
     }
-
     @keyframes spin { to { transform: rotate(360deg); } }
     @keyframes popHeartFadeShake {
       0%   { transform: translate(-50%,-50%) scale(0); opacity: 0; }
@@ -256,6 +290,7 @@
       doc as docRef, updateDoc, deleteDoc, Timestamp
     } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
 
+    // ปิด scroll เมื่อ modal เปิด
     const body = document.body;
     const modal = document.getElementById('modal');
     document.getElementById('nav-add').onclick = () => {
@@ -279,6 +314,7 @@
       currentUid = crypto.randomUUID();
       localStorage.setItem('uid', currentUid);
     }
+
     // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyBxYY_c14XFroS6dBIh4Jzl9XL4PMjipcg",
@@ -311,15 +347,21 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
+    // เปิดปุ่มโพสต์เมื่อมีข้อความ
     wishText.oninput = () => postBtn.disabled = !wishText.value.trim();
 
+    // พรีวิวรูป
     imgUpload.onchange = e => {
       const f = e.target.files[0];
-      if (!f) { preview.style.display='none'; return; }
+      if (!f) {
+        preview.style.display = 'none';
+        return;
+      }
       preview.src = URL.createObjectURL(f);
       preview.style.display = 'block';
     };
 
+    // กดโพสต์
     postBtn.onclick = async () => {
       postBtn.disabled = true;
       postBtn.innerHTML = `<span class="spinner"></span>กำลังโพสต์`;
@@ -332,7 +374,7 @@
           const i = new Image(); i.onload = () => r(i);
           i.src = URL.createObjectURL(f);
         });
-        let [w,h] = [img.width, img.height], max = 800;
+        let [w, h] = [img.width, img.height], max = 800;
         if (Math.max(w,h) > max) {
           const ratio = max / Math.max(w,h);
           w *= ratio; h *= ratio;
@@ -365,24 +407,33 @@
       body.classList.remove('modal-open');
     };
 
+    // ฟังก์ชันแอนิเมชันหัวใจ
     function animateHeart(card) {
       const h = document.createElement('div');
       h.textContent = '❤';
       Object.assign(h.style, {
-        position:'absolute', top:'50%', left:'50%',
-        fontSize:'4rem', color:'rgba(224,36,94,0.6)',
-        animation:'popHeartFadeShake .8s forwards', pointerEvents:'none'
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        fontSize: '4rem',
+        color: 'rgba(224,36,94,0.6)',
+        animation: 'popHeartFadeShake .8s forwards',
+        pointerEvents: 'none'
       });
       card.querySelector('.img-wrapper').appendChild(h);
       h.addEventListener('animationend', () => h.remove());
     }
+
+    // ฟังก์ชันไลก์
     async function handleLike(id, w) {
-      if ((w.likedBy||[]).includes(currentUid)) return;
+      if ((w.likedBy || []).includes(currentUid)) return;
       await updateDoc(docRef(db,'wishes',id), {
-        likes: (w.likes||0) + 1,
-        likedBy: [...(w.likedBy||[]), currentUid]
+        likes: (w.likes || 0) + 1,
+        likedBy: [...(w.likedBy || []), currentUid]
       });
     }
+
+    // สร้างการ์ดโพสต์
     function createCard(w, id) {
       const card = document.createElement('div');
       card.className = 'card';
@@ -396,7 +447,7 @@
         </div>
         <div class="like-indicator">
           <span class="heart-icon">♥</span>
-          <span class="like-count">${w.likes||0}</span>
+          <span class="like-count">${w.likes || 0}</span>
         </div>
         <div class="info">
           <span class="author">${w.name}:</span>
