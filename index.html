@@ -34,14 +34,10 @@
 
     /* HEADER */
     header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem;
-      background: #fff;
-      box-shadow: var(--shadow);
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem; background: #fff; box-shadow: var(--shadow);
     }
-    /* Title link forced black */
+    /* Title forced black */
     header h1 a {
       font-family: 'Pacifico', cursive;
       font-size: 1.8rem;
@@ -49,33 +45,24 @@
       text-decoration: none;
     }
     header .top-heart svg {
-      width: 28px;
-      height: 28px;
-      fill: #e0245e;
+      width: 28px; height: 28px; fill: #e0245e;
     }
 
     /* FEED */
     .gallery {
-      padding: 1rem;
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 1rem;
+      padding: 1rem; display: grid; grid-template-columns: 1fr; gap: 1rem;
     }
     .card, .liked-item {
-      background: #fff;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-      position: relative;
-      transition: transform .2s;
+      background: #fff; border-radius: var(--radius);
+      box-shadow: var(--shadow); overflow: hidden;
+      position: relative; transition: transform .2s;
     }
     .card:hover, .liked-item:hover { transform: translateY(-4px) }
     .img-wrapper, .liked-item {
       position: relative;
     }
     .img-wrapper img, .liked-item img {
-      width: 100%;
-      display: block;
+      width: 100%; display: block;
     }
     .delete-btn {
       position: absolute; top: 8px; right: 8px;
@@ -127,8 +114,7 @@
     /* WIZARD OVERLAY */
     .wizard-overlay {
       position: fixed; inset: 0;
-      background: rgba(255,255,255,0.9);
-      backdrop-filter: blur(8px);
+      background: rgba(255,255,255,0.9); backdrop-filter: blur(8px);
       display: none; flex-direction: column; z-index: 200;
     }
     .wizard-overlay.active { display: flex }
@@ -137,18 +123,16 @@
       padding: 1rem; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
     .btn-nav {
-      background: none; border: none;
-      font-size: 1rem; cursor: pointer;
+      background: none; border: none; font-size: 1rem; cursor: pointer;
       color: var(--text);
     }
     .wizard-step {
-      flex: 1; display: none;
-      flex-direction: column; align-items: center; justify-content: center;
+      flex: 1; display: none; flex-direction: column;
+      align-items: center; justify-content: center;
       padding: 1.5rem; overflow-y: auto; width: 100%;
     }
     .wizard-step.active { display: flex }
 
-    /* Step buttons */
     #triggerFilePicker {
       padding: .8rem 1.2rem; border-radius: var(--radius);
       background: linear-gradient(135deg,#405de6,#5851db);
@@ -192,12 +176,12 @@
     }
     @keyframes spin { to{ transform:rotate(360deg) } }
     @keyframes popHeartFadeShake {
-      0% { transform:translate(-50%,-50%) scale(0); opacity:0 }
-      30% { transform:translate(-50%,-50%) scale(1); opacity:.6 }
-      60% { transform:translate(calc(-50%-5px),-50%) scale(1.1); opacity:.8 }
-      70% { transform:translate(calc(-50%+5px),-50%) scale(1.1) }
-      80% { transform:translate(-50%,-50%) scale(1) }
-      100% { transform:translate(-50%,-50%) scale(1); opacity:0 }
+      0%   { transform: translate(-50%,-50%) scale(0); opacity: 0; }
+      30%  { transform: translate(-50%,-50%) scale(1); opacity: .6; }
+      60%  { transform: translate(calc(-50%-5px),-50%) scale(1.1); opacity: .8; }
+      70%  { transform: translate(calc(-50%+5px),-50%) scale(1.1); }
+      80%  { transform: translate(-50%,-50%) scale(1); }
+      100% { transform: translate(-50%,-50%) scale(1); opacity: 0; }
     }
   </style>
 </head>
@@ -205,12 +189,10 @@
   <header>
     <h1><a id="appTitle" href="#">Tuck &amp; Tan</a></h1>
     <span class="top-heart">
-      <svg viewBox="0 0 24 24">
-        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5
-                 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09
-                 C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42
-                 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-      </svg>
+      <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5
+        2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09
+        C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42
+        22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
     </span>
   </header>
 
@@ -265,9 +247,13 @@
 
     // Init Firebase
     const firebaseConfig = {
-      apiKey: "...", authDomain: "...", projectId: "...",
-      storageBucket: "unused", messagingSenderId: "...",
-      appId: "...", measurementId: "..."
+      apiKey: "AIzaSyBxYY_c14XFroS6dBIh4Jzl9XL4PMjipcg",
+      authDomain: "wishes-web.firebaseapp.com",
+      projectId: "wishes-web",
+      storageBucket: "unused",
+      messagingSenderId: "93224724611",
+      appId: "1:93224724611:web:491aab34365584864fd3b6",
+      measurementId: "G-6HQJWKWB8Z"
     };
     initializeApp(firebaseConfig);
     const db = getFirestore();
@@ -280,8 +266,8 @@
     let currentStep = 1;
     let initialized = false;
 
-    // DOM
-    const gallery = document.getElementById('gallery');
+    // DOM refs
+    const gallery   = document.getElementById('gallery');
     const navHome   = document.getElementById('nav-home');
     const navSearch = document.getElementById('nav-search');
     const navAdd    = document.getElementById('nav-add');
@@ -302,28 +288,28 @@
     const wizText   = document.getElementById('wizText');
     const body      = document.body;
 
-    // Nav actions
+    // Navigation
     navHome.onclick    = ()=> window.location.href='https://natiphol.github.io/OnlineWeddingInvitation/';
     navSearch.onclick  = ()=> window.location.href='https://natiphol.github.io/2/';
     navProfile.onclick = ()=> window.location.href='https://natiphol.github.io/AudioGuestbook/';
     appTitle.onclick   = e=>{ e.preventDefault(); showAllFeed(); };
 
-    // 1) Full feed
+    // Show all feed
     function showAllFeed(){
       if(unsubscribe) unsubscribe();
       gallery.innerHTML='';
       const q = query(collection(db,'wishes'), orderBy('createdAt','desc'));
-      unsubscribe = onSnapshot(q, snap => {
+      unsubscribe = onSnapshot(q, snap=>{
         snap.docChanges().forEach(c=>{
           const w=c.doc.data(), id=c.doc.id;
           if(c.type==='added')    addCard(w,id,initialized);
           if(c.type==='modified') updateLikes(id,w);
           if(c.type==='removed')  removeCard(id);
         });
-        initialized=true;
+        initialized = true;
       });
     }
-    // 2) Liked-only feed (images only)
+    // Show liked-only images
     function showLikedFeed(){
       if(unsubscribe) unsubscribe();
       gallery.innerHTML='';
@@ -332,26 +318,26 @@
         where('likedBy','array-contains',currentUid),
         orderBy('createdAt','desc')
       );
-      unsubscribe = onSnapshot(q, snap => {
+      unsubscribe = onSnapshot(q, snap=>{
         snap.docChanges().forEach(c=>{
           const w=c.doc.data(), id=c.doc.id;
           if(c.type==='added')    addLikedItem(w,id,initialized);
           if(c.type==='removed')  removeCard(id);
         });
-        initialized=true;
+        initialized = true;
       });
     }
     navHeart.onclick = e=>{ e.preventDefault(); showLikedFeed(); };
     showAllFeed();
 
-    // Heart pop animation
+    // Heart animation
     function animateHeart(card){
       const h=document.createElement('div');
       h.textContent='❤';
       Object.assign(h.style,{
-        position:'absolute', top:'50%', left:'50%',
+        position:'absolute',top:'50%',left:'50%',
         transform:'translate(-50%,-50%)',
-        fontSize:'4rem', color:'rgba(224,36,94,0.6)',
+        fontSize:'4rem',color:'rgba(224,36,94,0.6)',
         animation:'popHeartFadeShake .8s forwards',
         pointerEvents:'none'
       });
@@ -385,7 +371,6 @@
           <span class="author">${w.name}</span>
           <span class="wish">${w.text}</span>
         </div>`;
-      // Like handler
       const likeBtn=card.querySelector('.like-btn');
       likeBtn.addEventListener('click',async e=>{
         e.stopPropagation();
@@ -400,16 +385,14 @@
           });
         }catch{}
       });
-      // chat icon could open comment screen... (future)
-      // Share handler same as before
       card.querySelector('.share-btn').addEventListener('click',async e=>{
         e.stopPropagation();
         const clone=card.cloneNode(true);
         const trash=clone.querySelector('.delete-btn');
         if(trash)trash.remove();
         const off=document.createElement('div');
-        off.style.position='fixed'; off.style.top='-10000px'; off.style.left='-10000px';
-        off.append(clone); document.body.append(off);
+        off.style.position='fixed';off.style.top='-10000px';off.style.left='-10000px';
+        off.append(clone);document.body.append(off);
         try{
           const canvas=await html2canvas(clone);
           const blob=await new Promise(r=>canvas.toBlob(r,'image/png'));
@@ -417,7 +400,7 @@
           if(navigator.canShare?.({files:[file]})){
             await navigator.share({files:[file],title:w.text,text:w.text});
           }else alert('แชร์ไม่รองรับ');
-        }catch{}finally{off.remove();}
+        }catch{}finally{off.remove()}
       });
       if(w.uid===currentUid){
         card.querySelector('.delete-btn').onclick=async()=>{
@@ -431,41 +414,33 @@
       const item=document.createElement('div');
       item.className='liked-item'; item.dataset.id=id;
       const img=document.createElement('img');
-      img.src=w.imgUrl; img.alt='Liked';
+      img.src=w.imgUrl;img.alt='Liked';
       item.append(img);
       prepend?gallery.prepend(item):gallery.append(item);
     }
-    // Remove by data-id
     function removeCard(id){
       const el=gallery.querySelector(`[data-id="${id}"]`);
       if(el) el.remove();
     }
-    // Update likes only if full card
     function updateLikes(id,w){
       const el=gallery.querySelector(`.card[data-id="${id}"]`);
-      if(!el) return;
-      const lc=el.querySelector('.like-count');
-      if(lc) lc.innerText=`${w.likes||0} likes`;
+      if(el) el.querySelector('.like-count').innerText=`${w.likes||0} likes`;
     }
 
     // Wizard
     function goToStep(n){
       currentStep=n;
       stepEls.forEach(el=>el.classList.toggle('active',+el.dataset.step===n));
-      // always show back
       wizBack.innerText='<ย้อนกลับ';
       wizNext.innerText=n<3?'ถัดไป>':'โพสต์';
       postWizard.classList.add('active');
       body.classList.add('modal-open');
-      if(n===2 && selectedFile){
-        previewImg.src=URL.createObjectURL(selectedFile);
-      }
+      if(n===2&&selectedFile) previewImg.src=URL.createObjectURL(selectedFile);
       if(n===3){
         summaryImg.src=URL.createObjectURL(selectedFile);
         summaryName.innerText=wizName.value;
         summaryText.innerText=wizText.value;
       }
-      // next enabled only if file selected on step1
       if(n===1) wizNext.disabled=!selectedFile;
     }
     function closeWizard(){
@@ -476,6 +451,7 @@
       wizName.value='';
       wizText.value='';
       wizNext.disabled=true;
+      wizNext.innerText='ถัดไป>';
     }
     navAdd.onclick=_=>goToStep(1);
     wizBack.onclick=_=>{
@@ -485,46 +461,61 @@
     wizNext.onclick=async()=>{
       if(currentStep<2){goToStep(2);return;}
       if(currentStep===2){goToStep(3);return;}
-      // Step 3 -> submit...
+      // Posting...
       wizNext.disabled=true;
       wizNext.innerHTML=`<span class="spinner"></span>กำลังโพสต์`;
       const name=wizName.value.trim()||'แขกผู้มีเกียรติ';
       const text=wizText.value.trim();
-      if(!text){alert('กรุณาเขียนคำอวยพร'); wizNext.disabled=false; wizNext.innerText='โพสต์'; return;}
-      // prepare imgUrl...
+      if(!text){
+        alert('กรุณาเขียนคำอวยพร');
+        wizNext.disabled=false;
+        wizNext.innerText='โพสต์';
+        return;
+      }
+      // Prepare image URL
       let imgUrl='https://via.placeholder.com/320x400?text=No+Image';
       if(selectedFile){
         const img=await new Promise(r=>{
-          const i=new Image(); i.onload=()=>r(i);
+          const i=new Image();i.onload=()=>r(i);
           i.src=URL.createObjectURL(selectedFile);
         });
         let [w,h]=[img.width,img.height], m=800;
-        if(Math.max(w,h)>m){const r=m/Math.max(w,h);w*=r;h*=r;}
-        const c=document.createElement('canvas'); c.width=w; c.height=h;
+        if(Math.max(w,h)>m){
+          const ratio=m/Math.max(w,h);w*=ratio;h*=ratio;
+        }
+        const c=document.createElement('canvas');c.width=w;c.height=h;
         const ctx=c.getContext('2d');
-        ctx.imageSmoothingEnabled=true; ctx.imageSmoothingQuality='high';
+        ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
         ctx.drawImage(img,0,0,w,h);
         let q=0.95,data;
-        do{ data=c.toDataURL('image/jpeg',q); q-=0.05; }
-        while(data.length>1_000_000 && q>0.1);
+        do{
+          data=c.toDataURL('image/jpeg',q);
+          q-=0.05;
+        } while(data.length>1e6&&q>0.1);
         imgUrl=data;
       }
+      // 1) Firestore
       try{
         await addDoc(collection(db,'wishes'),{
           name,text,imgUrl,
           likes:0,likedBy:[],uid:currentUid,
           createdAt:Timestamp.now()
         });
-      }catch{alert('โพสต์ไม่สำเร็จ');}
-      // Formspree non-blocking
-      try{
-        const fd=new FormData();
-        fd.append('name',name);
-        fd.append('text',text);
-        fd.append('imgUrl',imgUrl);
-        await fetch('https://formspree.io/f/movdbnzk',{method:'POST',body:fd});
-      }catch{}
+      } catch(err){
+        console.error(err);
+        alert('โพสต์ไม่สำเร็จ');
+        wizNext.disabled=false;
+        wizNext.innerText='โพสต์';
+        return;
+      }
+      // 2) Formspree non-blocking
+      fetch('https://formspree.io/f/movdbnzk', {
+        method:'POST',
+        body:new FormData(Object.assign(new FormData(),{name,name,text,text,imgUrl,imgUrl}))
+      }).catch(console.error);
+      // After successful post, close and return to main feed
       closeWizard();
+      showAllFeed();
     };
     triggerPicker.onclick=_=>fileInput.click();
     fileInput.onchange=e=>{
@@ -532,12 +523,10 @@
       wizNext.disabled=!selectedFile;
       if(selectedFile) goToStep(2);
     };
-    // enforce alnum on name
     wizName.addEventListener('input',e=>{
       e.target.value=e.target.value.replace(/[^A-Za-z0-9]/g,'');
       if(currentStep===3) summaryName.innerText=e.target.value;
     });
-    // live preview of text
     wizText.addEventListener('input',_=>{
       if(currentStep===3) summaryText.innerText=wizText.value;
     });
