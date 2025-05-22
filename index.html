@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Tuck &amp; Tan</title>
-  <!-- ฟ้อนต์ไทย Kanit + Pacifico -->
+  <!-- ฟอนต์ไทย Kanit + Pacifico -->
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap&subset=thai" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
   <!-- Ionicons -->
@@ -12,6 +12,7 @@
   <script nomodule src="https://cdn.jsdelivr.net/npm/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
   <!-- html2canvas -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
   <style>
     :root {
       --bg: #f0f2f5;
@@ -45,7 +46,8 @@
       font-size: 2rem;
       font-weight: bold;
       color: #000;
-      cursor: pointer;
+      /* ไม่ให้เป็นลิงก์หรือ clickable */
+      cursor: default;
     }
     .top-heart svg { width: 28px; height: 28px; fill: #e0245e; }
 
@@ -71,8 +73,8 @@
       justify-content: space-between;
       align-items: center;
       padding: .5rem .75rem;
-      font-weight: 600;
       font-family: 'Pacifico', cursive;
+      font-size: 1.25rem;
       font-weight: bold;
       border-bottom: 1px solid #eee;
     }
@@ -283,7 +285,7 @@
 </head>
 <body>
   <header>
-    <h1 id="appTitle">Tuck &amp; Tan</h1>
+    <h1>Tuck &amp; Tan</h1>
     <span class="top-heart">
       <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5
         2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09
@@ -335,9 +337,8 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
     import {
-      getFirestore, collection, doc, addDoc, getDocs,
-      query, orderBy, where, onSnapshot,
-      updateDoc, deleteDoc, Timestamp,
+      getFirestore, collection, doc, query, orderBy, where,
+      onSnapshot, addDoc, updateDoc, deleteDoc, Timestamp,
       increment, arrayUnion
     } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
 
@@ -353,18 +354,15 @@
     });
     const db = getFirestore(app);
 
-    // User ID
     let currentUid = localStorage.getItem('uid') || crypto.randomUUID();
     localStorage.setItem('uid', currentUid);
 
-    // DOM refs
     const gallery    = document.getElementById('gallery');
     const navHome    = document.getElementById('nav-home');
     const navSearch  = document.getElementById('nav-search');
     const navAdd     = document.getElementById('nav-add');
     const navHeart   = document.getElementById('nav-heart');
     const navProfile = document.getElementById('nav-profile');
-    const appTitle   = document.getElementById('appTitle');
     const postWizard = document.getElementById('postWizard');
     const wizBack    = document.getElementById('wizBack');
     const wizNext    = document.getElementById('wizNext');
@@ -380,48 +378,52 @@
 
     // Nav handlers
     navHome.onclick    = () => window.location.href = 'https://natiphol22.github.io/WishesGallery/';
-    appTitle.onclick   = () => window.location.href = 'https://natiphol22.github.io/WishesGallery/';
     navSearch.onclick  = () => window.location.href = 'https://natiphol.github.io/2/';
     navProfile.onclick = () => window.location.href = 'https://natiphol.github.io/AudioGuestbook/';
     navHeart.onclick   = () => showLikedFeed();
 
-    let unsubscribeFeed;
-    async function showAllFeed() {
+    let unsubscribeFeed, feedInitialized = false;
+    function showAllFeed() {
       if (unsubscribeFeed) unsubscribeFeed();
       gallery.innerHTML = '';
-      const randomMode = Math.random() < 0.15;
+      feedInitialized = false;
       const colRef = collection(db,'wishes');
       const baseQ  = query(colRef, orderBy('createdAt','desc'));
-      const snap   = await getDocs(baseQ);
-      let docs     = snap.docs;
-      if (randomMode) docs = docs.sort(() => Math.random() - 0.5);
-      docs.forEach(d => addCard(d.data(), d.id, false));
-      unsubscribeFeed = onSnapshot(baseQ, s => {
-        s.docChanges().forEach(c => {
-          if (c.type === 'added')    addCard(c.doc.data(), c.doc.id, true);
-          if (c.type === 'modified') updateLikes(c.doc.id, c.doc.data());
-          if (c.type === 'removed')  removeCard(c.doc.id);
-        });
+      unsubscribeFeed = onSnapshot(baseQ, snap => {
+        if (!feedInitialized) {
+          let docs = [...snap.docs];
+          if (Math.random() < 0.15) {
+            docs.sort(() => Math.random() - 0.5);
+          }
+          docs.forEach(d => addCard(d.data(), d.id, false));
+          feedInitialized = true;
+        } else {
+          snap.docChanges().forEach(c => {
+            if (c.type === 'added')    addCard(c.doc.data(), c.doc.id, true);
+            if (c.type === 'modified') updateLikes(c.doc.id, c.doc.data());
+            if (c.type === 'removed')  removeCard(c.doc.id);
+          });
+        }
       });
     }
 
     async function showLikedFeed() {
       if (unsubscribeFeed) unsubscribeFeed();
       gallery.innerHTML = '';
-      const likedQ = query(
-        collection(db,'wishes'),
-        where('likedBy','array-contains', currentUid),
+      const colRef = collection(db,'wishes');
+      const likedQ = query(colRef,
+        where('likedBy','array-contains',currentUid),
         orderBy('createdAt','desc')
       );
-      unsubscribeFeed = onSnapshot(likedQ, s => {
-        s.docChanges().forEach(c => {
-          if (c.type==='added')   addCard(c.doc.data(), c.doc.id, false);
-          if (c.type==='removed') removeCard(c.doc.id);
+      unsubscribeFeed = onSnapshot(likedQ, snap => {
+        gallery.innerHTML = '';
+        snap.forEach(docSnap => {
+          addCard(docSnap.data(), docSnap.id, false);
         });
       });
     }
 
-    // initial load
+    // initial
     showAllFeed();
 
     function animateHeart(card) {
@@ -442,9 +444,8 @@
       const card = document.createElement('div');
       card.className = 'card';
       card.dataset.id = id;
-      if (Array.isArray(w.likedBy) && w.likedBy.includes(currentUid)) {
-        card.dataset.liked = 'true';
-      }
+      if (w.likedBy?.includes(currentUid)) card.dataset.liked = 'true';
+
       const delBtnHTML = w.uid === currentUid
         ? '<button class="delete-btn" title="ลบโพสต์">🗑️</button>'
         : '';
@@ -486,7 +487,6 @@
       const formEl   = card.querySelector('.comment-form');
       const delBtn   = card.querySelector('.delete-btn');
 
-      // like click
       likeBtn.addEventListener('click', async e => {
         e.stopPropagation();
         if (card.dataset.liked === 'true') return;
@@ -498,7 +498,7 @@
           likedBy: arrayUnion(currentUid)
         });
       });
-      // like double-click
+
       imgEl.addEventListener('dblclick', async e => {
         e.stopPropagation();
         if (card.dataset.liked !== 'true') {
@@ -511,11 +511,11 @@
           });
         }
       });
-      // toggle comments form
+
       chatBtn.addEventListener('click', () => {
         formEl.style.display = formEl.style.display === 'block' ? 'none' : 'block';
       });
-      // share
+
       shareBtn.addEventListener('click', async e => {
         e.stopPropagation();
         const clone = card.cloneNode(true);
@@ -540,7 +540,7 @@
           document.body.removeChild(off);
         }
       });
-      // delete
+
       if (delBtn) {
         delBtn.onclick = async e => {
           e.stopPropagation();
@@ -549,6 +549,7 @@
           }
         };
       }
+
       // comments realtime
       const commentsCol = collection(db,'wishes',id,'comments');
       const commentsQ   = query(commentsCol, orderBy('createdAt','asc'));
@@ -563,6 +564,7 @@
           listEl.append(dv);
         });
       });
+
       // post comment
       const nameInput = card.querySelector('.comment-name');
       const textInput = card.querySelector('.comment-text');
@@ -571,7 +573,7 @@
         const nm = nameInput.value.trim() || 'แขก';
         const tx = textInput.value.trim();
         if (!tx) return;
-        await addDoc(commentsCol, {
+        await addDoc(collection(db,'wishes',id,'comments'), {
           name: nm,
           text: tx,
           createdAt: Timestamp.now()
@@ -594,7 +596,7 @@
       if (c) c.remove();
     }
 
-    // Wizard for posting
+    // Wizard (โพสต์)
     let selectedFile = null, currentStep = 1;
     function goToStep(n) {
       currentStep = n;
