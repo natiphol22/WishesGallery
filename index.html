@@ -14,31 +14,26 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     :root {
-      --bg: #f0f2f5;
-      --text: #262626;
-      --input-bg: #fafafa;
-      --radius: 12px;
+      --bg: #f0f2f5; --text: #262626;
+      --input-bg: #fafafa; --radius: 12px;
       --shadow: 0 8px 24px rgba(0,0,0,0.1);
       --nav-height: 60px;
     }
     * { box-sizing: border-box; margin:0; padding:0 }
     html, body { font-family: 'Kanit', sans-serif; }
     body {
-      background: var(--bg);
-      color: var(--text);
-      max-width: 480px; margin: 0 auto;
-      min-height: 100vh;
+      background: var(--bg); color: var(--text);
+      max-width: 480px; margin:0 auto; min-height:100vh;
       padding-bottom: calc(var(--nav-height)+env(safe-area-inset-bottom));
     }
-    body.modal-open { overflow: hidden }
+    body.modal-open { overflow:hidden }
     header {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 1rem; background: #fff; box-shadow: var(--shadow);
+      display:flex; justify-content:space-between; align-items:center;
+      padding:1rem; background:#fff; box-shadow:var(--shadow);
     }
     header h1 {
-      font-family: 'Pacifico', cursive;
-      font-size: 2rem; font-weight: bold;
-      color: #000; cursor: pointer;
+      font-family:'Pacifico',cursive; font-size:2rem; font-weight:bold;
+      color:#000; cursor:pointer;
     }
     .top-heart svg { width:28px; height:28px; fill:#e0245e }
     .gallery {
@@ -76,28 +71,9 @@
       padding:.25rem .75rem; font-size:.95rem;
     }
     .info .author { font-weight:700 }
-    .info .wish { color:#444 }
-    .comments {
-      padding:.5rem .75rem;
-    }
-    .comment-list {
-      max-height:120px; overflow-y:auto; margin-bottom:.5rem;
-    }
-    .comment-item { font-size:.9rem; margin-bottom:.25rem }
-    .comment-form {
-      display:none; margin-top:.5rem;
-    }
-    .comment-form input,
-    .comment-form textarea {
-      width:100%; padding:.5rem; margin-bottom:.5rem;
-      border:1px solid #ddd; border-radius:var(--radius);
-      background:var(--input-bg); font-size:.9rem;
-    }
-    .comment-form button {
-      background:#405de6; color:#fff; border:none;
-      border-radius:var(--radius); padding:.5rem .75rem;
-      cursor:pointer;
-    }
+    .info .wish   { color:#444 }
+    .comments { display:none }
+
     .bottom-nav {
       position:fixed; bottom:0; left:50%;
       transform:translateX(-50%);
@@ -118,6 +94,7 @@
       box-shadow:var(--shadow);
     }
     .bottom-nav button:hover { transform:scale(1.1) }
+
     .wizard-overlay {
       position:fixed; inset:0; background:rgba(255,255,255,0.9);
       backdrop-filter:blur(8px); display:none; flex-direction:column;
@@ -128,10 +105,7 @@
       display:flex; justify-content:space-between; align-items:center;
       padding:1rem; background:#fff; box-shadow:0 2px 6px rgba(0,0,0,0.1);
     }
-    .btn-nav {
-      background:none; border:none; font-size:1rem; cursor:pointer;
-      color:var(--text);
-    }
+    .btn-nav { background:none; border:none; font-size:1rem; cursor:pointer; }
     .wizard-step {
       flex:1; display:none; flex-direction:column;
       align-items:center; justify-content:center;
@@ -167,9 +141,10 @@
       background:var(--input-bg); font-size:.95rem;
     }
     .spinner {
-      width:16px; height:16px; border:2px solid #fff;
-      border-top-color:transparent; border-radius:50%;
-      display:inline-block; animation:spin 1s linear infinite;
+      width:16px; height:16px;
+      border:2px solid #fff; border-top-color:transparent;
+      border-radius:50%; display:inline-block;
+      animation:spin 1s linear infinite;
       vertical-align:middle; margin-right:6px;
     }
     @keyframes spin { to{transform:rotate(360deg)} }
@@ -257,103 +232,95 @@
     let currentUid = localStorage.getItem('uid') || crypto.randomUUID();
     localStorage.setItem('uid', currentUid);
 
-    const gallery = document.getElementById('gallery');
-    const navHome = document.getElementById('nav-home');
-    const navSearch = document.getElementById('nav-search');
-    const navAdd = document.getElementById('nav-add');
-    const navHeart = document.getElementById('nav-heart');
+    const gallery    = document.getElementById('gallery');
+    const navHome    = document.getElementById('nav-home');
+    const navSearch  = document.getElementById('nav-search');
+    const navAdd     = document.getElementById('nav-add');
+    const navHeart   = document.getElementById('nav-heart');
     const navProfile = document.getElementById('nav-profile');
-    const appTitle = document.getElementById('appTitle');
+    const appTitle   = document.getElementById('appTitle');
     const postWizard = document.getElementById('postWizard');
-    const wizBack = document.getElementById('wizBack');
-    const wizNext = document.getElementById('wizNext');
-    const stepEls = document.querySelectorAll('.wizard-step');
-    const fileInput = document.getElementById('wizFileInput');
-    const trigger = document.getElementById('triggerFilePicker');
+    const wizBack    = document.getElementById('wizBack');
+    const wizNext    = document.getElementById('wizNext');
+    const stepEls    = document.querySelectorAll('.wizard-step');
+    const fileInput  = document.getElementById('wizFileInput');
+    const trigger    = document.getElementById('triggerFilePicker');
     const previewImg = document.getElementById('previewImg');
     const summaryImg = document.getElementById('summaryImg');
-    const summaryName = document.getElementById('summaryName');
-    const summaryText = document.getElementById('summaryText');
-    const wizName = document.getElementById('wizName');
-    const wizText = document.getElementById('wizText');
+    const summaryName= document.getElementById('summaryName');
+    const summaryText= document.getElementById('summaryText');
+    const wizName    = document.getElementById('wizName');
+    const wizText    = document.getElementById('wizText');
 
     navHome.onclick = () => showAllFeed();
-    appTitle.onclick = () => showAllFeed();
-    navSearch.onclick = () => window.location.href = 'https://natiphol.github.io/2/';
-    navProfile.onclick = () => window.location.href = 'https://natiphol.github.io/AudioGuestbook/';
-    navHeart.onclick = () => showLikedFeed();
+    appTitle.onclick= () => showAllFeed();
+    navSearch.onclick=() => window.location.href='https://natiphol.github.io/2/';
+    navProfile.onclick=() => window.location.href='https://natiphol.github.io/AudioGuestbook/';
+    navHeart.onclick=() => showLikedFeed();
 
     let unsubscribeFeed;
-    async function showAllFeed() {
-      if (unsubscribeFeed) unsubscribeFeed();
-      gallery.innerHTML = '';
-      const randomMode = Math.random() < 0.15;
-      const colRef = collection(db, 'wishes');
-      const baseQ = query(colRef, orderBy('createdAt', 'desc'));
-      const snap = await getDocs(baseQ);
-      let docs = snap.docs;
-      if (randomMode) docs = docs.sort(() => Math.random() - 0.5);
-      docs.forEach(d => addCard(d.data(), d.id, false));
-      unsubscribeFeed = onSnapshot(baseQ, s => {
-        s.docChanges().forEach(c => {
-          if (c.type === 'added') addCard(c.doc.data(), c.doc.id, true);
-          if (c.type === 'modified') updateLikes(c.doc.id, c.doc.data());
-          if (c.type === 'removed') removeCard(c.doc.id);
+    async function showAllFeed(){
+      if(unsubscribeFeed) unsubscribeFeed();
+      gallery.innerHTML='';
+      const randomMode = Math.random()<0.15;
+      const colRef = collection(db,'wishes');
+      const baseQ  = query(colRef, orderBy('createdAt','desc'));
+      const snap   = await getDocs(baseQ);
+      let docs     = snap.docs;
+      if(randomMode) docs = docs.sort(()=>Math.random()-.5);
+      docs.forEach(d=> addCard(d.data(), d.id, false));
+      unsubscribeFeed = onSnapshot(baseQ, s=>{
+        s.docChanges().forEach(c=>{
+          if(c.type==='added')    addCard(c.doc.data(), c.doc.id, true);
+          if(c.type==='modified') updateLikes(c.doc.id, c.doc.data());
+          if(c.type==='removed')  removeCard(c.doc.id);
         });
       });
     }
 
-    async function showLikedFeed() {
-      if (unsubscribeFeed) unsubscribeFeed();
-      gallery.innerHTML = '';
+    async function showLikedFeed(){
+      if(unsubscribeFeed) unsubscribeFeed();
+      gallery.innerHTML='';
       const likedQ = query(
-        collection(db, 'wishes'),
-        where('likedBy', 'array-contains', currentUid),
-        orderBy('createdAt', 'desc')
+        collection(db,'wishes'),
+        where('likedBy','array-contains', currentUid),
+        orderBy('createdAt','desc')
       );
-      unsubscribeFeed = onSnapshot(likedQ, s => {
-        s.docChanges().forEach(c => {
-          if (c.type === 'added') addCard(c.doc.data(), c.doc.id, false);
-          if (c.type === 'removed') removeCard(c.doc.id);
+      unsubscribeFeed = onSnapshot(likedQ, s=>{
+        s.docChanges().forEach(c=>{
+          if(c.type==='added')   addCard(c.doc.data(), c.doc.id, false);
+          if(c.type==='removed') removeCard(c.doc.id);
         });
       });
     }
 
     showAllFeed();
 
-    function animateHeart(card) {
-      const h = document.createElement('div');
-      h.textContent = '❤';
-      Object.assign(h.style, {
-        position: 'absolute', top: '50%', left: '50%',
-        transform: 'translate(-50%, -50%)',
-        fontSize: '4rem', color: 'rgba(224,36,94,0.6)',
-        animation: 'popHeartFadeShake .8s forwards',
-        pointerEvents: 'none'
+    function animateHeart(card){
+      const h=document.createElement('div');
+      h.textContent='❤';
+      Object.assign(h.style,{
+        position:'absolute',top:'50%',left:'50%',
+        transform:'translate(-50%,-50%)',
+        fontSize:'4rem',color:'rgba(224,36,94,0.6)',
+        animation:'popHeartFadeShake .8s forwards',
+        pointerEvents:'none'
       });
       card.querySelector('.img-wrapper').append(h);
-      h.addEventListener('animationend', () => h.remove());
+      h.addEventListener('animationend',()=>h.remove());
     }
 
-    function addCard(w, id, prepend) {
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.dataset.id = id;
-      if (Array.isArray(w.likedBy) && w.likedBy.includes(currentUid)) {
-        card.dataset.liked = 'true';
-      }
-      const delBtnHTML = w.uid === currentUid
-        ? '<button class="delete-btn" title="ลบโพสต์">🗑️</button>'
-        : '';
-
-      card.innerHTML = `
+    function addCard(w,id,prepend){
+      const card=document.createElement('div');
+      card.className='card'; card.dataset.id=id;
+      if(Array.isArray(w.likedBy)&&w.likedBy.includes(currentUid)) card.dataset.liked='true';
+      const delBtnHTML = w.uid===currentUid
+        ? '<button class="delete-btn" title="ลบโพสต์">🗑️</button>' : '';
+      card.innerHTML=`
         <div class="poster">
-          <span>${w.name}</span>
-          ${delBtnHTML}
+          <span>${w.name}</span>${delBtnHTML}
         </div>
-        <div class="img-wrapper">
-          <img src="${w.imgUrl}" alt="">
-        </div>
+        <div class="img-wrapper"><img src="${w.imgUrl}"></div>
         <div class="card-actions">
           <div class="left-actions">
             <ion-icon name="${card.dataset.liked==='true'?'heart':'heart-outline'}" class="action-icon like-btn"></ion-icon>
@@ -361,235 +328,170 @@
             <ion-icon name="paper-plane-outline" class="action-icon share-btn"></ion-icon>
           </div>
         </div>
-        <div class="like-indicator">
-          <span class="like-count">${w.likes||0} likes</span>
-        </div>
-        <div class="info">
-          <span class="author">${w.name}</span>
-          <span class="wish">${w.text}</span>
-        </div>
-        <div class="comments">
-          <div class="comment-list"></div>
-          <div class="comment-form">
-            <input type="text" class="comment-name" placeholder="ชื่อ">
-            <textarea class="comment-text" rows="2" placeholder="เขียนคอมเมนต์..."></textarea>
-            <button class="comment-btn">ส่ง</button>
-          </div>
-        </div>`;
+        <div class="like-indicator"><span class="like-count">${w.likes||0} likes</span></div>
+        <div class="info"><span class="author">${w.name}</span> <span class="wish">${w.text}</span></div>
+        <div class="comments"><div class="comment-list"></div><div class="comment-form">
+          <input type="text" class="comment-name" placeholder="ชื่อ">
+          <textarea class="comment-text" rows="2" placeholder="เขียนคอมเมนต์..."></textarea>
+          <button class="comment-btn">ส่ง</button>
+        </div></div>`;
 
-      const likeBtn = card.querySelector('.like-btn');
-      const imgEl = card.querySelector('.img-wrapper img');
-      const chatBtn = card.querySelector('.chat-btn');
-      const shareBtn = card.querySelector('.share-btn');
-      const formEl = card.querySelector('.comment-form');
-      const delBtn = card.querySelector('.delete-btn');
+      const likeBtn=card.querySelector('.like-btn'),
+            imgEl  =card.querySelector('.img-wrapper img'),
+            chatBtn=card.querySelector('.chat-btn'),
+            shareBtn=card.querySelector('.share-btn'),
+            formEl =card.querySelector('.comment-form'),
+            delBtn =card.querySelector('.delete-btn');
 
-      // Single click like
-      likeBtn.addEventListener('click', async e => {
+      likeBtn.addEventListener('click',async e=>{
         e.stopPropagation();
-        if (card.dataset.liked === 'true') return;
-        card.dataset.liked = 'true';
-        likeBtn.setAttribute('name', 'heart');
+        if(card.dataset.liked==='true') return;
+        card.dataset.liked='true'; likeBtn.setAttribute('name','heart');
         animateHeart(card);
-        await updateDoc(doc(db, 'wishes', id), {
-          likes: increment(1),
-          likedBy: arrayUnion(currentUid)
-        });
+        await updateDoc(doc(db,'wishes',id),{ likes:increment(1), likedBy:arrayUnion(currentUid) });
       });
-
-      // Double-click like
-      imgEl.addEventListener('dblclick', async e => {
+      imgEl.addEventListener('dblclick',async e=>{
         e.stopPropagation();
-        if (card.dataset.liked !== 'true') {
-          card.dataset.liked = 'true';
-          likeBtn.setAttribute('name', 'heart');
+        if(card.dataset.liked!=='true'){
+          card.dataset.liked='true'; likeBtn.setAttribute('name','heart');
           animateHeart(card);
-          await updateDoc(doc(db, 'wishes', id), {
-            likes: increment(1),
-            likedBy: arrayUnion(currentUid)
-          });
+          await updateDoc(doc(db,'wishes',id),{ likes:increment(1), likedBy:arrayUnion(currentUid) });
         }
       });
-
-      // Toggle comment form
-      chatBtn.addEventListener('click', () => {
-        formEl.style.display = formEl.style.display === 'block' ? 'none' : 'block';
-      });
-
-      // Share
-      shareBtn.addEventListener('click', async e => {
+      chatBtn.addEventListener('click',()=> formEl.style.display=formEl.style.display==='block'?'none':'block');
+      shareBtn.addEventListener('click',async e=>{
         e.stopPropagation();
-        const clone = card.cloneNode(true);
+        const clone=card.cloneNode(true);
         clone.querySelector('.delete-btn')?.remove();
         clone.querySelector('.comments')?.remove();
-        const off = document.createElement('div');
-        off.style.position = 'fixed';
-        off.style.top = '-10000px';
-        off.style.left = '-10000px';
-        off.append(clone);
-        document.body.append(off);
-        try {
-          const canvas = await html2canvas(clone, { scale: window.devicePixelRatio });
-          const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
-          const file = new File([blob], 'wish.png', { type: 'image/png' });
-          if (navigator.canShare?.({ files: [file] })) {
-            await navigator.share({ files: [file], title: w.text, text: w.text });
-          } else {
-            alert('เบราว์เซอร์ไม่รองรับการแชร์ไฟล์');
-          }
-        } finally {
-          document.body.removeChild(off);
-        }
+        const off=document.createElement('div');
+        off.style.position='fixed'; off.style.top='-10000px'; off.style.left='-10000px';
+        off.append(clone); document.body.append(off);
+        try{
+          const canvas=await html2canvas(clone,{scale:window.devicePixelRatio});
+          const blob=await new Promise(r=>canvas.toBlob(r,'image/png'));
+          const file=new File([blob],'wish.png',{type:'image/png'});
+          if(navigator.canShare?.({files:[file]})){
+            await navigator.share({files:[file],title:w.text,text:w.text});
+          } else alert('เบราว์เซอร์ไม่รองรับการแชร์ไฟล์');
+        } finally{ document.body.removeChild(off) }
       });
-
-      // Delete
-      if (delBtn) {
-        delBtn.onclick = async e => {
-          e.stopPropagation();
-          if (confirm('ลบโพสต์นี้?')) {
-            await deleteDoc(doc(db, 'wishes', id));
-          }
-        };
+      if(delBtn){
+        delBtn.onclick=async e=>{ e.stopPropagation(); if(confirm('ลบโพสต์นี้?')) await deleteDoc(doc(db,'wishes',id)); };
       }
-
-      // Comments realtime
-      const commentsCol = collection(db, 'wishes', id, 'comments');
-      const commentsQ = query(commentsCol, orderBy('createdAt', 'asc'));
-      const listEl = card.querySelector('.comment-list');
-      onSnapshot(commentsQ, snap => {
-        listEl.innerHTML = '';
-        snap.forEach(d => {
-          const c = d.data();
-          const div = document.createElement('div');
-          div.className = 'comment-item';
-          div.innerHTML = `<strong>${c.name}</strong>: ${c.text}`;
-          listEl.append(div);
+      const commentsCol=collection(db,'wishes',id,'comments'),
+            commentsQ  =query(commentsCol,orderBy('createdAt','asc')),
+            listEl     =card.querySelector('.comment-list');
+      onSnapshot(commentsQ,s=>{
+        listEl.innerHTML='';
+        s.forEach(d=>{
+          const c=d.data(), dv=document.createElement('div');
+          dv.className='comment-item'; dv.innerHTML=`<strong>${c.name}</strong>: ${c.text}`;
+          listEl.append(dv);
         });
       });
-
-      // Post comment
-      const nameInput = card.querySelector('.comment-name');
-      const textInput = card.querySelector('.comment-text');
-      const sendBtn = card.querySelector('.comment-btn');
-      sendBtn.addEventListener('click', async () => {
-        const nm = nameInput.value.trim() || 'แขก';
-        const tx = textInput.value.trim();
-        if (!tx) return;
-        await addDoc(collection(db, 'wishes', id, 'comments'), {
-          name: nm,
-          text: tx,
-          createdAt: Timestamp.now()
-        });
-        nameInput.value = '';
-        textInput.value = '';
-        formEl.style.display = 'none';
+      const nameInput=card.querySelector('.comment-name'),
+            textInput=card.querySelector('.comment-text'),
+            sendBtn  =card.querySelector('.comment-btn');
+      sendBtn.addEventListener('click',async ()=>{
+        const nm=nameInput.value.trim()||'แขก', tx=textInput.value.trim();
+        if(!tx) return;
+        await addDoc(commentsCol,{ name:nm,text:tx,createdAt:Timestamp.now() });
+        nameInput.value=''; textInput.value=''; formEl.style.display='none';
       });
-
-      prepend ? gallery.prepend(card) : gallery.append(card);
+      prepend?gallery.prepend(card):gallery.append(card);
     }
 
-    function updateLikes(id, w) {
-      const c = gallery.querySelector(`.card[data-id="${id}"]`);
-      if (c) c.querySelector('.like-count').innerText = `${w.likes||0} likes`;
+    function updateLikes(id,w){
+      const c=gallery.querySelector(`.card[data-id="${id}"]`);
+      if(c) c.querySelector('.like-count').innerText=`${w.likes||0} likes`;
     }
-    function removeCard(id) {
-      const c = gallery.querySelector(`.card[data-id="${id}"]`);
-      if (c) c.remove();
+    function removeCard(id){
+      const c=gallery.querySelector(`.card[data-id="${id}"]`);
+      if(c) c.remove();
     }
 
-    // Wizard for posting...
-    let selectedFile = null, currentStep = 1;
+    // --- Wizard for posting ---
+    let selectedFile=null, currentStep=1;
     function goToStep(n){
-      currentStep = n;
-      stepEls.forEach(el=>el.classList.toggle('active', +el.dataset.step===n));
-      wizBack.innerText = '<ย้อนกลับ';
-      wizNext.innerText = n<3 ? 'ถัดไป>' : 'โพสต์';
+      currentStep=n;
+      stepEls.forEach(el=>el.classList.toggle('active',+el.dataset.step===n));
+      wizBack.innerText= n>1?'<ย้อนกลับ':'';
+      wizNext.innerText= n<3?'ถัดไป>':'โพสต์';
       postWizard.classList.add('active');
       document.body.classList.add('modal-open');
-      if(n===2 && selectedFile) previewImg.src = URL.createObjectURL(selectedFile);
+      if(n===2&&selectedFile) previewImg.src=URL.createObjectURL(selectedFile);
       if(n===3){
-        summaryImg.src = URL.createObjectURL(selectedFile);
-        summaryName.innerText = wizName.value;
-        summaryText.innerText = wizText.value;
+        summaryImg.src=URL.createObjectURL(selectedFile);
+        summaryName.innerText=wizName.value;
+        summaryText.innerText=wizText.value;
       }
-      if(n===1) wizNext.disabled = !selectedFile;
+      wizNext.disabled = (n===1&&!selectedFile);
     }
     function closeWizard(){
       postWizard.classList.remove('active');
       document.body.classList.remove('modal-open');
-      selectedFile = null;
-      fileInput.value = '';
-      wizName.value = '';
-      wizText.value = '';
-      wizNext.disabled = true;
-      wizNext.innerText = 'ถัดไป>';
+      selectedFile=null; fileInput.value=''; wizName.value=''; wizText.value='';
+      wizNext.disabled=true; wizNext.innerText='ถัดไป>';
     }
-    navAdd.onclick = ()=> goToStep(1);
-    wizBack.onclick = ()=> {
-      if(currentStep>1) goToStep(currentStep-1);
-      else closeWizard();
-    };
-    wizNext.onclick = async ()=>{
+    navAdd.onclick=()=>goToStep(1);
+    wizBack.onclick=()=> currentStep>1?goToStep(currentStep-1):closeWizard();
+    wizNext.onclick=async ()=>{
       if(currentStep<2){ goToStep(2); return; }
       if(currentStep===2){ goToStep(3); return; }
-      wizNext.disabled = true;
-      wizNext.innerHTML = `<span class="spinner"></span>กำลังโพสต์`;
-      const name = wizName.value.trim() || 'แขกผู้มีเกียรติ';
-      const text = wizText.value.trim();
+      // Step 3 => โพสต์
+      wizNext.disabled=true;
+      wizNext.innerHTML=`<span class="spinner"></span>กำลังโพสต์`;
+      const name=wizName.value.trim()||'แขกผู้มีเกียรติ';
+      const text=wizText.value.trim();
       if(!text){
         alert('กรุณาเขียนคำอวยพร');
-        wizNext.disabled = false;
-        wizNext.innerText = 'โพสต์';
+        wizNext.disabled=false; wizNext.innerText='โพสต์';
         return;
       }
-      let imgUrl = 'https://via.placeholder.com/320x400?text=No+Image';
+      let imgUrl='https://via.placeholder.com/320x400?text=No+Image';
       if(selectedFile){
-        const img = await new Promise(r=>{
+        const img=await new Promise(r=>{
           const i=new Image(); i.onload=()=>r(i);
-          i.src = URL.createObjectURL(selectedFile);
+          i.src=URL.createObjectURL(selectedFile);
         });
-        let [w,h] = [img.width,img.height], max=800;
+        let [w,h]=[img.width,img.height], max=800;
         if(Math.max(w,h)>max){
-          const ratio = max/Math.max(w,h); w*=ratio; h*=ratio;
+          const ratio=max/Math.max(w,h); w*=ratio; h*=ratio;
         }
-        const c = document.createElement('canvas'); c.width=w; c.height=h;
-        const ctx = c.getContext('2d');
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
+        const c=document.createElement('canvas'); c.width=w; c.height=h;
+        const ctx=c.getContext('2d');
+        ctx.imageSmoothingEnabled=true; ctx.imageSmoothingQuality='high';
         ctx.drawImage(img,0,0,w,h);
         let q=0.95, data;
-        do {
-          data = c.toDataURL('image/jpeg',q);
-          q -= 0.05;
-        } while(data.length>1_000_000 && q>0.1);
-        imgUrl = data;
+        do{ data=c.toDataURL('image/jpeg',q); q-=0.05; }
+        while(data.length>1_000_000&&q>0.1);
+        imgUrl=data;
       }
-      try {
-        await addDoc(collection(db,'wishes'), {
-          name, text, imgUrl,
-          likes: 0, likedBy: [], uid: currentUid,
-          createdAt: Timestamp.now()
+      try{
+        await addDoc(collection(db,'wishes'),{
+          name,text,imgUrl,likes:0,likedBy:[],uid:currentUid,createdAt:Timestamp.now()
         });
-      } catch(err) {
-        console.error(err);
-        alert('โพสต์ไม่สำเร็จ');
+      }catch(err){
+        console.error(err); alert('โพสต์ไม่สำเร็จ');
       }
+      // ไม่เรียก showAllFeed() อีกครั้ง! ใช้ onSnapshot อัปเดตอัตโนมัติ
       closeWizard();
-      showAllFeed();
     };
-    trigger.onclick = ()=> fileInput.click();
-    fileInput.onchange = e=>{
-      selectedFile = e.target.files[0] || null;
-      wizNext.disabled = !selectedFile;
+    trigger.onclick=()=>fileInput.click();
+    fileInput.onchange=e=>{
+      selectedFile=e.target.files[0]||null;
       if(selectedFile) goToStep(2);
+      wizNext.disabled=!selectedFile;
     };
-    wizName.addEventListener('input', e=>{
-      e.target.value = e.target.value.replace(/[^A-Za-z ]/g,'');
-      if(currentStep===3) summaryName.innerText = e.target.value;
+    wizName.addEventListener('input',e=>{
+      e.target.value=e.target.value.replace(/[^A-Za-z ]/g,'');
+      if(currentStep===3) summaryName.innerText=e.target.value;
     });
-    wizText.addEventListener('input', ()=>{
-      if(currentStep===3) summaryText.innerText = wizText.value;
+    wizText.addEventListener('input',()=> {
+      if(currentStep===3) summaryText.innerText=wizText.value;
     });
+
   </script>
 </body>
 </html>
