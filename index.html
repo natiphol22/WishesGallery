@@ -195,19 +195,26 @@
       vertical-align:middle; margin-right:6px;
     }
     @keyframes spin { to{ transform:rotate(360deg) } }
+
+    /* Heart pop animation */
+    @keyframes popHeartFadeShake {
+      0%   { transform: translate(-50%,-50%) scale(0); opacity: 0; }
+      30%  { transform: translate(-50%,-50%) scale(1); opacity: 0.6; }
+      60%  { transform: translate(calc(-50%-5px),-50%) scale(1.1); opacity: 0.8; }
+      70%  { transform: translate(calc(-50%+5px),-50%) scale(1.1); }
+      80%  { transform: translate(-50%,-50%) scale(1); }
+      100% { transform: translate(-50%,-50%) scale(1); opacity: 0; }
+    }
   </style>
 </head>
 <body>
   <header>
     <h1>Tuck &amp; Tan</h1>
     <span class="top-heart">
-      <svg viewBox="0 0 24 24">
-        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5
+      <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5
                  2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09
                  C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42
-                 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
-              fill="#e0245e"/>
-      </svg>
+                 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#e0245e"/></svg>
     </span>
   </header>
 
@@ -218,7 +225,6 @@
     <button id="nav-search">🔍</button>
     <button id="nav-add" class="primary">＋</button>
     <button id="nav-heart">❤️</button>
-    <!-- เปลี่ยนปุ่มคนเป็นไมค์ -->
     <button id="nav-profile"><ion-icon name="mic-outline"></ion-icon></button>
   </nav>
 
@@ -247,9 +253,9 @@
         <div id="summaryText" class="wish"></div>
       </div>
       <div class="form-group">
-        <label for="wizName">ชื่อของคุณ</label>
-        <!-- เอา inputmode/lang ออก เพื่อรับไทยได้เต็มที่ -->
-        <input type="text" id="wizName" placeholder="ไม่บังคับ">
+        <label for="wizName">ชื่อของคุณ (English only)</label>
+        <input type="text" id="wizName" placeholder="ไม่บังคับ"
+               pattern="[A-Za-z ]*" inputmode="latin" title="English letters only">
       </div>
       <div class="form-group">
         <label for="wizText">คำอวยพร 💌</label>
@@ -288,29 +294,44 @@
     let currentStep = 1, initialized = false;
     const body = document.body;
     const gallery = document.getElementById('gallery');
-    const navHome   = document.getElementById('nav-home');
-    const navSearch = document.getElementById('nav-search');
-    const navAdd    = document.getElementById('nav-add');
-    const navProfile= document.getElementById('nav-profile');
-    const postWizard= document.getElementById('postWizard');
-    const wizBack   = document.getElementById('wizBack');
-    const wizNext   = document.getElementById('wizNext');
-    const stepEls   = document.querySelectorAll('.wizard-step');
-    const fileInput = document.getElementById('wizFileInput');
+    const navHome    = document.getElementById('nav-home');
+    const navSearch  = document.getElementById('nav-search');
+    const navAdd     = document.getElementById('nav-add');
+    const navProfile = document.getElementById('nav-profile');
+    const postWizard = document.getElementById('postWizard');
+    const wizBack    = document.getElementById('wizBack');
+    const wizNext    = document.getElementById('wizNext');
+    const stepEls    = document.querySelectorAll('.wizard-step');
+    const fileInput  = document.getElementById('wizFileInput');
     const triggerPicker = document.getElementById('triggerFilePicker');
-    const previewImg= document.getElementById('previewImg');
-    const summaryImg = document.getElementById('summaryImg');
-    const summaryName= document.getElementById('summaryName');
-    const summaryText= document.getElementById('summaryText');
-    const wizName   = document.getElementById('wizName');
-    const wizText   = document.getElementById('wizText');
+    const previewImg = document.getElementById('previewImg');
+    const summaryImg  = document.getElementById('summaryImg');
+    const summaryName = document.getElementById('summaryName');
+    const summaryText = document.getElementById('summaryText');
+    const wizName    = document.getElementById('wizName');
+    const wizText    = document.getElementById('wizText');
 
-    // ตั้งลิงค์ปุ่ม nav
-    navHome.onclick   = ()=> window.location.href = 'https://natiphol.github.io/OnlineWeddingInvitation/';
-    navSearch.onclick = ()=> window.location.href = 'https://natiphol.github.io/2/';
-    navProfile.onclick= ()=> window.location.href = 'https://natiphol.github.io/AudioGuestbook/';
+    // Nav links
+    navHome.onclick    = ()=> window.location.href = 'https://natiphol.github.io/OnlineWeddingInvitation/';
+    navSearch.onclick  = ()=> window.location.href = 'https://natiphol.github.io/2/';
+    navProfile.onclick = ()=> window.location.href = 'https://natiphol.github.io/AudioGuestbook/';
 
-    // Firestore real-time feed
+    // Heart animation
+    function animateHeart(card) {
+      const h = document.createElement('div');
+      h.textContent = '❤';
+      Object.assign(h.style, {
+        position: 'absolute', top: '50%', left: '50%',
+        transform: 'translate(-50%, -50%)',
+        fontSize: '4rem', color: 'rgba(224,36,94,0.6)',
+        animation: 'popHeartFadeShake .8s forwards',
+        pointerEvents: 'none'
+      });
+      card.querySelector('.img-wrapper').appendChild(h);
+      h.addEventListener('animationend', ()=>h.remove());
+    }
+
+    // Firestore feed listener
     const qFeed = query(collection(db,'wishes'), orderBy('createdAt','desc'));
     onSnapshot(qFeed, snap => {
       snap.docChanges().forEach(change => {
@@ -329,7 +350,7 @@
       if (Array.isArray(w.likedBy) && w.likedBy.includes(currentUid)) {
         card.dataset.liked = 'true';
       }
-      const delBtn = w.uid === currentUid
+      const delBtn = w.uid===currentUid
         ? `<button class="delete-btn" title="ลบโพสต์">🗑️</button>` : '';
 
       card.innerHTML = `
@@ -349,27 +370,19 @@
         </div>
         <div class="info">
           <span class="author">${w.name}</span>
-          <span class="wish"> ${w.text}</span>
+          <span class="wish">${w.text}</span>
         </div>`;
 
-      // Like handler with fallback removal
-      card.querySelector('.like-btn').addEventListener('click', async e => {
+      const likeBtn = card.querySelector('.like-btn');
+      const imgEl   = card.querySelector('.img-wrapper img');
+
+      // Single click like + animation
+      likeBtn.addEventListener('click', async e => {
         e.stopPropagation();
         if (card.dataset.liked==='true') return;
         card.dataset.liked='true';
-        const icon = e.currentTarget;
-        icon.setAttribute('name','heart');
-        const h = document.createElement('div');
-        h.textContent = '❤';
-        Object.assign(h.style, {
-          position:'absolute', top:'50%', left:'50%',
-          fontSize:'4rem', color:'rgba(224,36,94,0.6)',
-          animation:'popHeartFadeShake .8s forwards', pointerEvents:'none'
-        });
-        card.querySelector('.img-wrapper').appendChild(h);
-        // remove after animation or timeout
-        h.addEventListener('animationend', ()=>h.remove());
-        setTimeout(()=>h.remove(), 1000);
+        likeBtn.setAttribute('name','heart');
+        animateHeart(card);
         try {
           await updateDoc(docRef(db,'wishes',id), {
             likes: increment(1),
@@ -381,8 +394,25 @@
         }
       });
 
+      // Double-click on image to like
+      imgEl.addEventListener('dblclick', async e => {
+        e.stopPropagation();
+        if (card.dataset.liked==='true') return;
+        card.dataset.liked='true';
+        likeBtn.setAttribute('name','heart');
+        animateHeart(card);
+        try {
+          await updateDoc(docRef(db,'wishes',id), {
+            likes: increment(1),
+            likedBy: arrayUnion(currentUid)
+          });
+        } catch(err) {
+          console.error(err);
+        }
+      });
+
       // Delete handler
-      if (w.uid === currentUid) {
+      if (w.uid===currentUid) {
         card.querySelector('.delete-btn').onclick = async e => {
           e.stopPropagation();
           if (!confirm('ลบโพสต์นี้?')) return;
@@ -395,26 +425,34 @@
         };
       }
 
-      // Share entire card without delete button
+      // Share handler: render a hidden clone then share
       card.querySelector('.share-btn').addEventListener('click', async e => {
         e.stopPropagation();
-        // clone and strip delete-btn
+        // clone & strip delete
         const clone = card.cloneNode(true);
         const trash = clone.querySelector('.delete-btn');
         if (trash) trash.remove();
+        // place offscreen
+        const container = document.createElement('div');
+        container.style.position = 'fixed';
+        container.style.top = '-10000px';
+        container.style.left = '-10000px';
+        container.appendChild(clone);
+        document.body.appendChild(container);
         try {
           const canvas = await html2canvas(clone);
-          canvas.toBlob(async blob => {
-            const file = new File([blob], 'wish.png', { type: 'image/png' });
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
-              await navigator.share({ files: [file], title: w.text, text: w.text });
-            } else {
-              alert('เบราว์เซอร์ไม่รองรับการแชร์');
-            }
-          });
+          const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+          const file = new File([blob], 'wish.png', { type: 'image/png' });
+          if (navigator.canShare?.({ files: [file] })) {
+            await navigator.share({ files: [file], title: w.text, text: w.text });
+          } else {
+            alert('เบราว์เซอร์ไม่รองรับการแชร์ไฟล์');
+          }
         } catch(err) {
           console.error('Share failed:', err);
           alert('แชร์ไม่สำเร็จ');
+        } finally {
+          document.body.removeChild(container);
         }
       });
 
@@ -456,7 +494,7 @@
       wizNext.disabled = true;
     }
 
-    // เปิด wizard
+    // open wizard
     navAdd.onclick = ()=> goToStep(1);
     wizBack.onclick = ()=> {
       if (currentStep>1) goToStep(currentStep-1);
@@ -478,7 +516,6 @@
         return;
       }
 
-      // เตรียมรูป
       let imgUrl = 'https://via.placeholder.com/320x400?text=No+Image';
       if (selectedFile) {
         const img = await new Promise(r=>{
@@ -502,7 +539,6 @@
         imgUrl = data;
       }
 
-      // ส่งขึ้น Firestore
       try {
         await addDoc(collection(db,'wishes'), {
           name, text, imgUrl,
@@ -514,7 +550,7 @@
         alert('โพสต์ไม่สำเร็จ ลองใหม่');
       }
 
-      // ส่ง Formspree (non-blocking)
+      // Formspree non-blocking
       try {
         const fd = new FormData();
         fd.append('name', name);
@@ -538,10 +574,12 @@
       if (selectedFile) goToStep(2);
     };
 
-    // live preview ชื่อ/คำอวยพร
-    wizName.addEventListener('input', ()=> {
-      if (currentStep===3) summaryName.innerText = wizName.value;
+    // enforce English-only name
+    wizName.addEventListener('input', e => {
+      e.target.value = e.target.value.replace(/[^A-Za-z ]/g, '');
+      if (currentStep===3) summaryName.innerText = e.target.value;
     });
+    // live preview of message
     wizText.addEventListener('input', ()=> {
       if (currentStep===3) summaryText.innerText = wizText.value;
     });
