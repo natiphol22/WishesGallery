@@ -30,6 +30,7 @@
       max-width: 480px;
       margin: 0 auto;
       min-height: 100vh;
+      /* เว้นที่ด้านล่างให้ nav ไม่บังการ์ด */
       padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom));
     }
     header {
@@ -41,39 +42,52 @@
       font-size: 2rem; font-weight: bold;
       color: #000; cursor: default;
     }
+    .top-heart svg { width: 28px; height: 28px; fill: #e0245e }
+
     #loadingBar {
-      padding: .5rem; text-align: center; background: #fff;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-size: .95rem;
+      padding: .5rem;
+      text-align: center;
+      background: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      font-size: .95rem;
       display: none;
     }
+
     .gallery {
       padding: 1rem;
+      /* เว้นที่ด้านล่างสำหรับ nav */
       padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom) + 1rem);
-      display: grid; grid-template-columns: 1fr; gap: 1rem;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
     }
+
     .card {
-      background: #fff; border-radius: var(--radius);
-      box-shadow: var(--shadow); overflow: hidden;
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
       transition: transform .2s;
     }
     .card:hover { transform: translateY(-4px); }
+
     .poster {
       display: flex; justify-content: space-between; align-items: center;
       padding: .5rem .75rem;
       font-family: 'Pacifico', cursive; font-size: 1.25rem; font-weight: bold;
       border-bottom: 1px solid #eee;
     }
-    .poster .delete-btn {
-      background: none; border: none; font-size: 1.2rem; cursor: pointer;
-    }
+
     .img-wrapper { position: relative }
     .img-wrapper img { width: 100%; display: block; cursor: pointer }
+
     .card-actions {
       display: flex; justify-content: space-between; align-items: center;
       padding: .5rem .75rem;
     }
     .left-actions { display: flex; gap: .75rem }
     .action-icon { font-size: 1.6rem; cursor: pointer }
+
     .like-indicator {
       padding: 0 .75rem; font-weight: 600; font-size: .95rem;
     }
@@ -82,6 +96,7 @@
     }
     .info .author { font-weight: 700 }
     .info .wish   { color: #444 }
+
     .comments { padding: .5rem .75rem }
     .comment-list {
       max-height: 120px; overflow-y: auto; margin-bottom: .5rem;
@@ -92,9 +107,11 @@
     }
     .comment-item strong { font-weight: 600 }
     .comment-like {
-      display: flex; align-items: center; gap: .25rem; font-size: .85rem; color: #999;
+      display: flex; align-items: center; gap: .25rem;
+      font-size: .85rem; color: #999;
     }
     .comment-like ion-icon { font-size: 1rem; cursor: pointer }
+
     .comment-form {
       display: none; margin-top: .5rem;
     }
@@ -109,10 +126,14 @@
       border-radius: var(--radius); padding: .5rem .75rem;
       cursor: pointer;
     }
+
     .toggle-comments-btn {
-      background: none; border: none; color: #405de6; font-size: .9rem;
-      cursor: pointer; padding: 0; margin-bottom: .5rem; display: none;
+      background: none; border: none;
+      color: #405de6; font-size: .9rem;
+      cursor: pointer; padding: 0; margin-bottom: .5rem;
+      display: none;
     }
+
     .bottom-nav {
       position: fixed; bottom: 0; left: 50%;
       transform: translateX(-50%);
@@ -133,6 +154,7 @@
       box-shadow: var(--shadow);
     }
     .bottom-nav button:hover { transform: scale(1.1); }
+
     .wizard-overlay {
       position: fixed; inset: 0;
       background: rgba(255,255,255,0.9);
@@ -199,6 +221,12 @@
 <body>
   <header>
     <h1>Tuck &amp; Tan</h1>
+    <span class="top-heart">
+      <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5
+                 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09
+                 C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42
+                 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+    </span>
   </header>
 
   <div id="loadingBar">กำลังโหลดโพสต์…</div>
@@ -208,7 +236,7 @@
     <button id="nav-home">🏠</button>
     <button id="nav-search">🔍</button>
     <button id="nav-add" class="primary">＋</button>
-    <button id="nav-mail">✉️</button>
+    <button id="nav-heart">❤️</button>
     <button id="nav-profile"><ion-icon name="mic-outline"></ion-icon></button>
   </nav>
 
@@ -255,20 +283,23 @@
       apiKey: "AIzaSyBxYY_c14XFroS6dBIh4Jzl9XL4PMjipcg",
       authDomain: "wishes-web.firebaseapp.com",
       projectId: "wishes-web",
+      storageBucket: "unused",
+      messagingSenderId: "93224724611",
+      appId: "1:93224724611:web:491aab34365584864fd3b6",
+      measurementId: "G-6HQJWKWB8Z"
     });
     const db = getFirestore(app);
 
-    // UID
-    const currentUid = localStorage.getItem('uid') || crypto.randomUUID();
+    let currentUid = localStorage.getItem('uid')
+      || crypto.randomUUID();
     localStorage.setItem('uid', currentUid);
 
-    // Refs
     const loadingBar = document.getElementById('loadingBar');
     const gallery    = document.getElementById('gallery');
     const navHome    = document.getElementById('nav-home');
     const navSearch  = document.getElementById('nav-search');
     const navAdd     = document.getElementById('nav-add');
-    const navMail    = document.getElementById('nav-mail');
+    const navHeart   = document.getElementById('nav-heart');
     const navProfile = document.getElementById('nav-profile');
     const postWizard = document.getElementById('postWizard');
     const wizBack    = document.getElementById('wizBack');
@@ -283,13 +314,11 @@
     const wizName    = document.getElementById('wizName');
     const wizText    = document.getElementById('wizText');
 
-    // Navigation links
     navHome.onclick    = () => window.location.href = 'https://natiphol22.github.io/WishesGallery/';
     navSearch.onclick  = () => window.location.href = 'https://natiphol.github.io/2/';
-    navMail.onclick    = () => window.location.href = 'https://natiphol22.github.io/Text/';
     navProfile.onclick = () => window.location.href = 'https://natiphol.github.io/AudioGuestbook/';
+    navHeart.onclick   = () => showLikedFeed();
 
-    // Feed: only posts with imgUrl
     let unsubscribeFeed, firstLoad = true;
     function showAllFeed() {
       if (unsubscribeFeed) unsubscribeFeed();
@@ -302,44 +331,36 @@
           loadingBar.style.display = 'none';
           let docs = [...snap.docs];
           if (Math.random() < 0.15) docs.sort(() => Math.random() - 0.5);
-          docs.forEach(d => {
-            const w = d.data();
-            if (w.imgUrl) addCard(w, d.id, false);
-          });
+          docs.forEach(d => addCard(d.data(), d.id, false));
           firstLoad = false;
         } else {
           snap.docChanges().forEach(c => {
-            const w = c.doc.data();
-            if (!w.imgUrl) return;
-            if (c.type==='added')    addCard(w, c.doc.id, true);
-            if (c.type==='modified') updateLikes(c.doc.id, w);
+            if (c.type==='added')    addCard(c.doc.data(), c.doc.id, true);
+            if (c.type==='modified') updateLikes(c.doc.id, c.doc.data());
             if (c.type==='removed')  removeCard(c.doc.id);
           });
         }
       });
     }
-    showAllFeed();
 
     async function showLikedFeed() {
       if (unsubscribeFeed) unsubscribeFeed();
       gallery.innerHTML = '';
       loadingBar.style.display = 'block';
-      const likedQ = query(
-        collection(db,'wishes'),
+      const colRef = collection(db,'wishes');
+      const likedQ = query(colRef,
         where('likedBy','array-contains',currentUid),
         orderBy('createdAt','desc')
       );
       unsubscribeFeed = onSnapshot(likedQ, snap => {
         loadingBar.style.display = 'none';
         gallery.innerHTML = '';
-        snap.docs.forEach(d => {
-          const w = d.data();
-          if (w.imgUrl) addCard(w, d.id, false);
-        });
+        snap.forEach(d => addCard(d.data(), d.id, false));
       });
     }
 
-    // Animate heart
+    showAllFeed();
+
     function animateHeart(elem) {
       const h = document.createElement('div');
       h.textContent = '❤';
@@ -353,14 +374,15 @@
       h.addEventListener('animationend', () => h.remove());
     }
 
-    // Add card
     function addCard(w,id,prepend) {
       const card = document.createElement('div');
       card.className = 'card';
       card.dataset.id = id;
       if (w.likedBy?.includes(currentUid)) card.dataset.liked='true';
+
       const delBtnHTML = w.uid===currentUid
         ? '<button class="delete-btn" title="ลบโพสต์">🗑️</button>' : '';
+
       card.innerHTML = `
         <div class="poster">
           <span>${w.name}</span>${delBtnHTML}
@@ -384,9 +406,16 @@
             <button class="comment-btn">ส่ง</button>
           </div>
         </div>`;
-      // Like
-      const likeBtn = card.querySelector('.like-btn');
-      const imgEl   = card.querySelector('img');
+
+      const likeBtn  = card.querySelector('.like-btn');
+      const imgEl    = card.querySelector('img');
+      const chatBtn  = card.querySelector('.chat-btn');
+      const shareBtn = card.querySelector('.share-btn');
+      const formEl   = card.querySelector('.comment-form');
+      const delBtn   = card.querySelector('.delete-btn');
+      const listEl   = card.querySelector('.comment-list');
+      const toggleBtn= card.querySelector('.toggle-comments-btn');
+
       likeBtn.addEventListener('click', async e => {
         e.stopPropagation();
         if (card.dataset.liked==='true') return;
@@ -410,35 +439,36 @@
           });
         }
       });
-      // Delete
-      const delBtn = card.querySelector('.delete-btn');
-      if (delBtn) delBtn.addEventListener('click', async () => {
-        if (confirm('ลบโพสต์นี้?')) await deleteDoc(doc(db,'wishes',id));
+
+      chatBtn.addEventListener('click', () => {
+        formEl.style.display = formEl.style.display==='block' ? 'none' : 'block';
       });
-      // Share
-      const shareBtn = card.querySelector('.share-btn');
+
       shareBtn.addEventListener('click', async e => {
         e.stopPropagation();
-        const clone = card.cloneNode(true);
+        const clone=card.cloneNode(true);
         clone.querySelector('.delete-btn')?.remove();
         clone.querySelector('.comments')?.remove();
-        const off = document.createElement('div');
+        const off=document.createElement('div');
         off.style.position='fixed'; off.style.top='-10000px'; off.style.left='-10000px';
         off.append(clone); document.body.append(off);
         try {
-          const canvas = await html2canvas(clone,{scale:window.devicePixelRatio});
-          const blob   = await new Promise(r=>canvas.toBlob(r,'image/png'));
-          const file   = new File([blob],'wish.png',{type:'image/png'});
-          if (navigator.canShare?.({files:[file]})) {
+          const canvas=await html2canvas(clone,{scale:window.devicePixelRatio});
+          const blob=await new Promise(r=>canvas.toBlob(r,'image/png'));
+          const file=new File([blob],'wish.png',{type:'image/png'});
+          if(navigator.canShare?.({files:[file]})){
             await navigator.share({files:[file],title:w.text,text:w.text});
           } else alert('เบราว์เซอร์ไม่รองรับการแชร์ไฟล์');
         } finally { document.body.removeChild(off) }
       });
-      // Comments
-      const chatBtn  = card.querySelector('.chat-btn');
-      const formEl   = card.querySelector('.comment-form');
-      const listEl   = card.querySelector('.comment-list');
-      const toggleBtn= card.querySelector('.toggle-comments-btn');
+
+      if (delBtn) {
+        delBtn.onclick = async e => {
+          e.stopPropagation();
+          if (confirm('ลบโพสต์นี้?')) await deleteDoc(doc(db,'wishes',id));
+        };
+      }
+
       let comments = [], showAll = false;
       const commentsCol = collection(db,'wishes',id,'comments');
       const commentsQ   = query(commentsCol, orderBy('createdAt','asc'));
@@ -446,49 +476,60 @@
         comments = snap.docs.map(d => ({ id:d.id, ...d.data() }));
         renderComments();
       });
+
       function renderComments() {
         listEl.innerHTML = '';
         const toShow = showAll ? comments : comments.slice(0,5);
         toShow.forEach(c => {
           const div = document.createElement('div');
           div.className = 'comment-item';
-          div.innerHTML = `<span><strong>${c.name}</strong>: ${c.text}</span>
-            <div class="comment-like">
-              <ion-icon name="${c.likedBy?.includes(currentUid)?'heart':'heart-outline'}"></ion-icon>
-              <span>${c.likes||0}</span>
-            </div>`;
-          const heartEl = div.querySelector('ion-icon');
-          heartEl.addEventListener('click', async () => {
+          const text = document.createElement('span');
+          text.innerHTML = `<strong>${c.name}</strong>: ${c.text}`;
+          const likeWrap = document.createElement('div');
+          likeWrap.className = 'comment-like';
+          const heart = document.createElement('ion-icon');
+          heart.name = c.likedBy?.includes(currentUid)?'heart':'heart-outline';
+          const count = document.createElement('span');
+          count.textContent = c.likes||0;
+          heart.addEventListener('click', async () => {
             if (c.likedBy?.includes(currentUid)) return;
-            animateHeart(heartEl);
+            animateHeart(heart);
             await updateDoc(doc(db,'wishes',id,'comments',c.id), {
               likes: increment(1),
               likedBy: arrayUnion(currentUid)
             });
           });
+          likeWrap.append(heart,count);
+          div.append(text,likeWrap);
           listEl.append(div);
         });
-        if (comments.length > 5) {
+        if (comments.length>5) {
           toggleBtn.style.display = 'block';
           toggleBtn.textContent = showAll
             ? 'ซ่อนคอมเมนต์'
             : `ดูคอมเมนต์ทั้งหมด (${comments.length})`;
-        } else toggleBtn.style.display = 'none';
+        } else {
+          toggleBtn.style.display = 'none';
+        }
       }
+
       toggleBtn.addEventListener('click', () => {
-        showAll = !showAll; renderComments();
+        showAll = !showAll;
+        renderComments();
       });
-      chatBtn.addEventListener('click', () => {
-        formEl.style.display = formEl.style.display==='block' ? 'none' : 'block';
-      });
-      card.querySelector('.comment-btn').addEventListener('click', async () => {
-        const nm = card.querySelector('.comment-name').value.trim() || 'แขก';
-        const tx = card.querySelector('.comment-text').value.trim();
+
+      const nameInput = card.querySelector('.comment-name');
+      const textInput = card.querySelector('.comment-text');
+      const sendBtn   = card.querySelector('.comment-btn');
+      sendBtn.addEventListener('click', async () => {
+        const nm = nameInput.value.trim()||'แขก';
+        const tx = textInput.value.trim();
         if (!tx) return;
         await addDoc(commentsCol, {
-          name: nm, text: tx, likes: 0, likedBy: [], createdAt: Timestamp.now()
+          name: nm, text: tx,
+          likes: 0, likedBy: [], createdAt: Timestamp.now()
         });
-        formEl.style.display = 'none';
+        nameInput.value=''; textInput.value=''; formEl.style.display='none';
       });
 
       prepend ? gallery.prepend(card) : gallery.append(card);
@@ -526,63 +567,55 @@
       selectedFile=null; fileInput.value=''; wizName.value=''; wizText.value='';
       wizNext.disabled=true; wizNext.innerText='ถัดไป>';
     }
-    navAdd.onclick     = () => goToStep(1);
-    wizBack.onclick    = () => currentStep>1 ? goToStep(currentStep-1) : closeWizard();
-    wizNext.onclick    = async () => {
-      if (currentStep<2) { goToStep(2); return; }
-      if (currentStep===2) { goToStep(3); return; }
-      wizNext.disabled = true;
-      wizNext.innerHTML = `<span class="spinner"></span>กำลังโพสต์`;
-      const name = wizName.value.trim() || 'แขกผู้มีเกียรติ';
-      const text = wizText.value.trim();
-      if (!text) {
+    navAdd.onclick=()=>goToStep(1);
+    wizBack.onclick=()=> currentStep>1?goToStep(currentStep-1):closeWizard();
+    wizNext.onclick=async ()=>{
+      if(currentStep<2){ goToStep(2); return; }
+      if(currentStep===2){ goToStep(3); return; }
+      wizNext.disabled=true; wizNext.innerHTML=`<span class="spinner"></span>กำลังโพสต์`;
+      const name=wizName.value.trim()||'แขกผู้มีเกียรติ';
+      const text=wizText.value.trim();
+      if(!text){
         alert('กรุณาเขียนคำอวยพร');
-        wizNext.disabled = false; wizNext.innerText = 'โพสต์';
-        return;
+        wizNext.disabled=false; wizNext.innerText='โพสต์'; return;
       }
-      // resize & compress
-      let imgUrl = 'https://via.placeholder.com/320x400?text=No+Image';
-      if (selectedFile) {
-        const img = await new Promise(r=>{
-          const i = new Image(); i.onload = () => r(i);
-          i.src = URL.createObjectURL(selectedFile);
+      let imgUrl='https://via.placeholder.com/320x400?text=No+Image';
+      if(selectedFile){
+        const img=await new Promise(r=>{
+          const i=new Image(); i.onload=()=>r(i);
+          i.src=URL.createObjectURL(selectedFile);
         });
-        let [w,h] = [img.width,img.height], max = 800;
-        if (Math.max(w,h) > max) {
-          const ratio = max/Math.max(w,h); w *= ratio; h *= ratio;
+        let [w,h]=[img.width,img.height], max=800;
+        if(Math.max(w,h)>max){
+          const ratio=max/Math.max(w,h); w*=ratio; h*=ratio;
         }
-        const c = document.createElement('canvas'); c.width = w; c.height = h;
-        const ctx = c.getContext('2d');
-        ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
-        ctx.drawImage(img, 0, 0, w, h);
-        let q = 0.95, data;
-        do { data = c.toDataURL('image/jpeg', q); q -= 0.05 }
-        while(data.length > 1_000_000 && q > 0.1);
-        imgUrl = data;
+        const c=document.createElement('canvas'); c.width=w; c.height=h;
+        const ctx=c.getContext('2d');
+        ctx.imageSmoothingEnabled=true; ctx.imageSmoothingQuality='high';
+        ctx.drawImage(img,0,0,w,h);
+        let q=0.95,data;
+        do{ data=c.toDataURL('image/jpeg',q); q-=0.05 }
+        while(data.length>1_000_000&&q>0.1);
+        imgUrl=data;
       }
-      await addDoc(collection(db,'wishes'), {
-        name, text, imgUrl,
-        likes: 0, likedBy: [], uid: currentUid,
-        createdAt: Timestamp.now()
+      await addDoc(collection(db,'wishes'),{
+        name,text,imgUrl,likes:0,likedBy:[],uid:currentUid,createdAt:Timestamp.now()
       });
       closeWizard();
     };
-    trigger.onclick   = () => fileInput.click();
-    fileInput.onchange= e => {
-      selectedFile = e.target.files[0] || null;
-      if (selectedFile) goToStep(2);
-      wizNext.disabled = !selectedFile;
+    trigger.onclick=()=>fileInput.click();
+    fileInput.onchange=e=>{
+      selectedFile=e.target.files[0]||null;
+      if(selectedFile) goToStep(2);
+      wizNext.disabled=!selectedFile;
     };
-    wizName.addEventListener('input', e => {
-      e.target.value = e.target.value.replace(/[^A-Za-z ]/g,'');
-      if (currentStep===3) summaryName.innerText = e.target.value;
+    wizName.addEventListener('input',e=>{
+      e.target.value=e.target.value.replace(/[^A-Za-z ]/g,'');
+      if(currentStep===3) summaryName.innerText=e.target.value;
     });
-    wizText.addEventListener('input', () => {
-      if (currentStep===3) summaryText.innerText = wizText.value;
+    wizText.addEventListener('input',()=> {
+      if(currentStep===3) summaryText.innerText=wizText.value;
     });
-
-    // Toggle between all feed and liked feed
-    navHeart.onclick = showLikedFeed;
   </script>
 </body>
 </html>
