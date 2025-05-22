@@ -71,7 +71,7 @@
     .info {
       padding:.25rem .75rem 1rem; font-size:.95rem;
     }
-    .author { font-weight:500 }
+    .author { font-weight:700; } /* ชื่อเป็นตัวหนา */
     .wish { color:#444 }
 
     /* comments */
@@ -84,11 +84,6 @@
       margin-bottom:.5rem;
     }
     .comment-item { font-size:.9rem; margin-bottom:.25rem }
-    .show-comment-btn {
-      background:#405de6; color:#fff; border:none;
-      border-radius:var(--radius); padding:.5rem .75rem;
-      cursor:pointer; font-size:.9rem; width:100%;
-    }
     .comment-form {
       display:none; margin-top:.5rem;
     }
@@ -261,11 +256,11 @@
     });
     const db = getFirestore(app);
 
-    // User identity
+    // User ID
     let currentUid = localStorage.getItem('uid') || crypto.randomUUID();
     localStorage.setItem('uid', currentUid);
 
-    // DOM references
+    // DOM
     const body        = document.body;
     const gallery     = document.getElementById('gallery');
     const navHome     = document.getElementById('nav-home');
@@ -287,11 +282,11 @@
     const wizName     = document.getElementById('wizName');
     const wizText     = document.getElementById('wizText');
 
-    // Navigation actions
+    // Navigation
     navHome.onclick    = () => showAllFeed();
     appTitle.onclick   = () => showAllFeed();
-    navSearch.onclick  = () => window.location.href = 'https://natiphol.github.io/2/';
-    navProfile.onclick = () => window.location.href = 'https://natiphol.github.io/AudioGuestbook/';
+    navSearch.onclick  = () => window.location.href='https://natiphol.github.io/2/';
+    navProfile.onclick = () => window.location.href='https://natiphol.github.io/AudioGuestbook/';
     navHeart.onclick   = () => showLikedFeed();
 
     // Feed subscription
@@ -302,7 +297,7 @@
       const q = query(collection(db,'wishes'), orderBy('createdAt','desc'));
       unsubscribeFeed = onSnapshot(q, snap=>{
         snap.docChanges().forEach(c=>{
-          const w = c.doc.data(), id = c.doc.id;
+          const w=c.doc.data(), id=c.doc.id;
           if(c.type==='added')    addCard(w,id,false);
           if(c.type==='modified') updateLikes(id,w);
           if(c.type==='removed')  removeCard(id);
@@ -319,7 +314,7 @@
       );
       unsubscribeFeed = onSnapshot(q, snap=>{
         snap.docChanges().forEach(c=>{
-          const w = c.doc.data(), id = c.doc.id;
+          const w=c.doc.data(), id=c.doc.id;
           if(c.type==='added')    addCard(w,id,false);
           if(c.type==='removed')  removeCard(id);
         });
@@ -327,10 +322,10 @@
     }
     showAllFeed();
 
-    // Heart pop animation
+    // Heart animation
     function animateHeart(card){
-      const h = document.createElement('div');
-      h.textContent = '❤';
+      const h=document.createElement('div');
+      h.textContent='❤';
       Object.assign(h.style,{
         position:'absolute', top:'50%', left:'50%',
         transform:'translate(-50%,-50%)',
@@ -342,13 +337,12 @@
       h.addEventListener('animationend',()=>h.remove());
     }
 
-    // Add a wish card with share, like, delete, comments
+    // Add a card
     function addCard(w,id,prepend){
-      const card = document.createElement('div');
-      card.className = 'card'; card.dataset.id = id;
-      if(Array.isArray(w.likedBy) && w.likedBy.includes(currentUid)){
-        card.dataset.liked = 'true';
-      }
+      const card=document.createElement('div');
+      card.className='card'; card.dataset.id=id;
+      if(Array.isArray(w.likedBy)&&w.likedBy.includes(currentUid))
+        card.dataset.liked='true';
       const delBtn = w.uid===currentUid
         ? `<button class="delete-btn" title="ลบโพสต์">🗑️</button>` : '';
 
@@ -369,7 +363,6 @@
         <div class="info"><span class="author">${w.name}</span> <span class="wish">${w.text}</span></div>
         <div class="comments">
           <div class="comment-list"></div>
-          <button class="show-comment-btn">คอมเม้นหน่อย</button>
           <div class="comment-form">
             <input type="text" class="comment-name" placeholder="ชื่อ">
             <textarea class="comment-text" rows="2" placeholder="เขียนคอมเมนต์..."></textarea>
@@ -382,7 +375,7 @@
       likeBtn.addEventListener('click', async e=>{
         e.stopPropagation();
         if(card.dataset.liked==='true') return;
-        card.dataset.liked = 'true';
+        card.dataset.liked='true';
         likeBtn.setAttribute('name','heart');
         animateHeart(card);
         await updateDoc(docRef(db,'wishes',id), {
@@ -391,7 +384,14 @@
         });
       });
 
-      // Share without delete-btn
+      // Chat toggles comment form
+      const chatBtn = card.querySelector('.chat-btn');
+      const formEl  = card.querySelector('.comment-form');
+      chatBtn.addEventListener('click', ()=> {
+        formEl.style.display = formEl.style.display==='block'?'none':'block';
+      });
+
+      // Share without delete button
       card.querySelector('.share-btn').addEventListener('click', async e=>{
         e.stopPropagation();
         const clone = card.cloneNode(true);
@@ -418,48 +418,43 @@
       if(w.uid===currentUid){
         card.querySelector('.delete-btn').onclick = async e=>{
           e.stopPropagation();
-          if(confirm('ลบโพสต์นี้?')) await deleteDoc(docRef(db,'wishes',id));
+          if(confirm('ลบโพสต์นี้?')){
+            await deleteDoc(docRef(db,'wishes',id));
+          }
         };
       }
 
-      // Comments real-time
+      // Comments realtime
       const commentsCol = collection(db,'wishes',id,'comments');
       const commentsQ   = query(commentsCol, orderBy('createdAt','asc'));
       const listEl      = card.querySelector('.comment-list');
       onSnapshot(commentsQ, snap=>{
         listEl.innerHTML = '';
         snap.forEach(d=>{
-          const c = d.data();
-          const div = document.createElement('div');
-          div.className = 'comment-item';
+          const c=d.data();
+          const div=document.createElement('div');
+          div.className='comment-item';
           div.textContent = `${c.name}: ${c.text}`;
           listEl.append(div);
         });
       });
 
-      // Toggle comment form
-      const showBtn = card.querySelector('.show-comment-btn');
-      const formEl  = card.querySelector('.comment-form');
-      showBtn.addEventListener('click', ()=>{
-        formEl.style.display = formEl.style.display==='block'?'none':'block';
-      });
-
-      // Submit comment
+      // Post comment
       const nameInput = card.querySelector('.comment-name');
       const textInput = card.querySelector('.comment-text');
-      const submitBtn = card.querySelector('.comment-btn');
-      submitBtn.addEventListener('click', async ()=>{
-        const name = nameInput.value.trim() || 'แขก';
-        const txt  = textInput.value.trim();
+      const sendBtn   = card.querySelector('.comment-btn');
+      sendBtn.addEventListener('click', async ()=>{
+        const nm = nameInput.value.trim()||'แขก';
+        const txt= textInput.value.trim();
         if(!txt) return;
         await addDoc(commentsCol, {
-          name: name,
+          name: nm,
           text: txt,
           createdAt: Timestamp.now()
         });
-        nameInput.value = '';
-        textInput.value = '';
-        formEl.style.display = 'none';
+        nameInput.value='';
+        textInput.value='';
+        formEl.style.display='none';
       });
 
       prepend ? gallery.prepend(card) : gallery.append(card);
@@ -507,10 +502,9 @@
       else closeWizard();
     };
     wizNext.onclick = async ()=>{
-      if(currentStep<2) { goToStep(2); return; }
+      if(currentStep<2){ goToStep(2); return; }
       if(currentStep===2){ goToStep(3); return; }
 
-      // Post
       wizNext.disabled = true;
       wizNext.innerHTML = `<span class="spinner"></span>กำลังโพสต์`;
       const name = wizName.value.trim()||'แขกผู้มีเกียรติ';
@@ -525,20 +519,19 @@
       if(selectedFile){
         const img = await new Promise(r=>{
           const i=new Image(); i.onload=()=>r(i);
-          i.src = URL.createObjectURL(selectedFile);
+          i.src=URL.createObjectURL(selectedFile);
         });
-        let [w,h] = [img.width,img.height], m=800;
+        let [w,h]=[img.width,img.height], m=800;
         if(Math.max(w,h)>m){
-          const r = m/Math.max(w,h); w*=r; h*=r;
+          const r=m/Math.max(w,h); w*=r; h*=r;
         }
         const c=document.createElement('canvas'); c.width=w; c.height=h;
-        const ctx=c.getContext('2d');
-        ctx.imageSmoothingEnabled=true; ctx.imageSmoothingQuality='high';
+        const ctx=c.getContext('2d'); ctx.imageSmoothingEnabled=true; ctx.imageSmoothingQuality='high';
         ctx.drawImage(img,0,0,w,h);
         let q=0.95,data;
         do{ data=c.toDataURL('image/jpeg',q); q-=0.05; }
         while(data.length>1e6&&q>0.1);
-        imgUrl = data;
+        imgUrl=data;
       }
       try{
         await addDoc(collection(db,'wishes'),{
