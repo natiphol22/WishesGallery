@@ -4,9 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Tuck &amp; Tan</title>
-  <!-- Fonts: Pacifico + Poppins -->
+  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <!-- Ionicons for action icons -->
+  <!-- Ionicons -->
   <script type="module" src="https://cdn.jsdelivr.net/npm/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://cdn.jsdelivr.net/npm/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
 
@@ -148,42 +148,10 @@
       color: #fff; font-size: 1rem; cursor: pointer;
     }
 
-    /* Step 2: carousel */
-    .carousel {
-      width: 100%; flex: 1;
-      display: flex; overflow-x: scroll; scroll-snap-type: x mandatory;
-    }
-    .carousel-item {
-      flex: 0 0 100%; scroll-snap-align: start; position: relative;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .carousel-item img {
-      width: auto;
-      height: auto;
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
-    }
-    .carousel-item .del {
-      position: absolute; top: 8px; right: 8px;
-      background: rgba(255,255,255,0.8); border: none;
-      border-radius: 50%; padding: .4rem; cursor: pointer;
-    }
-    .carousel-indicator {
-      margin-top: .5rem; font-size: .9rem;
-    }
-
-    /* Step 3: preview summary */
-    .preview-summary {
-      display: flex; align-items: center; justify-content: center;
-    }
-    .preview-summary img {
-      width: auto;
-      height: auto;
-      max-width: 100%;
-      max-height: 40vh;
-      object-fit: contain;
-      border-radius: var(--radius);
+    /* Step 2: preview */
+    .preview-img {
+      max-width: 80%; max-height: 40vh;
+      object-fit: contain; border-radius: var(--radius);
       margin-bottom: 1rem;
     }
 
@@ -198,15 +166,6 @@
       background: var(--input-bg); font-size: .95rem;
     }
 
-    /* Heart pop animation */
-    @keyframes popHeartFadeShake {
-      0%   { transform: translate(-50%,-50%) scale(0); opacity: 0; }
-      30%  { transform: translate(-50%,-50%) scale(1); opacity: 0.6; }
-      60%  { transform: translate(calc(-50%-5px),-50%) scale(1.1); opacity: 0.8; }
-      70%  { transform: translate(calc(-50%+5px),-50%) scale(1.1); }
-      80%  { transform: translate(-50%,-50%) scale(1); }
-      100% { transform: translate(-50%,-50%) scale(1); opacity: 0; }
-    }
     /* Spinner */
     .spinner {
       width:16px; height:16px;
@@ -245,22 +204,22 @@
   <div id="postWizard" class="wizard-overlay">
     <div class="wizard-nav">
       <button id="wizBack" class="btn-nav">&lt;ย้อนกลับ</button>
-      <button id="wizNext" class="btn-nav">ถัดไป&gt;</button>
+      <button id="wizNext" class="btn-nav" disabled>ถัดไป&gt;</button>
     </div>
+
+    <!-- Step 1: เลือกรูป -->
     <div class="wizard-step" data-step="1">
-      <input type="file" id="wizFileInput" accept="image/*" multiple hidden>
+      <input type="file" id="wizFileInput" accept="image/*" hidden>
       <button id="triggerFilePicker">+ เลือกรูปภาพ</button>
     </div>
+
+    <!-- Step 2: พรีวิวรูป -->
     <div class="wizard-step" data-step="2">
-      <div id="wizCarousel" class="carousel"></div>
-      <div class="carousel-indicator">
-        <span id="currentIndex">1</span>/<span id="totalCount">1</span>
-      </div>
+      <img id="previewImg" class="preview-img" alt="Preview รูป">
     </div>
+
+    <!-- Step 3: ฟอร์มชื่อและคำอวยพร -->
     <div class="wizard-step" data-step="3">
-      <div class="preview-summary">
-        <img id="summaryImg" alt="Preview รูป">
-      </div>
       <div class="form-group">
         <label for="wizName">ชื่อของคุณ</label>
         <input type="text" id="wizName" placeholder="ไม่บังคับ">
@@ -276,7 +235,8 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
     import {
       getFirestore, collection, addDoc, query, orderBy, onSnapshot,
-      doc as docRef, updateDoc, deleteDoc, Timestamp
+      doc as docRef, updateDoc, deleteDoc, Timestamp,
+      increment, arrayUnion
     } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -297,7 +257,8 @@
       localStorage.setItem('uid', currentUid);
     }
 
-    let selectedFiles = [], currentStep = 1, initialized = false;
+    let selectedFile = null;
+    let currentStep = 1, initialized = false;
     const body = document.body;
     const gallery = document.getElementById('gallery');
     const navAdd = document.getElementById('nav-add');
@@ -307,30 +268,18 @@
     const stepEls = document.querySelectorAll('.wizard-step');
     const fileInput = document.getElementById('wizFileInput');
     const triggerPicker = document.getElementById('triggerFilePicker');
-    const wizCarousel = document.getElementById('wizCarousel');
-    const currentIndex = document.getElementById('currentIndex');
-    const totalCount = document.getElementById('totalCount');
-    const summaryImg = document.getElementById('summaryImg');
+    const previewImg = document.getElementById('previewImg');
     const wizName = document.getElementById('wizName');
     const wizText = document.getElementById('wizText');
 
+    // Firestore real-time feed
     const qFeed = query(collection(db,'wishes'), orderBy('createdAt','desc'));
     onSnapshot(qFeed, snap => {
       snap.docChanges().forEach(change => {
         const w = change.doc.data(), id = change.doc.id;
-        if (change.type === 'added') addCard(w,id,initialized);
-        if (change.type === 'modified') {
-          const card = gallery.querySelector(`.card[data-id="${id}"]`);
-          if (card) {
-            card.querySelector('.like-count').innerText = `${w.likes} likes`;
-            const icon = card.querySelector('.like-btn');
-            if (card.dataset.liked === 'true') icon.setAttribute('name','heart');
-          }
-        }
-        if (change.type === 'removed') {
-          const card = gallery.querySelector(`.card[data-id="${id}"]`);
-          if (card) card.remove();
-        }
+        if (change.type === 'added')    addCard(w, id, initialized);
+        if (change.type === 'modified') updateLikes(id, w);
+        if (change.type === 'removed')  removeCard(id);
       });
       initialized = true;
     });
@@ -347,13 +296,13 @@
 
       card.innerHTML = `
         <div class="img-wrapper">
-          <img src="${w.imgUrl}">${delBtn}
+          <img src="${w.imgUrl}" alt="Wish image">${delBtn}
         </div>
         <div class="card-actions">
           <div class="left-actions">
             <ion-icon name="${hasLiked?'heart':'heart-outline'}" class="action-icon like-btn"></ion-icon>
             <ion-icon name="chatbubble-outline" class="action-icon"></ion-icon>
-            <ion-icon name="paper-plane-outline" class="action-icon"></ion-icon>
+            <ion-icon name="paper-plane-outline" class="action-icon share-btn"></ion-icon>
           </div>
           <ion-icon name="bookmark-outline" class="action-icon save-btn"></ion-icon>
         </div>
@@ -365,46 +314,72 @@
           <span class="wish"> ${w.text}</span>
         </div>`;
 
+      // Like handler (atomic increment + arrayUnion)
       const likeIcon = card.querySelector('.like-btn');
-      likeIcon.addEventListener('click', e => {
+      likeIcon.addEventListener('click', async e => {
         e.stopPropagation();
-        if (card.dataset.liked === 'true') return;
+        if (card.dataset.liked==='true') return;
         card.dataset.liked = 'true';
         likeIcon.setAttribute('name','heart');
         animateHeart(card);
-        const newCount = (w.likes||0) + 1;
-        card.querySelector('.like-count').innerText = `${newCount} likes`;
-        updateDoc(docRef(db,'wishes',id), {
-          likes: newCount,
-          likedBy: [...(w.likedBy||[]), currentUid]
-        }).catch(console.error);
+        try {
+          await updateDoc(docRef(db,'wishes',id), {
+            likes: increment(1),
+            likedBy: arrayUnion(currentUid)
+          });
+        } catch(err) {
+          console.error('Like failed:', err);
+          alert('กดไลก์ไม่สำเร็จ ลองใหม่อีกครั้ง');
+        }
       });
 
-      card.querySelector('.img-wrapper img').addEventListener('dblclick', e => {
-        e.stopPropagation();
-        if (card.dataset.liked === 'true') return;
-        card.dataset.liked = 'true';
-        likeIcon.setAttribute('name','heart');
-        animateHeart(card);
-        const newCount = (w.likes||0) + 1;
-        card.querySelector('.like-count').innerText = `${newCount} likes`;
-        updateDoc(docRef(db,'wishes',id), {
-          likes: newCount,
-          likedBy: [...(w.likedBy||[]), currentUid]
-        }).catch(console.error);
-      });
-
+      // Delete handler
       if (w.uid === currentUid) {
         card.querySelector('.delete-btn').onclick = async e => {
           e.stopPropagation();
-          if (confirm('ลบโพสต์นี้?')) {
+          if (!confirm('ลบโพสต์นี้?')) return;
+          try {
             await deleteDoc(docRef(db,'wishes',id));
+          } catch(err) {
+            console.error('Delete failed:', err);
+            alert('ลบไม่สำเร็จ ลองใหม่');
           }
         };
       }
 
+      // Share handler (Web Share API fallback)
+      const shareIcon = card.querySelector('.share-btn');
+      shareIcon.addEventListener('click', async e => {
+        e.stopPropagation();
+        const imgUrl = w.imgUrl;
+        try {
+          const res = await fetch(imgUrl);
+          const blob = await res.blob();
+          const file = new File([blob], 'wish.jpg', { type: blob.type });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({ files: [file], title: w.text, text: w.text });
+          } else {
+            alert('เบราว์เซอร์ไม่รองรับการแชร์ไฟล์');
+          }
+        } catch(err) {
+          console.error('Share failed:', err);
+          alert('แชร์ไม่สำเร็จ');
+        }
+      });
+
       if (prepend) gallery.prepend(card);
       else         gallery.append(card);
+    }
+
+    function updateLikes(id, w) {
+      const card = gallery.querySelector(`.card[data-id="${id}"]`);
+      if (!card) return;
+      card.querySelector('.like-count').innerText = `${w.likes||0} likes`;
+    }
+
+    function removeCard(id) {
+      const card = gallery.querySelector(`.card[data-id="${id}"]`);
+      if (card) card.remove();
     }
 
     function animateHeart(card){
@@ -422,85 +397,108 @@
     function goToStep(n){
       currentStep = n;
       stepEls.forEach(el=>el.classList.toggle('active', +el.dataset.step===n));
-      wizBack.innerText = '<ย้อนกลับ';
-      wizNext.style.visibility = n===1 ? 'hidden' : 'visible';
-      wizNext.innerText = n<3 ? 'ถัดไป>' : 'โพสต์';
+      wizBack.innerText = n>1?'ย้อนกลับ':'';
+      wizNext.innerText = n<3?'ถัดไป>':'โพสต์';
+      // ปิด scroll หลังกดเปิด wizard
+      postWizard.classList.add('active');
       body.classList.add('modal-open');
-      if (n===3 && selectedFiles.length) summaryImg.src = URL.createObjectURL(selectedFiles[0]);
+      if (n===2 && selectedFile) {
+        previewImg.src = URL.createObjectURL(selectedFile);
+      }
     }
     function closeWizard(){
       postWizard.classList.remove('active');
       body.classList.remove('modal-open');
-      selectedFiles=[]; fileInput.value=''; wizName.value=''; wizText.value='';
+      selectedFile = null;
+      fileInput.value = '';
+      wizName.value = '';
+      wizText.value = '';
+      wizNext.disabled = true;
     }
 
-    navAdd.onclick = ()=>{ postWizard.classList.add('active'); goToStep(1); };
-    wizBack.onclick = ()=> currentStep>1 ? goToStep(currentStep-1) : closeWizard();
+    // เปิด wizard
+    navAdd.onclick = ()=> goToStep(1);
+    wizBack.onclick = ()=> {
+      if (currentStep>1) goToStep(currentStep-1);
+      else               closeWizard();
+    };
     wizNext.onclick = async ()=>{
-      if (currentStep<2 && selectedFiles.length) { goToStep(2); return; }
-      if (currentStep===2) { goToStep(3); return; }
+      if (currentStep<2) { goToStep(2); return; }
+      if (currentStep===2){ goToStep(3); return; }
+
+      // ขั้นสุดท้าย: เก็บข้อมูล
       wizNext.disabled = true;
       wizNext.innerHTML = `<span class="spinner"></span>กำลังโพสต์`;
       const text = wizText.value.trim();
+      if (!text) {
+        alert('กรุณาเขียนคำอวยพร');
+        wizNext.disabled = false;
+        wizNext.innerText = 'โพสต์';
+        return;
+      }
       const name = wizName.value.trim() || 'แขกผู้มีเกียรติ';
-      for (const f of (selectedFiles.length ? selectedFiles : [null])) {
-        let imgUrl = 'https://via.placeholder.com/320x400?text=No+Image';
-        if (f) {
-          const img = await new Promise(r=>{
-            const i=new Image(); i.onload=()=>r(i);
-            i.src=URL.createObjectURL(f);
-          });
-          let [w,h]=[img.width,img.height], max=800;
-          if (Math.max(w,h)>max){
-            const ratio = max/Math.max(w,h); w*=ratio; h*=ratio;
-          }
-          const c = document.createElement('canvas'); c.width=w; c.height=h;
-          const ctx = c.getContext('2d');
-          ctx.imageSmoothingEnabled = true;
-          ctx.imageSmoothingQuality = 'high';
-          ctx.drawImage(img,0,0,w,h);
-          let q=0.95, data;
-          do {
-            data = c.toDataURL('image/jpeg',q);
-            q -= 0.05;
-          } while (data.length>1_000_000 && q>0.1);
-          imgUrl = data;
+
+      // เตรียมรูป
+      let imgUrl = 'https://via.placeholder.com/320x400?text=No+Image';
+      if (selectedFile) {
+        const img = await new Promise(r=>{
+          const i=new Image(); i.onload=()=>r(i);
+          i.src = URL.createObjectURL(selectedFile);
+        });
+        let [w,h]=[img.width,img.height], max=800;
+        if (Math.max(w,h)>max){
+          const ratio = max/Math.max(w,h); w*=ratio; h*=ratio;
         }
+        const c = document.createElement('canvas'); c.width=w; c.height=h;
+        const ctx = c.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(img,0,0,w,h);
+        let q=0.95, data;
+        do {
+          data = c.toDataURL('image/jpeg',q);
+          q -= 0.05;
+        } while (data.length>1_000_000 && q>0.1);
+        imgUrl = data;
+      }
+
+      // 1) ส่งขึ้น Firestore
+      try {
         await addDoc(collection(db,'wishes'), {
           name, text, imgUrl,
           likes: 0, likedBy: [], uid: currentUid,
           createdAt: Timestamp.now()
         });
+      } catch(err) {
+        console.error('AddDoc failed:', err);
+        alert('โพสต์ไม่สำเร็จ ลองใหม่');
       }
+
+      // 2) ส่งไป Formspree
+      try {
+        const formData = new FormData();
+        formData.append('name', name);
+        formData.append('text', text);
+        formData.append('imgUrl', imgUrl);
+        await fetch('https://formspree.io/f/movdbnzk', {
+          method: 'POST',
+          body: formData
+        });
+      } catch(err) {
+        console.error('Formspree failed:', err);
+        // ไม่บล็อกผู้ใช้หลัก
+      }
+
       closeWizard();
-      wizNext.disabled = false;
-      wizNext.innerText = 'ถัดไป>';
     };
 
+    // file picker
     triggerPicker.onclick = ()=> fileInput.click();
     fileInput.onchange = e=>{
-      selectedFiles = Array.from(e.target.files);
-      renderCarousel();
-      goToStep(2);
+      selectedFile = e.target.files[0] || null;
+      wizNext.disabled = !selectedFile;
+      if (selectedFile) goToStep(2);
     };
-    function renderCarousel(){
-      wizCarousel.innerHTML = '';
-      selectedFiles.forEach((f,i)=>{
-        const item = document.createElement('div'); item.className = 'carousel-item';
-        const img = document.createElement('img'); img.src = URL.createObjectURL(f);
-        const btn = document.createElement('button'); btn.className = 'del'; btn.innerText = '🗑️';
-        btn.onclick = ()=>{ selectedFiles.splice(i,1); renderCarousel(); };
-        item.append(img, btn);
-        wizCarousel.append(item);
-      });
-      totalCount.innerText = selectedFiles.length || 1;
-      currentIndex.innerText = 1;
-      wizCarousel.scrollLeft = 0;
-    }
-    wizCarousel.addEventListener('scroll', ()=>{
-      const idx = Math.round(wizCarousel.scrollLeft / wizCarousel.clientWidth);
-      currentIndex.innerText = idx+1;
-    });
   </script>
 </body>
 </html>
