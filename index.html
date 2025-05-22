@@ -201,10 +201,13 @@
   <header>
     <h1>Tuck &amp; Tan</h1>
     <span class="top-heart">
-      <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5
+      <svg viewBox="0 0 24 24">
+        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5
                  2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09
                  C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42
-                 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#e0245e"/></svg>
+                 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+              fill="#e0245e"/>
+      </svg>
     </span>
   </header>
 
@@ -245,7 +248,8 @@
       </div>
       <div class="form-group">
         <label for="wizName">ชื่อของคุณ</label>
-        <input type="text" id="wizName" placeholder="ไม่บังคับ" inputmode="text" lang="th">
+        <!-- เอา inputmode/lang ออก เพื่อรับไทยได้เต็มที่ -->
+        <input type="text" id="wizName" placeholder="ไม่บังคับ">
       </div>
       <div class="form-group">
         <label for="wizText">คำอวยพร 💌</label>
@@ -287,7 +291,6 @@
     const navHome   = document.getElementById('nav-home');
     const navSearch = document.getElementById('nav-search');
     const navAdd    = document.getElementById('nav-add');
-    const navHeart  = document.getElementById('nav-heart');
     const navProfile= document.getElementById('nav-profile');
     const postWizard= document.getElementById('postWizard');
     const wizBack   = document.getElementById('wizBack');
@@ -349,13 +352,24 @@
           <span class="wish"> ${w.text}</span>
         </div>`;
 
-      // Like handler (atomic)
+      // Like handler with fallback removal
       card.querySelector('.like-btn').addEventListener('click', async e => {
         e.stopPropagation();
         if (card.dataset.liked==='true') return;
         card.dataset.liked='true';
-        e.currentTarget.setAttribute('name','heart');
-        animateHeart(card);
+        const icon = e.currentTarget;
+        icon.setAttribute('name','heart');
+        const h = document.createElement('div');
+        h.textContent = '❤';
+        Object.assign(h.style, {
+          position:'absolute', top:'50%', left:'50%',
+          fontSize:'4rem', color:'rgba(224,36,94,0.6)',
+          animation:'popHeartFadeShake .8s forwards', pointerEvents:'none'
+        });
+        card.querySelector('.img-wrapper').appendChild(h);
+        // remove after animation or timeout
+        h.addEventListener('animationend', ()=>h.remove());
+        setTimeout(()=>h.remove(), 1000);
         try {
           await updateDoc(docRef(db,'wishes',id), {
             likes: increment(1),
@@ -381,11 +395,15 @@
         };
       }
 
-      // Share entire card via html2canvas
+      // Share entire card without delete button
       card.querySelector('.share-btn').addEventListener('click', async e => {
         e.stopPropagation();
+        // clone and strip delete-btn
+        const clone = card.cloneNode(true);
+        const trash = clone.querySelector('.delete-btn');
+        if (trash) trash.remove();
         try {
-          const canvas = await html2canvas(card);
+          const canvas = await html2canvas(clone);
           canvas.toBlob(async blob => {
             const file = new File([blob], 'wish.png', { type: 'image/png' });
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -412,22 +430,10 @@
       if (card) card.remove();
     }
 
-    function animateHeart(card) {
-      const h = document.createElement('div');
-      h.textContent = '❤';
-      Object.assign(h.style, {
-        position:'absolute', top:'50%', left:'50%',
-        fontSize:'4rem', color:'rgba(224,36,94,0.6)',
-        animation:'popHeartFadeShake .8s forwards', pointerEvents:'none'
-      });
-      card.querySelector('.img-wrapper').appendChild(h);
-      h.addEventListener('animationend', ()=>h.remove());
-    }
-
     function goToStep(n) {
       currentStep = n;
       stepEls.forEach(el=>el.classList.toggle('active', +el.dataset.step===n));
-      wizBack.innerText = n>1?'<ย้อนกลับ':''; 
+      wizBack.innerText = n>1?'<ย้อนกลับ':'';
       wizNext.innerText = n<3?'ถัดไป>':'โพสต์';
       postWizard.classList.add('active');
       body.classList.add('modal-open');
@@ -435,7 +441,6 @@
         previewImg.src = URL.createObjectURL(selectedFile);
       }
       if (n===3) {
-        // แสดง preview summary
         summaryImg.src = URL.createObjectURL(selectedFile);
         summaryName.innerText = wizName.value;
         summaryText.innerText = wizText.value;
@@ -461,7 +466,6 @@
       if (currentStep<2) { goToStep(2); return; }
       if (currentStep===2){ goToStep(3); return; }
 
-      // โพสต์
       wizNext.disabled = true;
       wizNext.innerHTML = `<span class="spinner"></span>กำลังโพสต์`;
 
@@ -498,7 +502,7 @@
         imgUrl = data;
       }
 
-      // 1) ส่ง Firestore
+      // ส่งขึ้น Firestore
       try {
         await addDoc(collection(db,'wishes'), {
           name, text, imgUrl,
@@ -510,7 +514,7 @@
         alert('โพสต์ไม่สำเร็จ ลองใหม่');
       }
 
-      // 2) ส่ง Formspree (ไม่บล็อก)
+      // ส่ง Formspree (non-blocking)
       try {
         const fd = new FormData();
         fd.append('name', name);
