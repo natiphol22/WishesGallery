@@ -21,24 +21,21 @@
       --nav-height: 60px;
     }
     * { box-sizing: border-box; margin:0; padding:0 }
-    html, body {
-      font-family: 'Kanit', sans-serif;
-    }
+    html, body { font-family: 'Kanit', sans-serif; }
     body {
       background: var(--bg);
       color: var(--text);
-      max-width: 480px;
-      margin: 0 auto;
-      min-height: 100vh;
-      padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom));
+      max-width: 480px; margin:0 auto;
+      min-height:100vh;
+      padding-bottom:calc(var(--nav-height)+env(safe-area-inset-bottom));
     }
-    body.modal-open { overflow: hidden; }
+    body.modal-open { overflow:hidden }
     header {
       display:flex; justify-content:space-between; align-items:center;
       padding:1rem; background:#fff; box-shadow:var(--shadow);
     }
     header h1 {
-      font-family:'Pacifico', cursive;
+      font-family:'Pacifico',cursive;
       font-size:1.8rem; color:#000; cursor:pointer;
     }
     .top-heart svg { width:28px; height:28px; fill:#e0245e }
@@ -51,6 +48,10 @@
       position:relative; transition:transform .2s;
     }
     .card:hover { transform:translateY(-4px) }
+    .card .poster {
+      padding:.5rem .75rem; font-weight:600;
+      border-bottom:1px solid #eee;
+    }
     .img-wrapper { position:relative }
     .img-wrapper img { width:100%; display:block }
     .delete-btn {
@@ -70,18 +71,17 @@
       padding:0 .75rem; font-weight:600; font-size:.95rem;
     }
     .info {
-      padding:.25rem .75rem 1rem; font-size:.95rem;
+      padding:.25rem .75rem; font-size:.95rem;
     }
-    .author { font-weight:700; } /* ชื่อเป็นตัวหนา */
-    .wish { color:#444 }
+    .info .author { font-weight:700 } /* ชื่อใต้ไลก์ตัวหนา */
+    .info .wish  { color:#444 }
 
     .comments {
       border-top:1px solid #eee;
       padding:.5rem .75rem;
     }
     .comment-list {
-      max-height:120px; overflow-y:auto;
-      margin-bottom:.5rem;
+      max-height:120px; overflow-y:auto; margin-bottom:.5rem;
     }
     .comment-item { font-size:.9rem; margin-bottom:.25rem }
     .comment-form {
@@ -257,7 +257,7 @@
     });
     const db = getFirestore(app);
 
-    // User identity
+    // User ID
     let currentUid = localStorage.getItem('uid') || crypto.randomUUID();
     localStorage.setItem('uid', currentUid);
 
@@ -290,54 +290,47 @@
     navProfile.onclick = () => window.location.href = 'https://natiphol.github.io/AudioGuestbook/';
     navHeart.onclick   = () => showLikedFeed();
 
-    // Show feed with 40% random order
+    // Show feed with 40% random
     let unsubscribeFeed;
     async function showAllFeed(){
       if(unsubscribeFeed) unsubscribeFeed();
       gallery.innerHTML = '';
-      const randomMode = Math.random() < 0.4;
+      const randomMode = Math.random() < .4;
       const colRef = collection(db,'wishes');
       const baseQ = query(colRef, orderBy('createdAt','desc'));
-      // initial load
       const snap = await getDocs(baseQ);
       let docs = snap.docs;
-      if(randomMode){
-        docs = docs.sort(()=> Math.random()-0.5);
-      }
-      docs.forEach(d=> addCard(d.data(), d.id, false));
-      // real-time updates
-      unsubscribeFeed = onSnapshot(baseQ, snap2=>{
-        snap2.docChanges().forEach(c=>{
-          if(c.type==='added')    addCard(c.doc.data(),c.doc.id,true);
+      if(randomMode) docs = docs.sort(()=>Math.random()-.5);
+      docs.forEach(d=>addCard(d.data(),d.id,false));
+      unsubscribeFeed = onSnapshot(baseQ, s2=>{
+        s2.docChanges().forEach(c=>{
+          if(c.type==='added') addCard(c.doc.data(),c.doc.id,true);
           if(c.type==='modified') updateLikes(c.doc.id,c.doc.data());
-          if(c.type==='removed')  removeCard(c.doc.id);
+          if(c.type==='removed') removeCard(c.doc.id);
         });
       });
     }
-
     async function showLikedFeed(){
       if(unsubscribeFeed) unsubscribeFeed();
-      gallery.innerHTML = '';
-      const colRef = collection(db,'wishes');
+      gallery.innerHTML='';
       const likedQ = query(
-        colRef,
+        collection(db,'wishes'),
         where('likedBy','array-contains',currentUid),
         orderBy('createdAt','desc')
       );
-      unsubscribeFeed = onSnapshot(likedQ, snap=>{
-        snap.docChanges().forEach(c=>{
-          if(c.type==='added')    addCard(c.doc.data(), c.doc.id, false);
-          if(c.type==='removed')  removeCard(c.doc.id);
+      unsubscribeFeed = onSnapshot(likedQ,s=>{
+        s.docChanges().forEach(c=>{
+          if(c.type==='added') addCard(c.doc.data(),c.doc.id,false);
+          if(c.type==='removed') removeCard(c.doc.id);
         });
       });
     }
-
     showAllFeed();
 
-    // Heart animation
+    // Animate heart
     function animateHeart(card){
-      const h = document.createElement('div');
-      h.textContent = '❤';
+      const h=document.createElement('div');
+      h.textContent='❤';
       Object.assign(h.style,{
         position:'absolute', top:'50%', left:'50%',
         transform:'translate(-50%,-50%)',
@@ -349,21 +342,18 @@
       h.addEventListener('animationend',()=>h.remove());
     }
 
-    // Add a card
+    // Add card
     function addCard(w,id,prepend){
-      const card = document.createElement('div');
-      card.className = 'card'; card.dataset.id = id;
+      const card=document.createElement('div');
+      card.className='card'; card.dataset.id=id;
       if(Array.isArray(w.likedBy)&&w.likedBy.includes(currentUid)){
-        card.dataset.liked = 'true';
+        card.dataset.liked='true';
       }
       const delBtn = w.uid===currentUid
         ? `<button class="delete-btn" title="ลบโพสต์">🗑️</button>` : '';
 
-      // Poster name in header of card
-      const headerName = `<div class="info"><span class="author">${w.name}</span></div>`;
-
       card.innerHTML = `
-        ${headerName}
+        <div class="poster">${w.name}</div>
         <div class="img-wrapper">
           <img src="${w.imgUrl}" alt="">
           ${delBtn}
@@ -371,13 +361,18 @@
         <div class="card-actions">
           <div class="left-actions">
             <ion-icon name="${card.dataset.liked==='true'?'heart':'heart-outline'}"
-                      class="action-icon like-btn"></ion-icon>
+                  class="action-icon like-btn"></ion-icon>
             <ion-icon name="chatbubble-outline" class="action-icon chat-btn"></ion-icon>
             <ion-icon name="paper-plane-outline" class="action-icon share-btn"></ion-icon>
           </div>
         </div>
-        <div class="like-indicator"><span class="like-count">${w.likes||0} likes</span></div>
-        <div class="wish">${w.text}</div>
+        <div class="like-indicator">
+          <span class="like-count">${w.likes||0} likes</span>
+        </div>
+        <div class="info">
+          <span class="author">${w.name}</span>
+          <span class="wish">${w.text}</span>
+        </div>
         <div class="comments">
           <div class="comment-list"></div>
           <div class="comment-form">
@@ -389,31 +384,27 @@
 
       // Like
       const likeBtn = card.querySelector('.like-btn');
-      likeBtn.addEventListener('click', async e=>{
+      likeBtn.addEventListener('click',async e=>{
         e.stopPropagation();
         if(card.dataset.liked==='true') return;
-        card.dataset.liked = 'true';
+        card.dataset.liked='true';
         likeBtn.setAttribute('name','heart');
         animateHeart(card);
-        await updateDoc(doc(db,'wishes',id), {
-          likes: increment(1),
-          likedBy: arrayUnion(currentUid)
+        await updateDoc(doc(db,'wishes',id),{
+          likes:increment(1),
+          likedBy:arrayUnion(currentUid)
         });
       });
-
-      // Chat toggles comment form
+      // Chat toggle
       const chatBtn = card.querySelector('.chat-btn');
       const formEl  = card.querySelector('.comment-form');
-      chatBtn.addEventListener('click', ()=>{
-        formEl.style.display = formEl.style.display==='block'?'none':'block';
-      });
-
-      // Share without comments or delete-btn
-      card.querySelector('.share-btn').addEventListener('click', async e=>{
+      chatBtn.addEventListener('click',()=>{ formEl.style.display = formEl.style.display==='block'?'none':'block'; });
+      // Share (keep icons, remove delete & comments)
+      card.querySelector('.share-btn').addEventListener('click',async e=>{
         e.stopPropagation();
         const clone = card.cloneNode(true);
-        // remove Delete button, comments
-        clone.querySelectorAll('.delete-btn, .comments').forEach(el=>el.remove());
+        clone.querySelector('.delete-btn')?.remove();
+        clone.querySelector('.comments')?.remove();
         const off = document.createElement('div');
         off.style.position='fixed'; off.style.top='-10000px'; off.style.left='-10000px';
         off.append(clone); document.body.append(off);
@@ -430,48 +421,36 @@
           off.remove();
         }
       });
-
       // Delete
       if(w.uid===currentUid){
-        card.querySelector('.delete-btn').onclick = async e=>{
+        card.querySelector('.delete-btn').onclick=async e=>{
           e.stopPropagation();
-          if(confirm('ลบโพสต์นี้?')){
-            await deleteDoc(doc(db,'wishes',id));
-          }
+          if(confirm('ลบโพสต์นี้?')) await deleteDoc(doc(db,'wishes',id));
         };
       }
-
-      // Comments realtime
+      // Comments RT
       const commentsCol = collection(db,'wishes',id,'comments');
-      const commentsQ   = query(commentsCol, orderBy('createdAt','asc'));
+      const commentsQ   = query(commentsCol,orderBy('createdAt','asc'));
       const listEl      = card.querySelector('.comment-list');
-      onSnapshot(commentsQ, snap=>{
+      onSnapshot(commentsQ,snap=>{
         listEl.innerHTML = '';
         snap.forEach(d=>{
-          const c = d.data();
-          const div = document.createElement('div');
-          div.className = 'comment-item';
-          div.innerHTML = `<strong>${c.name}</strong>: ${c.text}`; // name bold
-          listEl.append(div);
+          const c = d.data(), dv = document.createElement('div');
+          dv.className='comment-item';
+          dv.innerHTML = `<strong>${c.name}</strong>: ${c.text}`;
+          listEl.append(dv);
         });
       });
-
       // Post comment
-      const nameInput = card.querySelector('.comment-name');
-      const textInput = card.querySelector('.comment-text');
-      const sendBtn   = card.querySelector('.comment-btn');
-      sendBtn.addEventListener('click', async ()=>{
-        const nm  = nameInput.value.trim() || 'แขก';
-        const txt = textInput.value.trim();
-        if(!txt) return;
-        await addDoc(commentsCol, {
-          name: nm,
-          text: txt,
-          createdAt: Timestamp.now()
-        });
-        nameInput.value = '';
-        textInput.value = '';
-        formEl.style.display = 'none';
+      const ni = card.querySelector('.comment-name');
+      const ti = card.querySelector('.comment-text');
+      const btn= card.querySelector('.comment-btn');
+      btn.addEventListener('click',async ()=>{
+        const nm = ni.value.trim()||'แขก';
+        const tx = ti.value.trim();
+        if(!tx) return;
+        await addDoc(commentsCol,{ name:nm, text:tx, createdAt:Timestamp.now() });
+        ni.value=''; ti.value=''; formEl.style.display='none';
       });
 
       prepend ? gallery.prepend(card) : gallery.append(card);
