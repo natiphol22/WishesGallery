@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pro Expense App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+   
+    <style>
+        :root {
+            --bg-body: #E5E5E5;
+            --bg-app: #F8FAFC;
+            --surface: #FFFFFF;
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --border: #E2E8F0;
+            --primary: #0F172A;
+            --hover-bg: #F1F5F9;
+            --danger: #EF4444;
+            --info: #3B82F6;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
+            --shadow-md: 0 8px 24px rgba(0,0,0,0.08);
+        }
+       
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Prompt', sans-serif; }
+       
+        body {
+            background-color: var(--bg-body); color: var(--text-main);
+            display: flex; justify-content: center; -webkit-tap-highlight-color: transparent;
+        }
+
+        .mobile-wrapper {
+            width: 100%; max-width: 414px; background-color: var(--bg-app);
+            min-height: 100vh; position: relative; box-shadow: 0 0 25px rgba(0,0,0,0.1);
+            padding-bottom: 110px; overflow-x: hidden; overflow-y: auto;
+        }
+
+        /* ---------------- LOADER ---------------- */
+        #global-loader {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(8px);
+            z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+        }
+        #global-loader.active { opacity: 1; pointer-events: all; }
+        .spinner {
+            width: 45px; height: 45px; border: 4px solid var(--border);
+            border-top-color: var(--primary); border-radius: 50%;
+            animation: spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* ---------------- HEADER ---------------- */
+        .header {
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px);
+            padding: 30px 24px 20px 24px; position: sticky; top: 0; z-index: 40; 
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        .header-top { display: flex; justify-content: space-between; align-items: center; }
+        .header-title { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
+        .header-subtitle { font-size: 13px; color: var(--text-muted); margin-bottom: 2px; font-weight: 500; }
+
+        /* ---------------- FILTER ---------------- */
+        .filter-container {
+            display: flex; flex-direction: column; padding: 15px 24px; gap: 12px;
+            background: var(--bg-app); border-bottom: 1px solid var(--border);
+        }
+        .filter-row { display: flex; gap: 12px; align-items: center; width: 100%; }
+        .filter-wrapper {
+            display: flex; flex: 1; background: #F1F5F9;
+            border-radius: 14px; padding: 4px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .chip {
+            flex: 1; padding: 8px 0; text-align: center; border-radius: 10px;
+            background-color: transparent; border: none; color: var(--text-muted);
+            font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.3s;
+        }
+        .chip.active {
+            background-color: var(--surface); color: var(--text-main);
+            box-shadow: var(--shadow-sm); font-weight: 600;
+        }
+
+        /* ---------------- CARDS & CONTENT ---------------- */
+        .content-area { padding: 0 24px 24px 24px; }
+        .card {
+            background-color: var(--surface); border-radius: 20px; padding: 20px;
+            margin-bottom: 16px; border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm); transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .card:active { transform: scale(0.98); }
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 600; background: var(--hover-bg); color: var(--text-main); }
+        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px dashed var(--border); }
+        .list-item:last-child { border-bottom: none; padding-bottom: 0; }
+        
+        .progress-bg { height: 6px; background-color: var(--border); border-radius: 10px; margin: 12px 0; overflow: hidden; }
+        .progress-fill { height: 100%; background-color: var(--text-main); border-radius: 10px; transition: width 0.5s ease-out; }
+
+        #dashboard-history-list { max-height: 380px; overflow-y: auto; padding-right: 4px; }
+        #dashboard-history-list::-webkit-scrollbar { width: 4px; }
+        #dashboard-history-list::-webkit-scrollbar-track { background: transparent; }
+        #dashboard-history-list::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+
+        /* ---------------- FORMS & INPUTS ---------------- */
+        .form-group { margin-bottom: 20px; position: relative; }
+        .form-label { display: block; font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; }
+       
+        .amount-wrapper {
+            background: var(--surface); border: 2px solid var(--border);
+            border-radius: 24px; padding: 24px 20px; text-align: center; margin-bottom: 24px;
+            transition: all 0.3s ease; box-shadow: var(--shadow-sm);
+        }
+        .amount-wrapper:focus-within { border-color: var(--primary); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+        .amount-input {
+            width: 100%; border: none; background: transparent;
+            font-size: 46px; font-weight: 700; color: var(--text-main);
+            text-align: center; outline: none; padding: 0; font-family: 'Prompt', sans-serif;
+        }
+
+        .custom-input {
+            width: 100%; padding: 16px 20px; border-radius: 16px;
+            border: 1.5px solid var(--border); background-color: var(--surface);
+            font-size: 15px; color: var(--text-main); outline: none; transition: all 0.2s;
+        }
+        .custom-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.05); }
+
+        /* DROPDOWN */
+        .custom-dropdown { position: relative; width: 100%; }
+        .dropdown-selected {
+            width: 100%; padding: 16px 20px; border-radius: 16px;
+            border: 1.5px solid var(--border); background-color: var(--surface);
+            font-size: 15px; color: var(--text-main); cursor: pointer;
+            display: flex; justify-content: space-between; align-items: center;
+            transition: all 0.2s; font-weight: 500;
+        }
+        .dropdown-options {
+            position: absolute; top: 100%; left: 0; right: 0; margin-top: 8px;
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 16px; box-shadow: var(--shadow-md);
+            opacity: 0; visibility: hidden; transform: translateY(-10px);
+            transition: all 0.2s; z-index: 100; overflow-y: auto; max-height: 250px;
+        }
+        .custom-dropdown.active .dropdown-options { opacity: 1; visibility: visible; transform: translateY(0); }
+        .dropdown-option { padding: 14px 20px; font-size: 15px; cursor: pointer; border-bottom: 1px solid var(--border); }
+        .dropdown-option:last-child { border-bottom: none; }
+        .dropdown-option:hover { background-color: var(--hover-bg); font-weight: 600; padding-left: 24px; }
+
+        .dropdown-small .dropdown-selected { padding: 8px 12px; height: 38px; border-radius: 10px; font-size: 13px; }
+
+        /* TOGGLE SWITCH */
+        .toggle-switch { position: relative; display: inline-block; width: 48px; height: 26px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #CBD5E1; transition: .3s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .3s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(22px); }
+
+        /* BUTTONS */
+        .btn-submit {
+            width: 100%; padding: 18px; background: linear-gradient(135deg, #0F172A, #334155); color: white;
+            border: none; border-radius: 16px; font-size: 16px; font-weight: 600; letter-spacing: 0.5px;
+            cursor: pointer; margin-top: 10px; transition: all 0.2s; box-shadow: 0 4px 15px rgba(15, 23, 42, 0.2);
+        }
+        .btn-submit:active { transform: scale(0.98); box-shadow: 0 2px 8px rgba(15, 23, 42, 0.2); }
+        
+        .btn-dashed {
+            width: 100%; padding: 16px; background-color: rgba(255,255,255,0.5); color: var(--text-main);
+            border: 2px dashed #CBD5E1; border-radius: 16px; font-size: 15px; font-weight: 600;
+            cursor: pointer; transition: all 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px;
+        }
+        .btn-dashed:hover { border-color: var(--primary); background-color: var(--surface); }
+
+        .dynamic-section {
+            display: none; background: #F8FAFC; padding: 20px; border-radius: 16px;
+            margin-bottom: 20px; border: 1px dashed #CBD5E1; animation: fadeSlideUp 0.3s ease;
+        }
+
+        /* ---------------- BOTTOM NAV ---------------- */
+        .bottom-nav {
+            position: absolute; bottom: 0; width: 100%; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px);
+            border-top: 1px solid var(--border); display: flex; justify-content: space-around;
+            align-items: flex-end; padding: 10px 10px 24px 10px; z-index: 50; box-shadow: 0 -4px 20px rgba(0,0,0,0.03);
+        }
+        .nav-item { text-align: center; color: var(--text-muted); font-size: 11px; cursor: pointer; flex: 1; transition: all 0.2s; padding-bottom: 5px; }
+        .nav-item i { font-size: 22px; display: block; margin-bottom: 4px; transition: transform 0.2s; }
+        .nav-item.active { color: var(--text-main); font-weight: 600; }
+        .nav-item.active i { transform: scale(1.15); color: var(--primary); }
+       
+        /* Floating Action Button (บันทึก) */
+        .fab-wrapper { flex: 1.2; position: relative; top: -15px; }
+        .fab-button {
+            width: 58px; height: 58px; background: linear-gradient(135deg, #0F172A, #334155);
+            border-radius: 20px; display: flex; justify-content: center; align-items: center;
+            margin: 0 auto; color: white; box-shadow: 0 8px 20px rgba(15, 23, 42, 0.25);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform: rotate(0deg);
+        }
+        .nav-item.active .fab-button { transform: rotate(90deg) scale(1.05); border-radius: 50%; }
+
+        .page-content { display: none; }
+        .page-content.active { display: block; animation: fadeSlideUp 0.4s ease forwards; }
+        @keyframes fadeSlideUp { 
+            from { opacity: 0; transform: translateY(15px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        /* ---------------- OVERLAY ---------------- */
+        .overlay-page {
+            position: fixed; top: 0; bottom: 0; left: 50%; 
+            width: 100%; max-width: 414px; background-color: var(--bg-app);
+            z-index: 1000; transform: translateX(-50%) translateY(100%); 
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow-y: auto; padding-bottom: 40px;
+        }
+        .overlay-page.active { transform: translateX(-50%) translateY(0); box-shadow: 0 -10px 40px rgba(0,0,0,0.1); }
+        .btn-close-overlay {
+            width: 40px; height: 40px; border-radius: 12px; background-color: var(--surface);
+            display: flex; justify-content: center; align-items: center; color: var(--text-main); cursor: pointer;
+            box-shadow: var(--shadow-sm); transition: transform 0.2s;
+        }
+        .btn-close-overlay:active { transform: scale(0.9); }
+        
+        .swal2-popup { border-radius: 24px !important; font-family: 'Prompt', sans-serif !important; padding: 2em !important; }
+        .swal2-styled.swal2-confirm { border-radius: 14px !important; padding: 14px 28px !important; font-weight: 600 !important; }
+    </style>
+</head>
+<body>
+
+<div class="mobile-wrapper">
+    
+    <div id="global-loader">
+        <div class="spinner"></div>
+        <div style="margin-top: 16px; font-weight: 600; color: var(--primary); font-size: 14px; letter-spacing: 0.5px;">กำลังเชื่อมต่อข้อมูล...</div>
+    </div>
+
+    <div class="header" id="main-header">
+        <div class="header-top">
+            <div>
+                <div class="header-subtitle" id="header-subtitle">ข้อมูลเดือนปัจจุบัน</div>
+                <div class="header-title" id="header-title">ภาพรวมค่าใช้จ่าย</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="filter-container" id="main-filter">
+        <div class="filter-row">
+            <div class="filter-wrapper">
+                <div class="chip active" onclick="filterOwner('all', this)">รวม</div>
+                <div class="chip" onclick="filterOwner('ตาล', this)">ตาล</div>
+                <div class="chip" onclick="filterOwner('ตั๊ก', this)">ตั๊ก</div>
+            </div>
+        </div>
+        <div class="filter-row" style="gap: 8px;">
+            <input type="month" id="month-filter" class="custom-input" style="padding: 0 12px; font-size: 13px; border-radius: 10px; height: 38px; width: 150px; text-align: center; font-weight: 500;" onchange="filterMonth(this.value)">
+            
+            <div class="custom-dropdown dropdown-small" style="flex: 1;" id="card-filter-dropdown-container">
+                <div class="dropdown-selected" onclick="toggleDropdown(this)">
+                    <span class="selected-text" id="selected-filter-card">ทุกบัตร</span>
+                    <i class="bi bi-chevron-down text-muted" style="font-size: 11px;"></i>
+                </div>
+                <div class="dropdown-options" id="filter-card-options">
+                    <div class="dropdown-option" onclick="filterCardDropdown('all', 'ทุกบัตร', this)">ทุกบัตร</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="page-dashboard" class="page-content active">
+        <div class="content-area" style="margin-top: 15px;">
+            <div style="display: flex; gap: 16px; margin-bottom: 16px;">
+                <div class="card" style="flex: 1; padding: 20px 16px; cursor: pointer; margin-bottom: 0;" onclick="openUserDetail('ตาล')">
+                    <div class="badge" style="margin-bottom: 12px;">ยอดตาล</div>
+                    <div style="font-size: 24px; font-weight: 700;"><span id="display-tal-total">0</span> <span style="font-size:14px; color:var(--text-muted); font-weight:500;">฿</span></div>
+                </div>
+                <div class="card" style="flex: 1; padding: 20px 16px; cursor: pointer; margin-bottom: 0;" onclick="openUserDetail('ตั๊ก')">
+                    <div class="badge" style="margin-bottom: 12px;">ยอดตั๊ก</div>
+                    <div style="font-size: 24px; font-weight: 700;"><span id="display-tuk-total">0</span> <span style="font-size:14px; color:var(--text-muted); font-weight:500;">฿</span></div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 16px; margin-bottom: 24px;">
+                <div class="card" style="flex: 1; padding: 16px; border: 1px solid rgba(239, 68, 68, 0.3); background-color: #FEF2F2;">
+                    <div style="font-size: 11px; color: var(--danger); font-weight: 700; margin-bottom: 4px;">บิลออกแล้ว (รอจ่าย)</div>
+                    <div style="font-size: 20px; font-weight: 700; color: var(--danger);"><span id="display-billed-total">0</span> <span style="font-size:12px; font-weight:500;">฿</span></div>
+                </div>
+                <div class="card" style="flex: 1; padding: 16px; border: 1px solid var(--border);">
+                    <div style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin-bottom: 4px;">รูดไปแล้ว (รอตัดรอบ)</div>
+                    <div style="font-size: 20px; font-weight: 700;"><span id="display-pending-total">0</span> <span style="font-size:12px; font-weight:500;">฿</span></div>
+                </div>
+            </div>
+           
+            <div class="form-label">ประวัติบันทึกค่าใช้จ่าย (เลื่อนดูได้)</div>
+            <div id="dashboard-history-list" class="card" style="padding: 0 16px;">
+                <div style="text-align: center; color: var(--text-muted); font-size: 14px; padding: 30px 0;">กำลังโหลดข้อมูล...</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="page-installment" class="page-content">
+        <div class="content-area" style="margin-top: 15px;">
+            <div class="form-label">รายการผ่อนชำระทั้งหมด</div>
+            <div id="installment-list">
+                <div class="card" style="text-align: center; padding: 40px 20px; color: var(--text-muted);">ไม่มีรายการผ่อนชำระ</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="page-add" class="page-content">
+        <div class="content-area" style="margin-top: 15px;">
+           
+            <div class="form-group">
+                <label class="form-label"><i class="bi bi-calendar-event"></i> วันที่ทำรายการ (ย้อนหลังได้)</label>
+                <input type="date" id="expense-date" class="custom-input">
+            </div>
+
+            <div class="amount-wrapper">
+                <div class="form-label" style="text-align: center;">ยอดเงินที่จ่าย (บาท)</div>
+                <input type="number" class="amount-input" placeholder="0.00" id="expense-amount" inputmode="decimal" oninput="calculateGasLiters()">
+            </div>
+
+            <div style="display: flex; gap: 16px; margin-bottom: 20px;">
+                <div class="custom-dropdown" style="flex: 1;">
+                    <label class="form-label">จ่ายด้วย</label>
+                    <div class="dropdown-selected" onclick="toggleDropdown(this)">
+                        <span class="selected-text" id="selected-payment">เงินสด</span>
+                        <i class="bi bi-chevron-down text-muted"></i>
+                    </div>
+                    <div class="dropdown-options" id="payment-dropdown-options">
+                        <div class="dropdown-option" onclick="selectOption(this, 'เงินสด', 'selected-payment')">เงินสด</div>
+                    </div>
+                </div>
+
+                <div class="custom-dropdown" style="flex: 1;">
+                    <label class="form-label">ส่วนของใคร</label>
+                    <div class="dropdown-selected" onclick="toggleDropdown(this)">
+                        <span class="selected-text" id="selected-owner">ตาล</span>
+                        <i class="bi bi-chevron-down text-muted"></i>
+                    </div>
+                    <div class="dropdown-options">
+                        <div class="dropdown-option" onclick="selectOption(this, 'ตาล', 'selected-owner')">ตาล</div>
+                        <div class="dropdown-option" onclick="selectOption(this, 'ตั๊ก', 'selected-owner')">ตั๊ก</div>
+                        <div class="dropdown-option" onclick="selectOption(this, 'หารครึ่ง', 'selected-owner')">หารครึ่ง</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="custom-dropdown" style="margin-bottom: 20px;">
+                <label class="form-label">หมวดหมู่</label>
+                <div class="dropdown-selected" onclick="toggleDropdown(this)">
+                    <span class="selected-text" id="selected-category">ทั่วไป / อาหาร / ของใช้</span>
+                    <i class="bi bi-chevron-down text-muted"></i>
+                </div>
+                <div class="dropdown-options">
+                    <div class="dropdown-option" onclick="selectCategory(this, 'general', 'ทั่วไป / อาหาร / ของใช้')">ทั่วไป / อาหาร / ของใช้</div>
+                    <div class="dropdown-option" onclick="selectCategory(this, 'oil', 'เติมน้ำมัน (บันทึกทั่วไป)')">เติมน้ำมัน (บันทึกทั่วไป)</div>
+                    <div class="dropdown-option" onclick="selectCategory(this, 'gas', 'เติมแก๊ส (คำนวณลิตร)')">เติมแก๊ส (คำนวณลิตร)</div>
+                    <div class="dropdown-option" onclick="selectCategory(this, 'installment', 'ยอดผ่อนชำระใหม่')">ยอดผ่อนชำระใหม่</div>
+                </div>
+            </div>
+
+            <div id="dynamic-fuel" class="dynamic-section">
+                <label class="form-label" style="color: var(--text-main); font-weight: 700;"><i class="bi bi-speedometer2"></i> ข้อมูลวิ่งรถ (น้ำมัน/แก๊ส)</label>
+                
+                <div id="dynamic-gas-calc" style="display: none; gap: 12px; margin-bottom: 12px;">
+                    <div style="flex: 1;">
+                        <label class="form-label" style="font-size: 11px;">ราคา/ลิตร</label>
+                        <input type="number" id="gas-price-input" class="custom-input" placeholder="เช่น 15.50" oninput="calculateGasLiters()" step="0.01">
+                    </div>
+                    <div style="flex: 1;">
+                        <label class="form-label" style="font-size: 11px;">ได้จำนวนลิตร</label>
+                        <input type="number" id="gas-liters-display" class="custom-input" placeholder="คำนวณอัตโนมัติ" readonly style="background: #E2E8F0; border-color: transparent; font-weight:600;">
+                    </div>
+                </div>
+
+                <input type="number" id="fuel-odometer-input" class="custom-input" placeholder="เลขไมล์ล่าสุด (เช่น 125000)" style="margin-bottom: 12px;">
+               
+                <div class="custom-dropdown" style="margin-bottom: 12px;">
+                    <div class="dropdown-selected" onclick="toggleDropdown(this)">
+                        <span class="selected-text" id="selected-fuel-purpose">ใช้รถทั่วไป</span>
+                        <i class="bi bi-chevron-down text-muted"></i>
+                    </div>
+                    <div class="dropdown-options">
+                        <div class="dropdown-option" onclick="selectFuelPurpose(this, 'ใช้รถทั่วไป')">ใช้รถทั่วไป</div>
+                        <div class="dropdown-option" onclick="selectFuelPurpose(this, 'ไปเที่ยว')">ไปเที่ยว</div>
+                        <div class="dropdown-option" onclick="selectFuelPurpose(this, 'ไปทำงานของตาลเบิกได้')">ไปทำงานของตาลเบิกได้</div>
+                        <div class="dropdown-option" onclick="selectFuelPurpose(this, 'ไปทำงานของตาลเบิกไม่ได้')">ไปทำงานของตาลเบิกไม่ได้</div>
+                        <div class="dropdown-option" onclick="selectFuelPurpose(this, 'อื่นๆ (โปรดระบุ)')">อื่นๆ (โปรดระบุ)</div>
+                    </div>
+                </div>
+                <input type="text" id="fuel-purpose-other" class="custom-input" placeholder="ระบุจุดประสงค์..." style="display: none; margin-bottom: 12px;">
+            </div>
+
+            <div id="dynamic-installment" class="dynamic-section">
+                <label class="form-label" style="color: var(--text-main); font-weight: 700;"><i class="bi bi-box-seam"></i> รายละเอียดการผ่อน</label>
+                <input type="text" id="inst-item-input" class="custom-input" placeholder="ชื่อสินค้าที่ผ่อน (เช่น แอร์, มือถือ...)" style="margin-bottom: 12px;">
+                <div style="display: flex; gap: 12px; margin-bottom: 12px;">
+                    <input type="number" id="inst-months-input" class="custom-input" placeholder="จำนวนงวด" style="flex:1;">
+                    <input type="number" id="inst-paid-input" class="custom-input" placeholder="จ่ายแล้ว(งวด)" style="flex:1;">
+                    <input type="number" id="inst-interest-input" class="custom-input" placeholder="ดอกเบี้ย %" style="flex:1;">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">บันทึกช่วยจำ (Note)</label>
+                <input type="text" id="expense-note" class="custom-input" placeholder="ระบุรายละเอียดเพิ่มเติม... (กด Enter เพื่อบันทึกได้)">
+            </div>
+
+            <div class="card" style="padding: 16px; margin-bottom: 24px; background: transparent; border: 2px dashed #CBD5E1; box-shadow: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-weight: 600; font-size: 14px;">ได้ออมเงินสดไว้ไหม?</div>
+                        <div style="font-size: 12px; color: var(--text-muted);">หักยอดส่วนหนึ่งเข้ากระปุก</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="saveCashToggle" onchange="toggleSaveCash()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div id="saveCashInputArea" style="display: none; margin-top: 16px;">
+                    <input type="number" id="save-cash-amount" class="custom-input" placeholder="ระบุจำนวนเงินที่ออม (บาท)">
+                </div>
+            </div>
+
+            <button class="btn-submit" id="btn-submit-expense" onclick="submitData()">
+                <i class="bi bi-check2-circle" style="margin-right: 8px;"></i>บันทึกข้อมูลค่าใช้จ่าย
+            </button>
+        </div>
+    </div>
+
+    <div id="page-fuel" class="page-content">
+        <div class="content-area" style="margin-top: 15px;">
+            <div class="card" style="background: linear-gradient(135deg, #0F172A, #1E293B); color: white; border: none;">
+                <div style="font-size: 13px; color: #94A3B8; font-weight:500;">รวมค่าเชื้อเพลิง (แก๊ส + น้ำมัน) เดือนนี้</div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 8px;">
+                    <div style="font-size: 36px; font-weight: 700;"><span id="display-fuel-total">0</span> <span style="font-size: 16px; font-weight:500;">฿</span></div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 20px; font-weight: 700; color: #60A5FA;"><span id="display-gas-liters">0</span> ลิตร</div>
+                        <div style="font-size: 12px; color: #94A3B8;">รวมปริมาณแก๊ส</div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-label">ประวัติเติมเชื้อเพลิงล่าสุด</div>
+            <div id="fuel-history-list">
+                <div class="card" style="text-align: center; color: var(--text-muted); font-size: 14px; padding: 20px 0;">ไม่มีประวัติการเติมเชื้อเพลิง</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="page-cards" class="page-content">
+        <div class="content-area" style="margin-top: 15px;">
+            <button class="btn-dashed mb-4" onclick="openCardForm(false)">
+                <i class="bi bi-plus-lg"></i> เพิ่มบัตรเครดิต/สินเชื่อใหม่
+            </button>
+            <div class="form-label" style="margin-top: 24px;">บัตรของคุณ (ซิงค์จาก Google Sheets)</div>
+            <div id="ui-cards-list">
+                <div class="card" style="text-align: center; color: var(--text-muted); font-size: 14px; padding: 20px 0;">กำลังโหลดรายการบัตร...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <div class="nav-item active" id="nav-dashboard" onclick="switchPage('dashboard', this, 'ภาพรวมค่าใช้จ่าย', true)">
+            <i class="bi bi-grid-fill"></i><span>หน้าหลัก</span>
+        </div>
+        <div class="nav-item" id="nav-installment" onclick="switchPage('installment', this, 'ยอดผ่อนชำระ', true)"> 
+            <i class="bi bi-box-seam-fill"></i><span>ยอดผ่อน</span>
+        </div>
+        <div class="nav-item fab-wrapper" id="nav-add" onclick="switchPage('add', this, 'บันทึกรายการใหม่', false)">
+            <div class="fab-button"><i class="bi bi-plus" style="font-size: 36px; margin:0;"></i></div>
+            <span style="font-weight: 700; color: var(--primary); display:block; margin-top:6px;">บันทึก</span>
+        </div>
+        <div class="nav-item" id="nav-fuel" onclick="switchPage('fuel', this, 'ข้อมูลรถยนต์', true)">
+            <i class="bi bi-ev-station-fill"></i><span>เชื้อเพลิง</span>
+        </div>
+        <div class="nav-item" id="nav-cards" onclick="switchPage('cards', this, 'จัดการบัตร', false)">
+            <i class="bi bi-wallet-fill"></i><span>บัตร</span>
+        </div>
+    </div>
+
+</div>
+
+<div id="overlay-card-form" class="overlay-page">
+    <div class="header" style="background:transparent; border:none; padding-bottom:10px; backdrop-filter:none;">
+        <div class="header-top">
+            <div class="btn-close-overlay" onclick="closeCardForm()"><i class="bi bi-x-lg"></i></div>
+            <div class="header-title" style="flex: 1; text-align: center; margin-right: 40px;">เพิ่มบัตรใหม่ลงชีต</div>
+        </div>
+    </div>
+    <div class="content-area" style="margin-top: 15px;">
+        <div class="form-group">
+            <label class="form-label">ชื่อบัตร / รายการสินเชื่อ</label>
+            <input type="text" id="card-name-input" class="custom-input" placeholder="เช่น UOB, SCB, Shopee...">
+        </div>
+        <div style="display: flex; gap: 16px; margin-bottom: 24px;">
+            <div class="form-group" style="flex: 1;">
+                <label class="form-label">วันตัดรอบบิล (วันที่)</label>
+                <input type="number" id="card-cut-input" class="custom-input" placeholder="เช่น 15">
+            </div>
+            <div class="form-group" style="flex: 1;">
+                <label class="form-label">วันครบกำหนดจ่าย (วันที่)</label>
+                <input type="number" id="card-due-input" class="custom-input" placeholder="เช่น 30">
+            </div>
+        </div>
+        <button class="btn-submit" onclick="saveCardToSheet()"><i class="bi bi-cloud-arrow-up" style="margin-right:8px;"></i> บันทึกข้อมูลบัตร</button>
+    </div>
+</div>
+
+<div id="overlay-user-detail" class="overlay-page">
+    <div class="header" style="background:transparent; border:none; padding-bottom:10px; backdrop-filter:none;">
+        <div class="header-top">
+            <div class="btn-close-overlay" onclick="closeUserDetail()"><i class="bi bi-x-lg"></i></div>
+            <div class="header-title" style="flex: 1; text-align: center; margin-right: 40px;" id="detail-owner-title">ยอดใช้จ่าย</div>
+        </div>
+    </div>
+    <div class="content-area" style="margin-top: 15px;" id="detail-owner-list">
+    </div>
+</div>
+
+<script>
+    // 💡 นำ URL ของ Web App Deployment มาวางในนี้เหมือนเดิมครับ
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzPPIK7TMNCxmo3J1vWRxAZtgZPO6kBo60BemYKmLmGHm_rwHOtJLJ5tDhTDDovubPh/exec'; 
+    
+    let allDataGlobal = [];
+    let allCardsGlobal = [];
+    
+    let currentOwnerFilter = 'all';
+    let currentCardFilter = 'all';
+    let currentMonthFilter = ''; 
+    let isEditingCard = false;
+
+    // ----------------------------------------------------
+    // ฟังก์ชัน Loading
+    // ----------------------------------------------------
+    function showLoader() { document.getElementById('global-loader').classList.add('active'); }
+    function hideLoader() { document.getElementById('global-loader').classList.remove('active'); }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('expense-date').valueAsDate = new Date();
+        
+        const now = new Date();
+        const monthStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+        document.getElementById('month-filter').value = monthStr;
+        currentMonthFilter = monthStr;
+
+        renderCardsUI([{ name: 'เงินสด', cut: '-', due: '-' }]);
+        
+        const savedPage = localStorage.getItem('activePage');
+        if(savedPage && document.getElementById('nav-' + savedPage)) {
+            const savedTitle = localStorage.getItem('activeTitle') || 'ภาพรวมค่าใช้จ่าย';
+            const savedFilter = localStorage.getItem('activeShowFilter') === 'true';
+            switchPage(savedPage, document.getElementById('nav-' + savedPage), savedTitle, savedFilter, false);
+        } else {
+            loadDataFromSheet(); 
+        }
+    });
+
+    document.addEventListener('keydown', function(event) {
+        if (document.getElementById('page-add').classList.contains('active') && event.key === 'Enter') {
+            event.preventDefault(); 
+            document.getElementById('btn-submit-expense').click(); 
+        }
+    });
+
+    function loadDataFromSheet() {
+        showLoader(); 
+        fetch(`${SCRIPT_URL}?action=getData`)
+        .then(response => response.json())
+        .then(result => {
+            if(result.status === 'success') {
+                allDataGlobal = result.data || [];
+                
+                // คำนวณ กม./ลิตร แบบรอบเดียวจบ จากข้อมูลประวัติทั้งหมดที่ดึงมา
+                calculateKML(allDataGlobal);
+
+                let fetchedCards = result.cards || [];
+                if(!fetchedCards.some(c => c.name === 'เงินสด')) {
+                    fetchedCards.unshift({ name: 'เงินสด', cut: '-', due: '-' });
+                }
+                allCardsGlobal = fetchedCards; 
+                renderCardsUI(fetchedCards);
+                applyFilters(); 
+            }
+        })
+        .catch(err => {
+            console.error("Fetch error:", err);
+            Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: 'เชื่อมต่อฐานข้อมูลไม่ได้ กรุณาลองใหม่' });
+        })
+        .finally(() => { hideLoader(); });
+    }
+
+    // ----------------------------------------------------
+    // ฟังก์ชันคำนวณอัตราสิ้นเปลือง (คำนวณก่อน Filter)
+    // ----------------------------------------------------
+    function calculateKML(data) {
+        let fuelData = data.filter(i => (i.category === 'gas' || i.category === 'oil') && Number(i.fuelOdometer) > 0);
+        
+        // เรียงจากเก่าไปใหม่ เพื่อหาผลต่างเลขไมล์
+        fuelData.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+        
+        for (let i = 1; i < fuelData.length; i++) {
+            let prevOdo = Number(fuelData[i-1].fuelOdometer) || 0;
+            let currOdo = Number(fuelData[i].fuelOdometer) || 0;
+            let liters = Number(fuelData[i].gasLiters) || 0;
+            
+            if (currOdo > prevOdo && liters > 0) {
+                let distance = currOdo - prevOdo;
+                fuelData[i]._calculatedKml = (distance / liters).toFixed(2);
+                fuelData[i]._distance = distance; // เก็บระยะทางที่วิ่งได้ไว้แสดงผลด้วย
+            }
+        }
+    }
+
+    function filterOwner(owner, element) {
+        currentOwnerFilter = owner;
+        document.querySelectorAll('.filter-wrapper .chip').forEach(c => c.classList.remove('active'));
+        element.classList.add('active');
+        applyFilters();
+    }
+
+    function filterCardDropdown(cardName, cardText, element) {
+        currentCardFilter = cardName;
+        document.getElementById('selected-filter-card').innerText = cardText;
+        if(element) element.closest('.custom-dropdown').classList.remove('active');
+        applyFilters();
+    }
+    
+    function filterMonth(monthStr) {
+        currentMonthFilter = monthStr;
+        if(monthStr) {
+            const [y, m] = monthStr.split('-');
+            const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+            document.getElementById('header-subtitle').innerText = `ข้อมูลเดือน ${thaiMonths[parseInt(m)-1]} ${y}`;
+        } else {
+            document.getElementById('header-subtitle').innerText = 'ข้อมูลทั้งหมด';
+        }
+        applyFilters();
+    }
+
+    function applyFilters() {
+        let filtered = allDataGlobal;
+        if (currentMonthFilter) {
+            const [targetYear, targetMonth] = currentMonthFilter.split('-');
+            filtered = filtered.filter(item => {
+                if(!item.timestamp) return false;
+                const dateObj = new Date(item.timestamp);
+                return dateObj.getFullYear() == targetYear && (dateObj.getMonth() + 1) == targetMonth;
+            });
+        }
+        if (currentOwnerFilter !== 'all') {
+            filtered = filtered.filter(item => item.owner === currentOwnerFilter || item.owner === 'หารครึ่ง');
+        }
+        if (currentCardFilter !== 'all') {
+            filtered = filtered.filter(item => item.paymentMethod === currentCardFilter);
+        }
+        renderDashboard(filtered);
+    }
+
+    function renderDashboard(items) {
+        let totalTal = 0; let totalTuk = 0; let totalFuel = 0; let totalGasLiters = 0;
+        let totalBilled = 0; let totalPending = 0;
+        let fuelHTML = ''; let installHTML = '';
+        const today = new Date();
+        const todayTime = today.getTime();
+
+        const reversedItems = [...items].reverse();
+
+        let groupedByDueDate = {};
+        const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+
+        reversedItems.forEach(item => {
+            const amt = Number(item.amount) || 0;
+            
+            if(item.owner === 'ตาล') { totalTal += amt; } 
+            else if(item.owner === 'ตั๊ก') { totalTuk += amt; } 
+            else if(item.owner === 'หารครึ่ง') { totalTal += (amt / 2); totalTuk += (amt / 2); }
+
+            let groupKey = 'ยอดเงินสด / รูดแล้วจ่ายทันที';
+            if (item.paymentMethod !== 'เงินสด' && item.calculatedDueDate) {
+                let d = new Date(item.calculatedDueDate);
+                groupKey = `รอบบิลชำระ: ${d.getDate()} ${thaiMonths[d.getMonth()]} ${d.getFullYear()}`;
+                
+                const dueTime = d.getTime();
+                const daysDiff = (dueTime - todayTime) / (1000 * 3600 * 24);
+                if (daysDiff <= 20 && daysDiff >= -10) { totalBilled += amt; } 
+                else { totalPending += amt; }
+            } else if (item.paymentMethod !== 'เงินสด') {
+                groupKey = `รอบบิลชำระ: ยังไม่ระบุวันตัดรอบ`;
+                totalPending += amt;
+            }
+
+            if(!groupedByDueDate[groupKey]) groupedByDueDate[groupKey] = { total: 0, html: '' };
+            groupedByDueDate[groupKey].total += amt;
+
+            const dateStr = item.timestamp ? new Date(item.timestamp).toLocaleDateString('th-TH', {day: '2-digit', month: 'short'}) : '';
+            groupedByDueDate[groupKey].html += `
+                <div class="list-item" style="padding: 12px 0;">
+                    <div>
+                        <div style="font-weight:600; font-size:14px;">${item.note || 'ไม่ระบุรายการ'} <span style="font-size:10px; color:var(--text-muted); margin-left:4px; font-weight:400;">(รูด ${dateStr})</span></div>
+                        <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">${item.paymentMethod} • ส่วนของ <span style="font-weight:600; color:var(--text-main);">${item.owner}</span></div>
+                    </div>
+                    <div style="font-weight:700; font-size:16px;">${amt.toLocaleString()} ฿</div>
+                </div>`;
+
+            if(item.category === 'fuel' || item.category === 'gas' || item.category === 'oil') {
+                totalFuel += amt;
+                let fuelTypeBadge = (item.category === 'gas') ? 'เติมแก๊ส' : 'เติมน้ำมัน';
+                let gasInfo = ''; let kmlInfo = '';
+                
+                if (item.category === 'gas' && item.gasLiters) {
+                    totalGasLiters += Number(item.gasLiters);
+                    gasInfo = `<span style="color:var(--info); margin-left: 8px;"><i class="bi bi-droplet-fill"></i> ${item.gasLiters} ลิตร</span>`;
+                }
+
+                // ดึงค่า กม./ลิตร ที่ระบบแอบคำนวณไว้มาแสดง
+                if (item._calculatedKml) {
+                    kmlInfo = `<span style="color:#10B981; font-weight: 600; font-size:12px; margin-left: 8px;"><i class="bi bi-speedometer"></i> วิ่ง ${item._distance.toLocaleString()} กม. (${item._calculatedKml} กม./ลิตร)</span>`;
+                }
+
+                fuelHTML += `
+                    <div class="card" style="margin-bottom:12px; padding: 16px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <b style="font-size:18px;">${amt.toLocaleString()} ฿</b> 
+                                <span class="badge" style="margin-left:5px;">${fuelTypeBadge}</span>
+                            </div>
+                            <div style="font-size:12px; color:var(--text-muted); font-weight:500;"><i class="bi bi-speedometer2"></i> ไมล์: ${item.fuelOdometer ? Number(item.fuelOdometer).toLocaleString() : '-'}</div>
+                        </div>
+                        <div style="margin-top: 8px; font-size: 13px;">${gasInfo} ${kmlInfo}</div>
+                        <div style="font-size:11px; color:var(--text-muted); margin-top:8px;">จุดประสงค์: ${item.fuelPurpose || 'ทั่วไป'} | ${item.note || '-'} | โดย ${item.owner}</div>
+                    </div>`;
+            }
+
+            if(item.category === 'installment') {
+                const totalMonths = Number(item.installmentMonths) || 1;
+                const paidMonths = Number(item.installmentPaid) || 0;
+                const progressPercent = Math.min((paidMonths / totalMonths) * 100, 100);
+                const remainingAmt = Math.max((totalMonths - paidMonths) * amt, 0);
+                installHTML += `
+                    <div class="card" style="margin-bottom:12px;">
+                        <div style="font-weight:700; font-size:16px; display:flex; justify-content:space-between; width:100%;">
+                           <span>${item.installmentItem || 'รายการผ่อนสินค้า'}</span>
+                           <span style="color:var(--danger);">${amt.toLocaleString()} ฿/งวด</span>
+                        </div>
+                        <div class="progress-bg"><div class="progress-fill" style="width: ${progressPercent}%"></div></div>
+                        <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-muted); margin-bottom: 4px;">
+                            <div style="font-weight:500;">จ่ายแล้ว ${paidMonths}/${totalMonths} งวด</div>
+                            <div style="color:var(--text-main); font-weight:600;">เหลือ: ${remainingAmt.toLocaleString()} ฿</div>
+                        </div>
+                        <div style="font-size:11px; color:var(--text-muted);">รับผิดชอบ: ${item.owner} (ดอกเบี้ย ${item.installmentInterest || '0'}%)</div>
+                    </div>`;
+            }
+        });
+
+        let finalHistoryHTML = '';
+        for (const [groupName, groupData] of Object.entries(groupedByDueDate)) {
+            finalHistoryHTML += `
+                <div style="margin-top: 24px; margin-bottom: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border); padding-bottom: 8px;">
+                        <div style="font-weight: 700; font-size: 14px; color: var(--primary);">${groupName}</div>
+                        <div style="font-weight: 700; font-size: 14px; color: var(--danger);">รวม: ${groupData.total.toLocaleString()} ฿</div>
+                    </div>
+                    ${groupData.html}
+                </div>
+            `;
+        }
+
+        document.getElementById('display-tal-total').innerText = totalTal.toLocaleString(undefined, {maximumFractionDigits: 2});
+        document.getElementById('display-tuk-total').innerText = totalTuk.toLocaleString(undefined, {maximumFractionDigits: 2});
+        document.getElementById('display-fuel-total').innerText = totalFuel.toLocaleString();
+        document.getElementById('display-gas-liters').innerText = totalGasLiters.toFixed(2);
+        
+        if(document.getElementById('display-billed-total')) {
+            document.getElementById('display-billed-total').innerText = totalBilled.toLocaleString();
+            document.getElementById('display-pending-total').innerText = totalPending.toLocaleString();
+        }
+
+        document.getElementById('dashboard-history-list').innerHTML = finalHistoryHTML ? finalHistoryHTML : '<div style="text-align:center; color:var(--text-muted); padding:30px 0;">ไม่มีรายการประวัติ</div>';
+        document.getElementById('fuel-history-list').innerHTML = fuelHTML ? fuelHTML : '<div class="card" style="text-align:center; color:var(--text-muted); padding:30px 0; border:none;">ไม่มีข้อมูลเติมเชื้อเพลิง</div>';
+        document.getElementById('installment-list').innerHTML = installHTML ? installHTML : '<div class="card" style="text-align:center; color:var(--text-muted); padding:40px 0; border:none;">ไม่มีรายการผ่อนชำระ</div>';
+    }
+
+    function openUserDetail(owner) {
+        document.getElementById('detail-owner-title').innerText = `สรุปยอดของ ${owner}`;
+        
+        let userItems = allDataGlobal.filter(item => (item.owner === owner || item.owner === 'หารครึ่ง'));
+        if (currentMonthFilter) {
+            const [targetYear, targetMonth] = currentMonthFilter.split('-');
+            userItems = userItems.filter(item => {
+                if(!item.timestamp) return false;
+                const dateObj = new Date(item.timestamp);
+                return dateObj.getFullYear() == targetYear && (dateObj.getMonth() + 1) == targetMonth;
+            });
+        }
+        if (currentCardFilter !== 'all') {
+            userItems = userItems.filter(item => item.paymentMethod === currentCardFilter);
+        }
+
+        let html = '';
+        userItems.reverse().forEach(item => {
+            let amt = Number(item.amount) || 0;
+            if(item.owner === 'หารครึ่ง') amt = amt / 2;
+            const dateStr = item.timestamp ? new Date(item.timestamp).toLocaleDateString('th-TH', {day: '2-digit', month: 'short'}) : '';
+            
+            html += `
+                <div class="card" style="padding:16px; margin-bottom:12px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <div style="font-weight:600; font-size:15px;">${item.note || 'ซื้อสินค้า / จ่ายบริการ'}</div>
+                            <div style="font-size:12px; color:var(--text-muted); margin-top:4px; font-weight:500;">${item.paymentMethod} • ${dateStr}</div>
+                        </div>
+                        <div style="font-weight:700; font-size:16px; color:var(--text-main);">- ${amt.toLocaleString()} ฿</div>
+                    </div>
+                </div>`;
+        });
+        
+        document.getElementById('detail-owner-list').innerHTML = html || '<div style="text-align:center; color:#9ca3af; margin-top:30px;">ไม่มีรายการใช้จ่ายตามเงื่อนไขนี้</div>';
+        document.getElementById('overlay-user-detail').classList.add('active');
+    }
+
+    function closeUserDetail() { document.getElementById('overlay-user-detail').classList.remove('active'); }
+
+    function renderCardsUI(cards) {
+        let cardsHTML = ''; let dropdownHTML = '';
+        let filterDropdownHTML = '<div class="dropdown-option" onclick="filterCardDropdown(\'all\', \'ทุกบัตร\', this)">ทุกบัตร</div>';
+        const today = new Date().getDate();
+
+        cards.forEach((card) => {
+            dropdownHTML += `<div class="dropdown-option" onclick="selectOption(this, '${card.name}', 'selected-payment')">${card.name}</div>`;
+            if (card.name !== 'เงินสด') { filterDropdownHTML += `<div class="dropdown-option" onclick="filterCardDropdown('${card.name}', '${card.name}', this)">${card.name}</div>`; }
+
+            let cardStyle = 'border: 1px solid var(--border); background-color: var(--surface);';
+            let cardStatusHTML = `<div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">วันตัดยอด: ${card.cut} | ชำระ: ${card.due}</div>`;
+            
+            const cutDay = parseInt(card.cut);
+            if (!isNaN(cutDay) && card.name !== 'เงินสด') {
+                if (today >= cutDay) {
+                    cardStyle = 'border: 1px solid rgba(239, 68, 68, 0.4); background-color: #FEF2F2;';
+                    cardStatusHTML = `<div style="display: inline-block; background: var(--danger); color: white; padding: 4px 10px; border-radius: 8px; font-size: 11px; margin-top: 6px; font-weight: 600;">บิลออกแล้ว (จ่ายวันที่ ${card.due})</div>`;
+                } else {
+                    cardStatusHTML = `<div style="font-size: 12px; color: var(--text-muted); margin-top: 6px; font-weight:500;">ยังไม่ถึงวันตัดรอบ (ตัดวันที่ ${card.cut})</div>`;
+                }
+            }
+
+            if (card.name !== 'เงินสด') {
+                cardsHTML += `
+                    <div class="card" style="margin-bottom:12px; position: relative; ${cardStyle}">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <div>
+                                <div style="font-weight:700; font-size:16px; color: ${cardStyle.includes('danger') ? 'var(--danger)' : 'var(--text-main)'}">${card.name}</div>
+                                ${cardStatusHTML}
+                            </div>
+                            <div style="display:flex; flex-direction:column; align-items:flex-end; gap: 8px;">
+                                <i class="bi bi-credit-card-fill" style="font-size:24px; color: ${cardStyle.includes('danger') ? 'var(--danger)' : '#0F172A'};"></i>
+                                <div onclick="openCardForm(true, '${card.name}', '${card.cut}', '${card.due}')" style="font-size: 12px; text-decoration: underline; color: var(--text-muted); cursor: pointer; font-weight:500;">แก้ไข</div>
+                            </div>
+                        </div>
+                    </div>`;
+            }
+        });
+
+        document.getElementById('ui-cards-list').innerHTML = cardsHTML;
+        document.getElementById('payment-dropdown-options').innerHTML = dropdownHTML;
+        if (document.getElementById('filter-card-options')) {
+            document.getElementById('filter-card-options').innerHTML = filterDropdownHTML;
+        }
+    }
+
+    function calculateGasLiters() {
+        const amt = parseFloat(document.getElementById('expense-amount').value) || 0;
+        const price = parseFloat(document.getElementById('gas-price-input').value) || 0;
+        if (price > 0) { document.getElementById('gas-liters-display').value = (amt / price).toFixed(2); } 
+        else { document.getElementById('gas-liters-display').value = ''; }
+    }
+
+    function openCardForm(isEdit = false, name = '', cut = '', due = '') { 
+        isEditingCard = isEdit;
+        const formOverlay = document.getElementById('overlay-card-form');
+        document.getElementById('card-name-input').value = name;
+        document.getElementById('card-name-input').disabled = isEdit; 
+        document.getElementById('card-cut-input').value = cut !== '-' ? cut : '';
+        document.getElementById('card-due-input').value = due !== '-' ? due : '';
+        formOverlay.querySelector('.header-title').innerText = isEdit ? 'แก้ไขวันตัดรอบ/ชำระ' : 'เพิ่มบัตรใหม่ลงชีต';
+        formOverlay.classList.add('active'); 
+    }
+    
+    function closeCardForm() { document.getElementById('overlay-card-form').classList.remove('active'); }
+
+    function saveCardToSheet() {
+        const name = document.getElementById('card-name-input').value.trim();
+        const cut = document.getElementById('card-cut-input').value || '-';
+        const due = document.getElementById('card-due-input').value || '-';
+
+        if(!name) { Swal.fire({ icon: 'warning', title: 'ข้อมูลไม่ครบ', text: 'โปรดระบุชื่อบัตรก่อนบันทึกครับ!' }); return; }
+
+        const payload = { action: isEditingCard ? 'editCard' : 'addCard', cardName: name, cutDate: cut, dueDate: due };
+
+        showLoader();
+        fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
+        .then(response => response.json())
+        .then(result => {
+            if(result.status === 'success') {
+                Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ!', text: isEditingCard ? 'อัปเดตข้อมูลบัตรเรียบร้อยแล้ว' : 'เพิ่มข้อมูลบัตรลงชีตแล้วครับ', confirmButtonColor: '#0F172A' });
+                closeCardForm();
+                document.getElementById('selected-payment').innerText = name;
+                loadDataFromSheet();
+            } else { Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: result.message }); }
+        })
+        .catch(err => { Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: 'ไม่สามารถส่งข้อมูลได้' }); })
+        .finally(() => hideLoader());
+    }
+
+    function submitData() {
+        const expenseDate = document.getElementById('expense-date').value;
+        const amount = document.getElementById('expense-amount').value;
+        const paymentMethod = document.getElementById('selected-payment').innerText;
+        const owner = document.getElementById('selected-owner').innerText;
+        const note = document.getElementById('expense-note').value;
+        
+        const textCategory = document.getElementById('selected-category').innerText;
+        let category = 'general';
+        if(textCategory.includes('เติมน้ำมัน')) category = 'oil';
+        if(textCategory.includes('เติมแก๊ส')) category = 'gas';
+        if(textCategory.includes('ผ่อน')) category = 'installment';
+
+        if(!amount || Number(amount) <= 0) {
+            Swal.fire({ icon: 'warning', title: 'ระบุยอดเงินไม่ถูกต้อง', text: 'กรุณากรอกยอดเงินค่าใช้จ่ายก่อนกดบันทึกครับ' });
+            return;
+        }
+
+        const payload = {
+            expenseDate: expenseDate, amount: amount, paymentMethod: paymentMethod, owner: owner, category: category, note: note,
+            fuelOdometer: (category === 'oil' || category === 'gas') ? document.getElementById('fuel-odometer-input').value : '',
+            fuelPurpose: (category === 'oil' || category === 'gas') ? (document.getElementById('fuel-purpose-other').style.display === 'block' ? document.getElementById('fuel-purpose-other').value : document.getElementById('selected-fuel-purpose').innerText) : '',
+            gasPricePerLiter: category === 'gas' ? document.getElementById('gas-price-input').value : '',
+            gasLiters: category === 'gas' ? document.getElementById('gas-liters-display').value : '',
+            installmentItem: category === 'installment' ? document.getElementById('inst-item-input').value : '',
+            installmentMonths: category === 'installment' ? document.getElementById('inst-months-input').value : '',
+            installmentPaid: category === 'installment' ? document.getElementById('inst-paid-input').value : '', 
+            installmentInterest: category === 'installment' ? document.getElementById('inst-interest-input').value : '',
+            savedCash: document.getElementById('saveCashToggle').checked ? document.getElementById('save-cash-amount').value : ''
+        };
+
+        showLoader();
+        fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
+        .then(response => response.json())
+        .then(result => {
+            if(result.status === 'success') {
+                Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ!', text: 'ข้อมูลถูกส่งเข้าชีตเรียบร้อยแล้ว', confirmButtonColor: '#0F172A', timer: 1500 });
+                
+                document.getElementById('expense-amount').value = ''; document.getElementById('expense-note').value = '';
+                document.getElementById('fuel-odometer-input').value = ''; document.getElementById('gas-price-input').value = '';
+                document.getElementById('gas-liters-display').value = ''; document.getElementById('inst-item-input').value = '';
+                document.getElementById('inst-months-input').value = ''; document.getElementById('inst-paid-input').value = '';
+                document.getElementById('inst-interest-input').value = ''; document.getElementById('save-cash-amount').value = '';
+                document.getElementById('saveCashToggle').checked = false; document.getElementById('saveCashInputArea').style.display = 'none';
+
+                loadDataFromSheet();
+                switchPage('dashboard', document.getElementById('nav-dashboard'), 'ภาพรวมค่าใช้จ่าย', true);
+            } else { Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: result.message }); }
+        })
+        .catch(err => { Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: 'ส่งรายจ่ายไม่สำเร็จ ตรวจสอบอินเทอร์เน็ตครับ' }); })
+        .finally(() => hideLoader());
+    }
+
+    function switchPage(pageId, element, title, showFilter, loadData = true) {
+        document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
+        document.getElementById('page-' + pageId).classList.add('active');
+        
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        if(element) element.classList.add('active');
+        
+        document.getElementById('header-title').innerText = title;
+        document.getElementById('main-filter').style.display = showFilter ? 'flex' : 'none';
+        
+        localStorage.setItem('activePage', pageId);
+        localStorage.setItem('activeTitle', title);
+        localStorage.setItem('activeShowFilter', showFilter);
+
+        if(loadData && (pageId === 'dashboard' || pageId === 'fuel' || pageId === 'installment' || pageId === 'cards')) {
+            loadDataFromSheet();
+        }
+    }
+
+    function toggleDropdown(element) {
+        document.querySelectorAll('.custom-dropdown').forEach(dropdown => {
+            if (dropdown !== element.parentElement) dropdown.classList.remove('active');
+        });
+        element.parentElement.classList.toggle('active');
+    }
+
+    function selectOption(optionElement, text, targetId) {
+        document.getElementById(targetId).innerText = text;
+        optionElement.closest('.custom-dropdown').classList.remove('active');
+    }
+
+    function selectCategory(optionElement, value, text) {
+        selectOption(optionElement, text, 'selected-category');
+        document.getElementById('dynamic-fuel').style.display = (value === 'oil' || value === 'gas') ? 'block' : 'none';
+        document.getElementById('dynamic-gas-calc').style.display = (value === 'gas') ? 'flex' : 'none';
+        document.getElementById('dynamic-installment').style.display = (value === 'installment') ? 'block' : 'none';
+    }
+
+    function selectFuelPurpose(optionElement, text) {
+        selectOption(optionElement, text, 'selected-fuel-purpose');
+        const otherInput = document.getElementById('fuel-purpose-other');
+        if (text === 'อื่นๆ (โปรดระบุ)') { otherInput.style.display = 'block'; otherInput.focus(); } 
+        else { otherInput.style.display = 'none'; }
+    }
+
+    function toggleSaveCash() {
+        const isChecked = document.getElementById('saveCashToggle').checked;
+        document.getElementById('saveCashInputArea').style.display = isChecked ? 'block' : 'none';
+    }
+
+    document.addEventListener('click', function(event) {
+        if (!event.target.closest('.custom-dropdown')) {
+            document.querySelectorAll('.custom-dropdown').forEach(d => d.classList.remove('active'));
+        }
+    });
+</script>
+
+</body>
+</html>
